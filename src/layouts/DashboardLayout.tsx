@@ -6,7 +6,6 @@ import {
   DashboardOutlined,
   UserOutlined,
   CalendarOutlined,
-  FileTextOutlined,
   LogoutOutlined,
   TeamOutlined, // 🚀 Icono para psicólogos
   HeartTwoTone,
