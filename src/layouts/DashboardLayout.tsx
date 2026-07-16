@@ -7,10 +7,11 @@ import {
   UserOutlined,
   CalendarOutlined,
   LogoutOutlined,
-  TeamOutlined, // 🚀 Icono para psicólogos
+  TeamOutlined, 
   HeartTwoTone,
+  ScheduleOutlined, // 🚀 Importamos el icono ideal para la Agenda
 } from '@ant-design/icons';
-import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom'; // 🚀 Agregado Navigate para evitar errores
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom'; 
 import { useAuth } from '../hooks/useAuth';
 
 const { Header, Sider, Content } = Layout;
@@ -31,12 +32,11 @@ const DashboardLayout: React.FC = () => {
     navigate('/login');
   };
 
-  // Redirigir si no hay usuario logueado para proteger la ruta
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // 🎯 FILTRADO DINÁMICO DE MENÚ SEGÚN EL ROL
+  // 🎯 FILTRADO DINÁMICO DE MENÚ SEGÚN EL ROL (Actualizado con Agenda)
   const menuItems = [
     {
       key: '/dashboard',
@@ -68,6 +68,16 @@ const DashboardLayout: React.FC = () => {
       icon: <CalendarOutlined style={{ fontSize: '16px' }} />,
       label: 'Citas',
     },
+    // 🚀 NUEVO ACCESO A AGENDA (Solo visible para ADMIN y PSICOLOGO)
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO'
+      ? [
+          {
+            key: '/dashboard/agenda',
+            icon: <ScheduleOutlined style={{ fontSize: '16px' }} />,
+            label: 'Mi Agenda',
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -77,7 +87,7 @@ const DashboardLayout: React.FC = () => {
         trigger={null}
         collapsible
         collapsed={collapsed}
-        theme="light" // Fondo claro súper corporativo y limpio
+        theme="light" 
         width={250}
         style={{
           borderRight: '1px solid #f0f0f0',

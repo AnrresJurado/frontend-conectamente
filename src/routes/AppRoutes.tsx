@@ -4,7 +4,9 @@ import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import Dashboard from '../pages/admin/Dashboard';
 import Pacientes from '../pages/admin/Pacientes';
-import Psicologos from '../pages/admin/Psicologos'; // 🚀 Importamos tu nueva pantalla
+import Psicologos from '../pages/admin/Psicologos'; 
+import Citas from '../pages/admin/Citas'; 
+import Agenda from '../pages/admin/Agenda'; // 🚀 Importamos tu nueva pantalla de Agenda
 import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from '../layouts/DashboardLayout';
 
@@ -26,6 +28,8 @@ const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'PSICOLOGO']} />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard/pacientes" element={<Pacientes />} />
+          <Route path="/dashboard/citas" element={<Citas />} /> 
+          <Route path="/dashboard/agenda" element={<Agenda />} /> {/* 🚀 Registramos la ruta protegida de la Agenda */}
         </Route>
       </Route>
 
