@@ -7,6 +7,7 @@ import Home from '../pages/public/Home';
 import Login from '../pages/public/Login';
 import Dashboard from '../pages/admin/Dashboard';
 import Pacientes from '../pages/admin/Pacientes';
+import Register from "../pages/public/Register";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -29,7 +30,11 @@ const AppRoutes: React.FC = () => {
 
       {/* Redirección por defecto */}
       <Route path="*" element={<Navigate to="/" replace />} />
+
+
+      <Route path="/registro" element={<Register />} />
     </Routes>
+
   );
 };
 
