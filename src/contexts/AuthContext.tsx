@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import api from '../api/axiosConfig';
+import { jwtDecode } from 'jwt-decode'; // 🚀 Importación para decodificar el payload del JWT
 
 // Interfaz del Usuario según los roles de tu backend
 export interface Usuario {
@@ -40,11 +41,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
-    const { data } = await api.post<{ accessToken: string; usuario: Usuario }>('/auth/login', { email, password });
+    // 1. Enviamos la petición POST al backend
+    const { data } = await api.post<any>('/auth/login', { email, password });
     
-    localStorage.setItem('token', data.accessToken);
-    localStorage.setItem('user', JSON.stringify(data.usuario));
-    setUser(data.usuario);
+    // 2. Extraemos el token adaptándonos a lo que responda tu NestJS
+    const token = data.accessToken || data.token || data;
+    
+    if (!token) {
+      throw new Error('No se recibió un token válido del servidor.');
+    }
+
+    // 3. Decodificamos el payload real del JWT firmado por NestJS
+    const decoded: any = jwtDecode(token);
+
+    // 4. Mapeamos las propiedades reales de tu JWT (ajustando a los nombres que envía tu backend en el Payload)
+    const usuarioReal: Usuario = {
+      id: decoded.sub || decoded.id || '1',
+      email: decoded.email || email,
+      nombre: decoded.nombre || 'Usuario',
+      apellido: decoded.apellido || 'Registrado',
+      rol: decoded.rol || 'PACIENTE', // Extrae dinámicamente: PACIENTE, ADMIN o PSICOLOGO
+    };
+    
+    // 5. Guardamos de forma segura en el almacenamiento local
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(usuarioReal));
+    
+    // 6. Seteamos el estado global
+    setUser(usuarioReal);
   };
 
   const logout = (): void => {

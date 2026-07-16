@@ -6,6 +6,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        {/* 🚀 ¡AppRoutes DEBE estar adentro de BrowserRouter y AuthProvider obligatoriamente! */}
         <AppRoutes />
       </AuthProvider>
     </BrowserRouter>

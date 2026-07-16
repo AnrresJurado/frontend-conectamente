@@ -1,21 +1,46 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Form, Input, Button, Alert, Row, Col } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { Form, Input, Button, Alert, Row, Col, message } from "antd";
+import api from "../../api/axiosConfig";
 
 const Register: React.FC = () => {
+  const navigate = useNavigate();
   const [tipoUsuario, setTipoUsuario] = useState<"PACIENTE" | "PSICOLOGO" | null>(null);
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
 
-  const onFinish = (values: any) => {
+  const onFinish = async (values: any) => {
     setError("");
 
     if (!tipoUsuario) {
-      setError("Por favor, selecciona el tipo de cuenta.");
+      setError("Por favor, selecciona el tipo de cuenta (Paciente o Psicólogo).");
       return;
     }
 
-    alert(`Registro exitoso como ${tipoUsuario}\nEmail: ${values.email}`);
+    setLoading(true);
+    try {
+      // Petición real al backend mandando el rol seleccionado dinámicamente
+      await api.post("/usuarios", {
+        nombre: values.nombre,
+        apellido: values.apellido,
+        email: values.email,
+        password: values.password,
+        rol: tipoUsuario,
+      });
+
+      message.success("¡Cuenta creada con éxito! Ya puedes iniciar sesión.");
+      navigate("/login");
+    } catch (err: any) {
+      console.error(err);
+      if (err.response && err.response.status === 409) {
+        setError("El correo electrónico ya está registrado en la plataforma.");
+      } else {
+        setError("Error al comunicarse con el servidor. Inténtalo más tarde.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,6 +86,7 @@ const Register: React.FC = () => {
             <div style={styles.roles}>
               <Button
                 type="default"
+                disabled={loading}
                 style={{
                   ...styles.roleButton,
                   background: tipoUsuario === "PACIENTE" ? "#1d5863" : "#ffffff",
@@ -74,6 +100,7 @@ const Register: React.FC = () => {
 
               <Button
                 type="default"
+                disabled={loading}
                 style={{
                   ...styles.roleButton,
                   background: tipoUsuario === "PSICOLOGO" ? "#1d5863" : "#ffffff",
@@ -86,7 +113,7 @@ const Register: React.FC = () => {
               </Button>
             </div>
 
-            {/* Alerta de Error de Ant Design */}
+            {/* Alerta de Error */}
             {error && (
               <Alert
                 message={error}
@@ -96,7 +123,7 @@ const Register: React.FC = () => {
               />
             )}
 
-            {/* Formulario de Ant Design */}
+            {/* Formulario */}
             <Form
               form={form}
               layout="vertical"
@@ -109,7 +136,7 @@ const Register: React.FC = () => {
                 rules={[{ required: true, message: "Ingresa tu nombre" }]}
                 style={{ marginBottom: 14 }}
               >
-                <Input placeholder="Nombres" style={styles.antdInput} />
+                <Input placeholder="Nombres" style={styles.antdInput} disabled={loading} />
               </Form.Item>
 
               <Form.Item
@@ -117,7 +144,7 @@ const Register: React.FC = () => {
                 rules={[{ required: true, message: "Ingresa tu apellido" }]}
                 style={{ marginBottom: 14 }}
               >
-                <Input placeholder="Apellidos" style={styles.antdInput} />
+                <Input placeholder="Apellidos" style={styles.antdInput} disabled={loading} />
               </Form.Item>
 
               <Form.Item
@@ -128,15 +155,18 @@ const Register: React.FC = () => {
                 ]}
                 style={{ marginBottom: 14 }}
               >
-                <Input placeholder="Correo electrónico" style={styles.antdInput} />
+                <Input placeholder="Correo electrónico" style={styles.antdInput} disabled={loading} />
               </Form.Item>
 
               <Form.Item
                 name="password"
-                rules={[{ required: true, message: "Ingresa una contraseña" }]}
+                rules={[
+                  { required: true, message: "Ingresa una contraseña" },
+                  { min: 8, message: "La contraseña debe tener al menos 8 caracteres" }
+                ]}
                 style={{ marginBottom: 14 }}
               >
-                <Input.Password placeholder="Contraseña" style={styles.antdInput} />
+                <Input.Password placeholder="Contraseña" style={styles.antdInput} disabled={loading} />
               </Form.Item>
 
               <Form.Item
@@ -155,17 +185,22 @@ const Register: React.FC = () => {
                   }),
                 ]}
               >
-                <Input.Password placeholder="Confirmar contraseña" style={styles.antdInput} />
+                <Input.Password placeholder="Confirmar contraseña" style={styles.antdInput} disabled={loading} />
               </Form.Item>
 
               <Form.Item style={{ marginBottom: 0 }}>
                 <Button
                   type="primary"
                   htmlType="submit"
-                  style={styles.button}
+                  style={{
+                    ...styles.button,
+                    opacity: loading ? 0.7 : 1,
+                    cursor: loading ? "not-allowed" : "pointer"
+                  }}
+                  loading={loading}
                   block
                 >
-                  Crear cuenta
+                  {loading ? "Creando cuenta..." : "Crear cuenta"}
                 </Button>
               </Form.Item>
             </Form>
@@ -193,7 +228,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 
   leftPanel: {
-    // Gradiente oscuro + Imagen sutil de fondo de bosque/niebla para transmitir paz mental
     background: "linear-gradient(rgba(29, 88, 99, 0.9), rgba(15, 45, 51, 0.92)), url('https://terapygo.com/wp-content/uploads/2020/02/bienestarmental-thegem-blog-timeline-large.jpg')",
     backgroundSize: "cover",
     backgroundPosition: "center",
@@ -209,8 +243,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 800,
     color: "#ffffff",
     marginBottom: 20,
-    letterSpacing: "0.5px", // Mayor separación de letras
-    lineHeight: "1.3" // Evita que se encimen los renglones
+    letterSpacing: "0.5px",
+    lineHeight: "1.3"
   },
 
   description: {
@@ -219,7 +253,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: 500,
     color: "#d8eeee",
     marginBottom: 40,
-    letterSpacing: "0.3px" // Letra más legible y espaciada
+    letterSpacing: "0.3px"
   },
 
   cards: {
@@ -229,8 +263,8 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   infoCard: {
     flex: 1,
-    background: "rgba(255, 255, 255, 0.08)", // Más sutil
-    backdropFilter: "blur(4px)", // Agrega un ligero desenfoque elegante
+    background: "rgba(255, 255, 255, 0.08)",
+    backdropFilter: "blur(4px)",
     padding: "20px",
     borderRadius: 16,
     display: "flex",
@@ -326,7 +360,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: 30,
     fontSize: 16,
     fontWeight: 700,
-    cursor: "pointer",
     fontFamily: "inherit",
     letterSpacing: "0.5px"
   },
