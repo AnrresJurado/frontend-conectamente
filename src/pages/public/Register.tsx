@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Input, Button, Alert, Row, Col, message } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import api from "../../api/axiosConfig";
+import Logo from "../../components/Logo";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -20,7 +22,6 @@ const Register: React.FC = () => {
 
     setLoading(true);
     try {
-      // Petición real al backend mandando el rol seleccionado dinámicamente
       await api.post("/usuarios", {
         nombre: values.nombre,
         apellido: values.apellido,
@@ -46,38 +47,59 @@ const Register: React.FC = () => {
   return (
     <div style={styles.page}>
       <Row style={{ width: "100%", minHeight: "100vh" }}>
-        
+
         {/* PANEL IZQUIERDO */}
         <Col xs={0} md={12} style={styles.leftPanel}>
+          <div style={styles.decorCircleTop} />
+          <div style={styles.decorCircleBottom} />
 
-          <h1 style={styles.mainTitle}>Únete a nuestra comunidad</h1>
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate("/")}
+            style={styles.backButtonLeft}
+          >
+            Volver al inicio
+          </Button>
 
-          <p style={styles.description}>
-            Crea tu cuenta y accede a una plataforma diseñada para conectar pacientes 
-            y profesionales de la salud mental.
-          </p>
-
-          <div style={styles.cards}>
-            <div style={styles.infoCard}>
-              <span style={{ fontSize: "24px" }}>🧑‍🤝‍🧑</span>
-              <strong style={styles.cardTitle}>Paciente</strong>
-              <span style={styles.cardText}>
-                Encuentra apoyo psicológico y agenda tus sesiones.
-              </span>
+          <div style={styles.leftContent}>
+            <div style={{ marginBottom: 44 }}>
+              <Logo size={44} textColor="#ffffff" accentColor="#a8dde2" onClick={() => navigate("/")} />
             </div>
 
-            <div style={styles.infoCard}>
-              <span style={{ fontSize: "24px" }}>🧠</span>
-              <strong style={styles.cardTitle}>Psicólogo</strong>
-              <span style={styles.cardText}>
-                Ofrece tus servicios y acompaña nuevos pacientes.
-              </span>
+            <h1 style={styles.mainTitle}>Únete a nuestra comunidad</h1>
+
+            <p style={styles.description}>
+              Crea tu cuenta y accede a una plataforma diseñada para conectar pacientes
+              y profesionales de la salud mental.
+            </p>
+
+            <div style={styles.cards}>
+              <div style={styles.infoCard}>
+                <span style={{ fontSize: "22px" }}>🧑‍🤝‍🧑</span>
+                <strong style={styles.cardTitle}>Paciente</strong>
+                <span style={styles.cardText}>
+                  Encuentra apoyo psicológico y agenda tus sesiones.
+                </span>
+              </div>
+
+              <div style={styles.infoCard}>
+                <span style={{ fontSize: "22px" }}>🩺</span>
+                <strong style={styles.cardTitle}>Psicólogo</strong>
+                <span style={styles.cardText}>
+                  Ofrece tus servicios y acompaña nuevos pacientes.
+                </span>
+              </div>
             </div>
           </div>
         </Col>
 
         {/* PANEL DERECHO (FORMULARIO) */}
         <Col xs={24} md={12} style={styles.rightPanel}>
+
+          {/* Botón visible en mobile, donde el panel izquierdo se oculta */}
+          
+
           <div style={styles.formCard}>
             <h2 style={styles.title}>Crear cuenta</h2>
             <p style={styles.subtitle}>Selecciona cómo deseas registrarte</p>
@@ -91,7 +113,7 @@ const Register: React.FC = () => {
                   ...styles.roleButton,
                   background: tipoUsuario === "PACIENTE" ? "#1d5863" : "#ffffff",
                   color: tipoUsuario === "PACIENTE" ? "#ffffff" : "#1d5863",
-                  borderColor: "#1d5863",
+                  borderColor: tipoUsuario === "PACIENTE" ? "#1d5863" : "#cbd5e1",
                 }}
                 onClick={() => setTipoUsuario("PACIENTE")}
               >
@@ -105,32 +127,29 @@ const Register: React.FC = () => {
                   ...styles.roleButton,
                   background: tipoUsuario === "PSICOLOGO" ? "#1d5863" : "#ffffff",
                   color: tipoUsuario === "PSICOLOGO" ? "#ffffff" : "#1d5863",
-                  borderColor: "#1d5863",
+                  borderColor: tipoUsuario === "PSICOLOGO" ? "#1d5863" : "#cbd5e1",
                 }}
                 onClick={() => setTipoUsuario("PSICOLOGO")}
               >
-                🧠 Psicólogo
+                🩺 Psicólogo
               </Button>
             </div>
 
-            {/* Alerta de Error */}
             {error && (
               <Alert
                 message={error}
                 type="error"
                 showIcon
-                style={{ marginBottom: 20, borderRadius: 10 }}
+                style={{ marginBottom: 20, borderRadius: 14 }}
               />
             )}
 
-            {/* Formulario */}
             <Form
               form={form}
               layout="vertical"
               onFinish={onFinish}
               requiredMark={false}
             >
-              
               <Form.Item
                 name="nombre"
                 rules={[{ required: true, message: "Ingresa tu nombre" }]}
@@ -223,14 +242,14 @@ const styles: { [key: string]: React.CSSProperties } = {
   page: {
     minHeight: "100vh",
     display: "flex",
-    fontFamily: "'Montserrat', 'Inter', system-ui, -apple-system, sans-serif",
-    background: "#eef7f7"
+    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    background: "#f4f9f9"
   },
 
   leftPanel: {
-    background: "linear-gradient(rgba(29, 88, 99, 0.9), rgba(15, 45, 51, 0.92)), url('https://terapygo.com/wp-content/uploads/2020/02/bienestarmental-thegem-blog-timeline-large.jpg')",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
+    position: "relative",
+    overflow: "hidden",
+    background: "linear-gradient(160deg, #1d5863 0%, #164048 100%)",
     padding: "70px",
     color: "#ffffff",
     display: "flex",
@@ -238,27 +257,70 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "center"
   },
 
+  decorCircleTop: {
+    position: "absolute",
+    top: -120,
+    right: -120,
+    width: 320,
+    height: 320,
+    borderRadius: "50%",
+    background: "rgba(77, 166, 176, 0.18)",
+  },
+
+  decorCircleBottom: {
+    position: "absolute",
+    bottom: -140,
+    left: -100,
+    width: 300,
+    height: 300,
+    borderRadius: "50%",
+    background: "rgba(255, 255, 255, 0.05)",
+  },
+
+  backButtonLeft: {
+    position: "absolute",
+    top: 24,
+    left: 24,
+    zIndex: 2,
+    color: "#ffffff",
+    fontWeight: 500,
+  },
+
+  backButtonRight: {
+    position: "absolute",
+    top: 24,
+    left: 24,
+    zIndex: 2,
+    color: "#1d5863",
+    fontWeight: 500,
+  },
+
+  leftContent: {
+    position: "relative",
+    zIndex: 1,
+    maxWidth: 480,
+  },
+
   mainTitle: {
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     fontSize: 40,
     fontWeight: 800,
     color: "#ffffff",
-    marginBottom: 20,
-    letterSpacing: "0.5px",
-    lineHeight: "1.3"
+    marginBottom: 18,
+    letterSpacing: "-1px",
+    lineHeight: 1.2
   },
 
   description: {
-    fontSize: 17,
+    fontSize: 16.5,
     lineHeight: 1.8,
-    maxWidth: 500,
-    color: "#d8eeee",
-    marginBottom: 40,
-    letterSpacing: "0.3px"
+    color: "#c8e6e9",
+    marginBottom: 36,
   },
 
   cards: {
     display: "flex",
-    gap: 20
+    gap: 16,
   },
 
   infoCard: {
@@ -266,17 +328,18 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: "rgba(255, 255, 255, 0.08)",
     backdropFilter: "blur(4px)",
     padding: "20px",
-    borderRadius: 16,
+    borderRadius: 18,
     display: "flex",
     flexDirection: "column",
-    border: "1px solid rgba(255, 255, 255, 0.1)"
+    border: "1px solid rgba(255, 255, 255, 0.12)"
   },
 
   cardTitle: {
-    fontSize: "16px",
-    marginTop: "8px",
-    letterSpacing: "0.5px",
-    fontWeight: 700
+    fontSize: "15px",
+    marginTop: "10px",
+    letterSpacing: "0.2px",
+    fontWeight: 700,
+    color: "#ffffff",
   },
 
   cardText: {
@@ -284,52 +347,54 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#d8eeee",
     marginTop: "6px",
     lineHeight: "1.5",
-    letterSpacing: "0.2px"
   },
 
   rightPanel: {
+    position: "relative",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: 40
+    padding: 40,
+    background: "#f4f9f9",
   },
 
   formCard: {
     background: "#ffffff",
-    padding: "45px 35px",
-    borderRadius: 22,
+    padding: "48px 40px",
+    borderRadius: 24,
     width: "100%",
     maxWidth: 440,
-    boxShadow: "0 15px 40px rgba(0,0,0,.08)"
+    boxShadow: "0 20px 50px rgba(29, 88, 99, 0.08)",
+    border: "1px solid #eef2f2",
   },
 
   title: {
     color: "#1d5863",
-    fontSize: 30,
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    fontSize: 28,
     fontWeight: 800,
     margin: 0,
     textAlign: "center",
-    letterSpacing: "0.5px"
   },
 
   subtitle: {
     color: "#64748b",
     textAlign: "center",
-    marginTop: 5,
-    marginBottom: 20,
-    letterSpacing: "0.2px"
+    marginTop: 6,
+    marginBottom: 24,
+    fontSize: 15,
   },
 
   roles: {
     display: "flex",
     gap: 12,
-    marginBottom: 25
+    marginBottom: 24
   },
 
   roleButton: {
     flex: 1,
-    height: "45px",
-    borderRadius: 12,
+    height: "46px",
+    borderRadius: 23,
     fontWeight: 700,
     fontFamily: "inherit",
     display: "flex",
@@ -337,46 +402,42 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     fontSize: "14px",
     transition: "all 0.2s ease",
-    letterSpacing: "0.3px"
   },
 
   antdInput: {
-    padding: "11px 16px",
-    borderRadius: 10,
+    padding: "12px 18px",
+    borderRadius: 25,
     fontSize: 15,
     color: "#000000",
     textAlign: "left",
     background: "#f8fafc",
     fontFamily: "inherit",
     border: "1px solid #cbd5e1",
-    letterSpacing: "0.2px"
   },
 
   button: {
-    background: "#1d5863",
-    borderColor: "#1d5863",
+    background: "#00838f",
+    borderColor: "#00838f",
     color: "#ffffff",
-    height: "48px",
-    borderRadius: 30,
+    height: "50px",
+    borderRadius: 25,
     fontSize: 16,
     fontWeight: 700,
     fontFamily: "inherit",
-    letterSpacing: "0.5px"
+    boxShadow: "0 8px 20px rgba(0, 131, 143, 0.3)",
   },
 
   loginText: {
     textAlign: "center",
     color: "#64748b",
-    marginTop: 25,
+    marginTop: 26,
     fontSize: "14px",
-    letterSpacing: "0.2px"
   },
 
   link: {
     color: "#1d5863",
     fontWeight: 700,
     textDecoration: "none",
-    letterSpacing: "0.2px"
   }
 };
 

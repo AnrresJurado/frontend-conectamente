@@ -19,29 +19,21 @@ import {
   FolderOpenOutlined,
   MailOutlined,
   EnvironmentOutlined,
-  SendOutlined,
   InstagramOutlined,
   FacebookOutlined,
   LinkedinOutlined
 } from "@ant-design/icons";
+import Logo from "../../components/Logo";
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
-const { TextArea } = Input;
 
 const Home = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
 
   const handleSearch = () => {
     alert(`Buscando recursos para: ${searchQuery}`);
-  };
-
-  const handleContactSubmit = (e) => {
-    e.preventDefault();
-    alert(`Gracias por escribirnos, ${contactForm.name}. Nos pondremos en contacto contigo pronto.`);
-    setContactForm({ name: "", email: "", message: "" });
   };
 
   return (
@@ -63,22 +55,7 @@ const Home = () => {
         }}
       >
         {/* LOGO */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 28 }}>🧠</span>
-          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
-            <span
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                color: "#1d5863",
-                fontSize: 20,
-                fontWeight: 800,
-                letterSpacing: "-0.5px"
-              }}
-            >
-              ConectaMente
-            </span>
-          </div>
-        </div>
+        <Logo size={40} onClick={() => navigate("/")} />
 
         {/* MENU */}
         <Menu
@@ -94,11 +71,10 @@ const Home = () => {
             lineHeight: "80px",
           }}
           items={[
-            { key: "inicio", label: <span style={{ color: "#1d5863" }}>Inicio</span> },
             { key: "servicios", label: <span style={{ color: "#4a5568" }}>Servicios</span> },
             { key: "recursos", label: <span style={{ color: "#4a5568" }}>Recursos</span> },
-            { key: "profesionales", label: <span style={{ color: "#4a5568" }}>Profesionales</span> },
-            { key: "contacto", label: <span style={{ color: "#4a5568" }}>Contacto</span> }
+            { key: "profesionales", label: <span onClick={() => navigate("/profesionales")} style={{ color: "#4a5568", cursor: "pointer" }}>Profesionales</span> },
+            { key: "contacto", label: <span onClick={() => navigate("/contacto")} style={{ color: "#4a5568", cursor: "pointer" }}>Contacto</span> },
           ]}
         />
 
@@ -341,47 +317,47 @@ const Home = () => {
 
       </Content>
 
-      {/* ================= FOOTER & SECCIÓN DE CONTACTO ================= */}
-      <Footer style={{ background: "#1d5863", color: "#ffffff", padding: "80px 60px 30px" }}>
-        <Row gutter={[48, 40]} justify="space-between">
-          
-          {/* Columna Marca (Ancho 10 para equilibrar al quitar los enlaces) */}
-          <Col xs={24} md={10}>
-            <Title 
-              level={2} 
-              style={{ 
-                color: "#ffffff", 
-                margin: 0, 
-                fontWeight: 800 
-              }}
-            >
-              ConectaMente
-            </Title>
+      {/* ================= FOOTER (simplificado) ================= */}
+      <Footer style={{ background: "#1d5863", color: "#ffffff", padding: "60px 60px 30px" }}>
+        <Row gutter={[40, 32]} justify="space-between">
+
+          {/* Columna Marca */}
+          <Col xs={24} md={12}>
+            
 
             <Paragraph 
               style={{ 
                 color: "#bce3e6", 
                 marginTop: 16, 
                 fontSize: 15, 
-                lineHeight: 1.7 
+                lineHeight: 1.7,
+                maxWidth: 420,
               }}
             >
               Plataforma digital que conecta pacientes y profesionales de la salud mental,
               ofreciendo un espacio seguro para la atención psicológica y el acompañamiento emocional.
             </Paragraph>
 
-            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 12 }}>
-              <span 
-                style={{ 
-                  color: "#bce3e6", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  gap: 10 
-                }}
+            {/* Redes sociales */}
+            <div style={{ marginTop: 25 }}>
+              
+            </div>
+          </Col>
+
+          {/* Columna Contacto */}
+          <Col xs={24} md={10}>
+            <Title level={5} style={{ color: "#ffffff", marginTop: 0, marginBottom: 16, fontWeight: 700 }}>
+              Contacto
+            </Title>
+
+            <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 12 }}>
+              <a
+                href="mailto:conectaMente@gmail.com"
+                style={{ color: "#bce3e6", display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}
               >
                 <MailOutlined style={{ color:"#4da6b0", fontSize:18 }} />
-                contacto@conectamente.com
-              </span>
+                conectaMente@gmail.com
+              </a>
 
               <span 
                 style={{ 
@@ -396,123 +372,15 @@ const Home = () => {
               </span>
             </div>
 
-            {/* Redes sociales */}
-            <div style={{ marginTop: 25 }}>
-              <span style={{ color:"#bce3e6", marginRight: 15 }}>
-                Síguenos:
+            <Paragraph style={{ color: "#bce3e6", fontSize: 14, marginTop: 20, marginBottom: 8 }}>
+              ¿Tienes dudas sobre la plataforma?{" "}
+              <span
+                onClick={() => navigate("/contacto")}
+                style={{ color: "#ffffff", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
+              >
+                Escríbenos aquí
               </span>
-
-              <InstagramOutlined 
-                style={{ 
-                  color:"#ffffff", 
-                  fontSize: 22, 
-                  marginRight: 15,
-                  cursor:"pointer"
-                }} 
-              />
-
-              <FacebookOutlined 
-                style={{ 
-                  color:"#ffffff", 
-                  fontSize: 22,
-                  marginRight: 15,
-                  cursor:"pointer"
-                }} 
-              />
-
-              <LinkedinOutlined 
-                style={{ 
-                  color:"#ffffff", 
-                  fontSize: 22,
-                  cursor:"pointer"
-                }} 
-              />
-            </div>
-          </Col>
-
-          {/* Columna Formulario (Ancho 12 para dar una visual limpia e imponente) */}
-          <Col xs={24} lg={12}>
-            <div style={styles.contactFormContainer}>
-              <Title 
-                level={4} 
-                style={{
-                  color: "#1d5863",
-                  margin: "0 0 8px",
-                  fontWeight: 700
-                }}
-              >
-                Contáctanos
-              </Title>
-
-              <Paragraph style={{ color: "#64748b" }}>
-                ¿Tienes dudas sobre la plataforma? Déjanos un mensaje y nos pondremos en contacto contigo.
-              </Paragraph>
-
-              <form 
-                onSubmit={handleContactSubmit}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12
-                }}
-              >
-                <Row gutter={12}>
-                  <Col xs={24} sm={12}>
-                    <Input
-                      placeholder="Tu nombre"
-                      required
-                      value={contactForm.name}
-                      onChange={(e)=>
-                        setContactForm({
-                          ...contactForm,
-                          name: e.target.value
-                        })
-                      }
-                      style={styles.formInput}
-                    />
-                  </Col>
-
-                  <Col xs={24} sm={12}>
-                    <Input
-                      type="email"
-                      placeholder="Tu correo"
-                      required
-                      value={contactForm.email}
-                      onChange={(e)=>
-                        setContactForm({
-                          ...contactForm,
-                          email: e.target.value
-                        })
-                      }
-                      style={styles.formInput}
-                    />
-                  </Col>
-                </Row>
-
-                <TextArea
-                  rows={3}
-                  placeholder="Escribe tu mensaje..."
-                  required
-                  value={contactForm.message}
-                  onChange={(e)=>
-                    setContactForm({
-                      ...contactForm,
-                      message: e.target.value
-                    })
-                  }
-                  style={styles.formTextArea}
-                />
-
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<SendOutlined />}
-                  style={styles.formButton}
-                >
-                  Enviar Mensaje
-                </Button>
-              </form>
-            </div>
+            </Paragraph>
           </Col>
 
         </Row>
@@ -520,7 +388,7 @@ const Home = () => {
         {/* Copyright */}
         <div
           style={{
-            marginTop: 60,
+            marginTop: 50,
             paddingTop: 25,
             borderTop: "1px solid rgba(255,255,255,0.2)",
             textAlign: "center",
@@ -537,17 +405,17 @@ const Home = () => {
 };
 
 // --- ESTILOS EN JS ---
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   serviceCard: {
     borderRadius: "16px",
     border: "none",
-    textAlign: "center" as const,
+    textAlign: "center",
     padding: "24px 16px",
     boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
     height: "100%",
     width: "100%",
     display: "flex",
-    flexDirection: "column" as const,
+    flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "center"
   },
@@ -578,7 +446,7 @@ const styles = {
     borderRadius: "25px",
     padding: "0 25px",
     height: "40px",
-    fontWeight: "600",
+    fontWeight: 600,
     boxShadow: "0 4px 12px rgba(33, 150, 243, 0.35)",
     marginTop: "auto"
   },
@@ -588,44 +456,12 @@ const styles = {
     backgroundSize: "cover",
     backgroundPosition: "center",
     display: "flex",
-    flexDirection: "column" as const,
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
     boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
     cursor: "pointer",
     transition: "transform 0.3s ease"
-  },
-  contactFormContainer: {
-    backgroundColor: "#ffffff",
-    borderRadius: "16px",
-    padding: "28px",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
-    textAlign: "left" as const
-  },
-  formInput: {
-    height: "44px",
-    borderRadius: "8px",
-    border: "1px solid #cbd5e1",
-    fontSize: "14px"
-  },
-  formTextArea: {
-    borderRadius: "8px",
-    border: "1px solid #cbd5e1",
-    fontSize: "14px",
-    resize: "none" as const
-  },
-  formButton: {
-    backgroundColor: "#4da6b0",
-    borderColor: "#4da6b0",
-    borderRadius: "8px",
-    height: "44px",
-    fontWeight: "600",
-    fontSize: "15px",
-    boxShadow: "0 4px 10px rgba(77, 166, 176, 0.25)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px"
   }
 };
 

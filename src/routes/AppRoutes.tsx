@@ -9,15 +9,22 @@ import Citas from '../pages/admin/Citas';
 import Agenda from '../pages/admin/Agenda'; 
 import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from '../layouts/DashboardLayout';
+import Home from '../pages/public/Home';
+import Profesionales from '../pages/admin/Profesionales';
+import ProfesionalDetalle from '../pages/admin/ProfesionalDetalle';
+import Contacto from '../pages/public/Contacto';
 
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* --- RUTAS PÚBLICAS --- */}
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/registro" element={<Register />} /> {/* Mantiene soporte para la ruta en español */}
-
+      <Route path="/profesionales" element={<Profesionales />} />
+      <Route path="/profesionales/:id" element={<ProfesionalDetalle />} />
+      <Route path="/contacto" element={<Contacto />} />
       {/* --- RUTAS PRIVADAS COMPARTIDAS --- */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
