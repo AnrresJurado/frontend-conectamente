@@ -68,7 +68,7 @@ const FormPsicologo: React.FC<FormPsicologoProps> = ({ onSubmit, loading, initia
         </Col>
         <Col span={24}>
           <Form.Item label="Teléfono de Contacto" validateStatus={errors.telefono ? 'error' : ''} help={errors.telefono?.message}>
-            <Controller name="telefono" control={control} render={({ field }) => <Input {...field} placeholder="0999999999" />} />
+            <Controller name="telefono" control={control} render={({ field }) => <Input {...field} placeholder="0995876635" />} />
           </Form.Item>
         </Col>
       </Row>

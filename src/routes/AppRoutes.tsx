@@ -13,6 +13,8 @@ import Home from '../pages/public/Home';
 import Profesionales from '../pages/admin/Profesionales';
 import ProfesionalDetalle from '../pages/admin/ProfesionalDetalle';
 import Contacto from '../pages/public/Contacto';
+import Bienestar from '../pages/public/Bienestar';
+import UnetePsicologo from '../pages/public/UnetePsicologo';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -25,6 +27,11 @@ const AppRoutes: React.FC = () => {
       <Route path="/profesionales" element={<Profesionales />} />
       <Route path="/profesionales/:id" element={<ProfesionalDetalle />} />
       <Route path="/contacto" element={<Contacto />} />
+      <Route path="/bienestar" element={<Bienestar />} />
+      <Route path="/unete-psicologo" element={<UnetePsicologo />} />
+
+      
+
       {/* --- RUTAS PRIVADAS COMPARTIDAS --- */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>

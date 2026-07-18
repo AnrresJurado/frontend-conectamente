@@ -232,7 +232,7 @@ const Home = () => {
                     Regístrate como profesional de la salud mental, gestiona tu perfil, agenda citas y brinda atención a usuarios.
                   </Paragraph>
                 </div>
-                <Button type="primary" href="#talleres" style={styles.cardButton}>
+                <Button type="primary" onClick={() => navigate('/unete-psicologo')} style={{ borderRadius: 20 }}>
                   Ser Psicólogo
                 </Button>
               </Card>
@@ -250,7 +250,7 @@ const Home = () => {
                     Accede a herramientas y recursos que te acompañan en tu proceso de bienestar emocional y crecimiento personal.
                   </Paragraph>
                 </div>
-                <Button type="primary" href="#recursos" style={styles.cardButton}>
+                <Button type="primary" onClick={() => navigate('/bienestar')} style={{ borderRadius: 20 }}>
                   Conocer más
                 </Button>
               </Card>
