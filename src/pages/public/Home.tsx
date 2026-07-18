@@ -19,14 +19,37 @@ import {
   FolderOpenOutlined,
   MailOutlined,
   EnvironmentOutlined,
-  InstagramOutlined,
-  FacebookOutlined,
-  LinkedinOutlined
 } from "@ant-design/icons";
 import Logo from "../../components/Logo";
 
+import imgHero from "../../assets/home/hero.png";
+import imgAtencion from "../../assets/home/atencion-psicologica.jpeg";
+import imgAgenda from "../../assets/home/agenda-flexible.png";
+import imgComunicacion from "../../assets/home/comunicacion-segura.jpeg";
+
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
+
+const SERVICIOS_DESTACADOS = [
+  {
+    icono: "🧠",
+    titulo: "Atención Psicológica",
+    imagen: imgAtencion,
+    descripcion: "Sesiones individuales con psicólogos acreditados, enfocadas en tu proceso de sanación y crecimiento personal.",
+  },
+  {
+    icono: "📅",
+    titulo: "Agenda Flexible",
+    imagen: imgAgenda,
+    descripcion: "Elige el día y la hora que mejor se adapte a tu rutina. Reagenda o cancela tus sesiones con facilidad.",
+  },
+  {
+    icono: "💬",
+    titulo: "Comunicación Segura",
+    imagen: imgComunicacion,
+    descripcion: "Todas tus conversaciones y sesiones se mantienen privadas y protegidas en todo momento.",
+  },
+];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -38,6 +61,42 @@ const Home = () => {
 
   return (
     <Layout style={{ background: "#f4f9f9", fontFamily: "'Inter', sans-serif" }}>
+
+      <style>{`
+        .cm-flip-container {
+          perspective: 1200px;
+          height: 220px;
+        }
+        .cm-flip-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          transition: transform 0.6s;
+          transform-style: preserve-3d;
+          border-radius: 16px;
+          cursor: pointer;
+        }
+        .cm-flip-container:hover .cm-flip-inner {
+          transform: rotateY(180deg);
+        }
+        .cm-flip-front, .cm-flip-back {
+          position: absolute;
+          inset: 0;
+          backface-visibility: hidden;
+          border-radius: 16px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .cm-flip-back {
+          transform: rotateY(180deg);
+          background: linear-gradient(135deg, #12414a, #1d5863);
+          padding: 24px;
+          text-align: center;
+        }
+      `}</style>
 
       {/* ================= HEADER (Estilo Mente Sana) ================= */}
       <Header
@@ -105,7 +164,7 @@ const Home = () => {
         <section
           style={{
             height: "75vh",
-            backgroundImage: "linear-gradient(to right, rgba(29, 88, 99, 0.5), rgba(255, 255, 255, 0.1)), url('https://img.mmc.com.do/elcaribe-bucket/uploads/2025/01/6797c08e8ad96_whatsapp-image-2025-01-27-at-93637-am.jpeg.webp')",
+            backgroundImage: `linear-gradient(to right, rgba(29, 88, 99, 0.5), rgba(255, 255, 255, 0.1)), url(${imgHero})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             display: "flex",
@@ -196,8 +255,8 @@ const Home = () => {
                     Terapia individual online con profesionales acreditados para tu crecimiento y sanación personal.
                   </Paragraph>
                 </div>
-                <Button type="primary" href="#terapia" style={styles.cardButton}>
-                  Gestionar 
+                <Button type="primary" onClick={() => navigate('/terapias-online')} style={styles.cardButton}>
+                  Conocer más
                 </Button>
               </Card>
             </Col>
@@ -214,7 +273,7 @@ const Home = () => {
                     Espacios de escucha guiados para compartir experiencias y encontrar respaldo colectivo.
                   </Paragraph>
                 </div>
-                <Button type="primary" href="#grupos" style={styles.cardButton}>
+                <Button type="primary" onClick={() => navigate('grupos-apoyo')} style={styles.cardButton}>
                   Unirme
                 </Button>
               </Card>
@@ -232,7 +291,7 @@ const Home = () => {
                     Regístrate como profesional de la salud mental, gestiona tu perfil, agenda citas y brinda atención a usuarios.
                   </Paragraph>
                 </div>
-                <Button type="primary" onClick={() => navigate('/unete-psicologo')} style={{ borderRadius: 20 }}>
+                <Button type="primary" onClick={() => navigate('/unete-psicologo')} style={styles.cardButton}>
                   Ser Psicólogo
                 </Button>
               </Card>
@@ -250,7 +309,7 @@ const Home = () => {
                     Accede a herramientas y recursos que te acompañan en tu proceso de bienestar emocional y crecimiento personal.
                   </Paragraph>
                 </div>
-                <Button type="primary" onClick={() => navigate('/bienestar')} style={{ borderRadius: 20 }}>
+                <Button type="primary" onClick={() => navigate('/bienestar')} style={styles.cardButton}>
                   Conocer más
                 </Button>
               </Card>
@@ -259,58 +318,48 @@ const Home = () => {
           </Row>
         </section>
 
-        {/* 4. RECURSOS DESTACADOS (Imágenes de alta calidad) */}
+        {/* 4. RECURSOS DESTACADOS (Flip Cards con imágenes locales) */}
         <section style={{ padding: "60px 60px 100px", background: "#ffffff" }}>
           <Title level={3} style={{ textAlign: "center", color: "#1c3c42", marginBottom: 40, fontWeight: 800 }}>
             Servicios Destacados
           </Title>
 
           <Row gutter={[24, 24]} justify="center">
-            
-            {/* Atención Psicológica */}
-            <Col xs={24} md={8}>
-              <div 
-                style={{ 
-                  ...styles.featuredCard, 
-                  backgroundImage: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1527689368864-3a821dbccc34?q=80&w=800')" 
-                }}
-              >
-                <span style={{ fontSize: 42, marginBottom: 12 }}>🧠</span>
-                <Title level={4} style={{ color: "#ffffff", margin: 0, fontWeight: 600 }}>
-                  Atención Psicológica
-                </Title>
-              </div>
-            </Col>
 
-            {/* Agenda Flexible */}
-            <Col xs={24} md={8}>
-              <div 
-                style={{ 
-                  ...styles.featuredCard, 
-                  backgroundImage: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800')" 
-                }}
-              >
-                <span style={{ fontSize: 42, marginBottom: 12 }}>📅</span>
-                <Title level={4} style={{ color: "#ffffff", margin: 0, fontWeight: 600 }}>
-                  Agenda Flexible
-                </Title>
-              </div>
-            </Col>
+            {SERVICIOS_DESTACADOS.map((s) => (
+              <Col xs={24} md={8} key={s.titulo}>
+                <div className="cm-flip-container">
+                  <div className="cm-flip-inner">
 
-            {/* Comunicación Segura */}
-            <Col xs={24} md={8}>
-              <div 
-                style={{ 
-                  ...styles.featuredCard, 
-                  backgroundImage: "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=800')" 
-                }}
-              >
-                <span style={{ fontSize: 42, marginBottom: 12 }}>💬</span>
-                <Title level={4} style={{ color: "#ffffff", margin: 0, fontWeight: 600 }}>
-                  Comunicación Segura
-                </Title>
-              </div>
-            </Col>
+                    {/* CARA FRONTAL - imagen */}
+                    <div
+                      className="cm-flip-front"
+                      style={{
+                        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url(${s.imagen})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    >
+                      <span style={{ fontSize: 42, marginBottom: 12 }}>{s.icono}</span>
+                      <Title level={4} style={{ color: "#ffffff", margin: 0, fontWeight: 600 }}>
+                        {s.titulo}
+                      </Title>
+                    </div>
+
+                    {/* CARA TRASERA - información */}
+                    <div className="cm-flip-back">
+                      <Title level={5} style={{ color: "#ffffff", margin: "0 0 10px", fontWeight: 700 }}>
+                        {s.titulo}
+                      </Title>
+                      <Paragraph style={{ color: "#bce3e6", fontSize: 13.5, lineHeight: 1.6, margin: 0 }}>
+                        {s.descripcion}
+                      </Paragraph>
+                    </div>
+
+                  </div>
+                </div>
+              </Col>
+            ))}
 
           </Row>
         </section>
@@ -449,19 +498,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 600,
     boxShadow: "0 4px 12px rgba(33, 150, 243, 0.35)",
     marginTop: "auto"
-  },
-  featuredCard: {
-    height: "220px",
-    borderRadius: "16px",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-    cursor: "pointer",
-    transition: "transform 0.3s ease"
   }
 };
 
