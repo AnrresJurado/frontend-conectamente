@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Table, Tag, Button, Space, Modal, Form, Select, Input, Popconfirm, message, Typography } from 'antd';
-import { PlusOutlined, CloseCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, CloseCircleOutlined, CheckCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { citasService, Cita } from '../../services/citasService';
 import { pacientesService } from '../../services/pacientesService';
+import { historialService } from '../../services/historialService'; // 🚀 Importado para registrar el avance
 import api from '../../api/axiosConfig'; 
 import { useAuth } from '../../hooks/useAuth';
 import { Paciente } from '../../types';
@@ -17,9 +18,19 @@ const Citas: React.FC = () => {
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [agendasDisponibles, setAgendasDisponibles] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  
+  // Modales
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isClinicoModalOpen, setIsClinicoModalOpen] = useState<boolean>(false);
   const [formLoading, setFormLoading] = useState<boolean>(false);
+  
+  // Form de Citas y Estado de Cita Seleccionada
   const [form] = Form.useForm();
+  const [citaSeleccionada, setCitaSeleccionada] = useState<Cita | null>(null);
+
+  // Campos para el Formulario Clínico Integrado
+  const [nuevoDiagnostico, setNuevoDiagnostico] = useState<string>('');
+  const [nuevaNota, setNuevaNota] = useState<string>('');
 
   const cargarCitasYDatos = async () => {
     setLoading(true);
@@ -31,8 +42,6 @@ const Citas: React.FC = () => {
       setCitas(dataCitas);
       setPacientes(dataPacientes);
 
-      // Traer bloques de agenda del psicólogo que estén libres
-      // 🚀 CORREGIDO:
       const { data: agendas } = await api.get<any[]>('/agendas'); 
       setAgendasDisponibles(agendas.filter(a => !a.estaReservado));
     } catch (error) {
@@ -44,7 +53,6 @@ const Citas: React.FC = () => {
   };
 
   useEffect(() => {
-    // 🚀 Evitamos disparar peticiones antes de que la sesión del usuario cargue de verdad
     if (user) {
       cargarCitasYDatos();
     }
@@ -53,18 +61,13 @@ const Citas: React.FC = () => {
   const handleAgendarCita = async (values: { pacienteId: string; agendaId: string; motivo: string }) => {
     setFormLoading(true);
     try {
-      // 1. Guardamos la cita en el backend
       const nuevaCita = await citasService.create(values.agendaId, values.motivo, values.pacienteId);
       message.success('Cita médica agendada de manera exitosa.');
       
-      // 2. Cerramos el modal de inmediato para dar sensación de velocidad
       setIsModalOpen(false);
       form.resetFields();
-
-      // 3. Actualizamos el estado local de citas metiendo la nueva cita al principio de la lista
       setCitas(prev => [nuevaCita, ...prev]);
 
-      // 4. Volvemos a consultar al servidor con un mini delay para asegurar consistencia en las agendas
       setTimeout(async () => {
         await cargarCitasYDatos();
       }, 500);
@@ -77,13 +80,44 @@ const Citas: React.FC = () => {
     }
   };
 
-  const handleCompletarCita = async (id: string) => {
+  // 🚀 Al pulsar Completar, abrimos el modal clínico en vez de mandar una cadena por defecto
+  const abrirModalCompletar = (cita: Cita) => {
+    setCitaSeleccionada(cita);
+    setNuevoDiagnostico('');
+    setNuevaNota('');
+    setIsClinicoModalOpen(true);
+  };
+
+  // 🚀 Guardar el registro clínico e impactar la cita al mismo tiempo
+  const handleGuardarCitaClinica = async () => {
+    if (!citaSeleccionada) return;
+    if (!nuevaNota.trim()) {
+      message.warning('Por favor escribe las notas de evolución de la sesión.');
+      return;
+    }
+
+    setFormLoading(true);
     try {
-      await citasService.update(id, 'REALIZADA', 'Consulta completada satisfactoriamente.');
-      message.success('Cita marcada como realizada con éxito.');
+      // 1. Mandamos el historial clínico con el ID del paciente asociado
+      if (citaSeleccionada.paciente?.id) {
+        await historialService.create(citaSeleccionada.paciente.id, {
+          diagnostico: nuevoDiagnostico || 'Consulta Completada',
+          observaciones: nuevaNota,
+        });
+      }
+
+      // 2. Actualizamos el estado de la cita pasándole las notas ingresadas en tiempo real
+      await citasService.update(citaSeleccionada.id, 'REALIZADA', nuevaNota);
+      
+      message.success('Cita completada y registro clínico de avance guardado.');
+      setIsClinicoModalOpen(false);
+      setCitaSeleccionada(null);
       cargarCitasYDatos();
     } catch (error) {
-      message.error('No se pudo actualizar el estado de la cita.');
+      console.error(error);
+      message.error('No se pudo procesar la evolución de la cita.');
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -140,7 +174,7 @@ const Citas: React.FC = () => {
               <Button 
                 type="text" 
                 icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />} 
-                onClick={() => handleCompletarCita(record.id)}
+                onClick={() => abrirModalCompletar(record)}
               >
                 Completar
               </Button>
@@ -196,17 +230,12 @@ const Citas: React.FC = () => {
         destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleAgendarCita} style={{ marginTop: 20 }}>
-          {/* 1. Selector de Pacientes */}
           <Form.Item 
             name="pacienteId" 
             label="Seleccionar Paciente" 
             rules={[{ required: true, message: 'Por favor selecciona el paciente' }]}
           >
-            <Select 
-              showSearch 
-              placeholder="Buscar por nombre..."
-              optionFilterProp="children"
-            >
+            <Select showSearch placeholder="Buscar por nombre..." optionFilterProp="children">
               {pacientes.map(p => (
                 <Option key={p.id} value={p.usuario?.id}>
                   {p.usuario?.nombre} {p.usuario?.apellido} ({p.usuario?.email})
@@ -215,7 +244,6 @@ const Citas: React.FC = () => {
             </Select>
           </Form.Item>
 
-          {/* 2. Selector de Horarios */}
           <Form.Item 
             name="agendaId" 
             label="Horario Disponible de Agenda" 
@@ -230,7 +258,6 @@ const Citas: React.FC = () => {
             </Select>
           </Form.Item>
 
-          {/* 3. Motivo */}
           <Form.Item 
             name="motivo" 
             label="Motivo de la Cita" 
@@ -248,6 +275,54 @@ const Citas: React.FC = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* 🚀 NUEVO MODAL: FORMULARIO CLÍNICO AL COMPLETAR CITA */}
+      <Modal
+        title={`Registrar Evolución Clínica: ${citaSeleccionada?.paciente?.nombre || ''} ${citaSeleccionada?.paciente?.apellido || ''}`}
+        open={isClinicoModalOpen}
+        onCancel={() => { setIsClinicoModalOpen(false); setCitaSeleccionada(null); }}
+        footer={null}
+        width={650}
+        destroyOnClose
+      >
+        <div style={{ marginTop: 16 }}>
+          <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+            Al marcar esta sesión como realizada, se creará de forma automática el avance en el historial del paciente.
+          </Text>
+          <Form layout="vertical">
+            <Form.Item label="Diagnóstico Clínico / Foco de Trabajo de la Sesión" required>
+              <Input 
+                placeholder="Ej. Trastorno de ansiedad generalizada, evolución favorable..." 
+                value={nuevoDiagnostico} 
+                onChange={(e) => setNuevoDiagnostico(e.target.value)} 
+              />
+            </Form.Item>
+            <Form.Item label="Notas de Evolución y Observaciones Clínicas" required>
+              <TextArea 
+                rows={4} 
+                placeholder="Registra detalladamente el progreso observado en esta sesión clínica..." 
+                value={nuevaNota} 
+                onChange={(e) => setNuevaNota(e.target.value)} 
+              />
+            </Form.Item>
+            <Form.Item style={{ textAlign: 'right', marginBottom: 0 }}>
+              <Space>
+                <Button onClick={() => { setIsClinicoModalOpen(false); setCitaSeleccionada(null); }}>
+                  Cancelar
+                </Button>
+                <Button 
+                  type="primary" 
+                  icon={<SaveOutlined />} 
+                  onClick={handleGuardarCitaClinica} 
+                  loading={formLoading}
+                >
+                  Confirmar y Finalizar Cita
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </div>
       </Modal>
     </Card>
   );
