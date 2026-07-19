@@ -19,6 +19,7 @@ import TerapiasOnline from '../pages/public/TerapiasOnline';
 import GruposApoyo from '../pages/public/GruposApoyo';
 import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
+import Chats from '../pages/admin/Chats';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -38,6 +39,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/servicios" element={<Servicios />} />
       <Route path="/recursos" element={<Recursos />} />
       
+      
 
       
 
@@ -54,6 +56,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/pacientes" element={<Pacientes />} />
           <Route path="/dashboard/citas" element={<Citas />} /> 
           <Route path="/dashboard/agenda" element={<Agenda />} />
+          <Route path="/dashboard/chats" element={<Chats />} />
         </Route>
       </Route>
 

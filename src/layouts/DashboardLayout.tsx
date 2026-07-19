@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Layout, Avatar, Space } from 'antd';
 import {
   MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined, UserOutlined,
-  CalendarOutlined, LogoutOutlined, TeamOutlined, ScheduleOutlined, HeartFilled
+  CalendarOutlined, LogoutOutlined, TeamOutlined, ScheduleOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import Logo from '../components/Logo';
 
 const { Header, Sider, Content } = Layout;
 
@@ -35,6 +37,8 @@ const DashboardLayout: React.FC = () => {
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/pacientes', icon: <UserOutlined />, label: 'Pacientes' }] : []),
     ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/psicologos', icon: <TeamOutlined />, label: 'Psicólogos' }] : []),
     { key: '/dashboard/citas', icon: <CalendarOutlined />, label: 'Citas' },
+    // Chats: solo tiene sentido para quien participa en una conversación paciente <-> psicólogo
+    ...(user?.rol === 'PACIENTE' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/chats', icon: <MessageOutlined />, label: 'Chats' }] : []),
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []),
   ];
 
@@ -51,10 +55,7 @@ const DashboardLayout: React.FC = () => {
       >
         {/* Logo con acento de marca */}
         <div style={styles.logoBlock}>
-          <div style={styles.logoBadge}>
-            <HeartFilled style={{ fontSize: 18, color: '#ffffff' }} />
-          </div>
-          {!collapsed && <span style={styles.logoText}>ConectaMente</span>}
+          <Logo size={collapsed ? 34 : 34} showText={!collapsed} textColor={COLORS.primary} accentColor={COLORS.accent} />
         </div>
 
         {/* Navegación propia (sin Menu genérico de antd) */}
@@ -124,23 +125,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     gap: 10,
     borderBottom: `1px solid ${COLORS.border}`,
-  },
-  logoBadge: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.primaryDark})`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  logoText: {
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
-    fontWeight: 800,
-    fontSize: 18,
-    color: COLORS.primary,
-    letterSpacing: '-0.3px',
   },
   nav: {
     display: 'flex',
