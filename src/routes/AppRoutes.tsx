@@ -6,16 +6,38 @@ import Dashboard from '../pages/admin/Dashboard';
 import Pacientes from '../pages/admin/Pacientes';
 import Psicologos from '../pages/admin/Psicologos'; 
 import Citas from '../pages/admin/Citas'; 
-import Agenda from '../pages/admin/Agenda'; // 🚀 Importamos tu nueva pantalla de Agenda
+import Agenda from '../pages/admin/Agenda'; 
 import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from '../layouts/DashboardLayout';
+import Home from '../pages/public/Home';
+import Profesionales from '../pages/admin/Profesionales';
+import ProfesionalDetalle from '../pages/admin/ProfesionalDetalle';
+import Contacto from '../pages/public/Contacto';
+import Bienestar from '../pages/public/Bienestar';
+import UnetePsicologo from '../pages/public/UnetePsicologo';
+import TerapiasOnline from '../pages/public/TerapiasOnline';
+import GruposApoyo from '../pages/public/GruposApoyo';
+import Servicios from '../pages/public/Servicios';
 
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* --- RUTAS PÚBLICAS --- */}
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/registro" element={<Register />} /> {/* Mantiene soporte para la ruta en español */}
+      <Route path="/profesionales" element={<Profesionales />} />
+      <Route path="/profesionales/:id" element={<ProfesionalDetalle />} />
+      <Route path="/contacto" element={<Contacto />} />
+      <Route path="/bienestar" element={<Bienestar />} />
+      <Route path="/unete-psicologo" element={<UnetePsicologo />} />
+      <Route path="/terapias-online" element={<TerapiasOnline />} />  
+      <Route path="/grupos-apoyo" element={<GruposApoyo />} />
+      <Route path="/servicios" element={<Servicios />} /> 
+      
+
+      
 
       {/* --- RUTAS PRIVADAS COMPARTIDAS --- */}
       <Route element={<ProtectedRoute />}>
@@ -29,7 +51,7 @@ const AppRoutes: React.FC = () => {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard/pacientes" element={<Pacientes />} />
           <Route path="/dashboard/citas" element={<Citas />} /> 
-          <Route path="/dashboard/agenda" element={<Agenda />} /> {/* 🚀 Registramos la ruta protegida de la Agenda */}
+          <Route path="/dashboard/agenda" element={<Agenda />} />
         </Route>
       </Route>
 
