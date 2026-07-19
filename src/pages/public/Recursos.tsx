@@ -1,14 +1,14 @@
 import React from 'react';
 import { Button } from 'antd';
 import {
-  ArrowLeftOutlined, VideoCameraOutlined, CommentOutlined,
-  ExperimentOutlined, FileTextOutlined, BulbOutlined,
-  RocketOutlined, ArrowRightOutlined,
+  ArrowLeftOutlined, FolderOpenOutlined, BellOutlined,
+  LineChartOutlined, BulbOutlined, ExperimentOutlined,
+  FileTextOutlined, RocketOutlined, ArrowRightOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import Logo from "../../components/Logo";
 
-import imgHero from '../../assets/servicios/hero.jpg';
+import imgHero from '../../assets/recursos/hero.jpeg';
 
 const COLORS = {
   primary: '#1d5863',
@@ -22,76 +22,93 @@ const COLORS = {
   text: '#334155',
 };
 
-const SERVICIOS = [
+const RECURSOS = [
   {
-    icon: <VideoCameraOutlined />,
-    titulo: 'Terapias en línea',
-    texto: 'Sesiones individuales por videollamada con un psicólogo acreditado, desde donde estés.',
-    ruta: '/terapias-online',
+    icon: <FolderOpenOutlined />,
+    titulo: 'Historial clínico',
+    texto: 'Consulta el registro de tus sesiones y avances pasados, siempre a tu alcance.',
+    ruta: null,
     color: '#1e88e5',
+    size: 'lg' as const,
   },
   {
-    icon: <CommentOutlined />,
-    titulo: 'Chats grupales',
-    texto: 'Grupos de apoyo guiados para compartir experiencias con otras personas y un profesional.',
-    ruta: '/grupos-apoyo',
+    icon: <LineChartOutlined />,
+    titulo: 'Seguimiento de progreso',
+    texto: 'Visualiza tu evolución emocional a lo largo del tiempo, sesión tras sesión.',
+    ruta: null,
+    color: '#6ba283',
+    size: 'lg' as const,
+  },
+  {
+    icon: <BellOutlined />,
+    titulo: 'Notificaciones',
+    texto: 'Recordatorios de citas y avisos importantes de tu psicólogo, sin perderte nada.',
+    ruta: null,
     color: '#e07a5f',
+    size: 'sm' as const,
+  },
+  {
+    icon: <BulbOutlined />,
+    titulo: 'Recomendaciones',
+    texto: 'Sugerencias personalizadas que tu profesional comparte según tu proceso.',
+    ruta: null,
+    color: '#f3a738',
+    size: 'sm' as const,
   },
   {
     icon: <ExperimentOutlined />,
-    titulo: 'Test psicométricos',
+    titulo: 'Tests psicométricos',
     texto: 'Evaluaciones aplicadas por tu psicólogo para entender mejor tu estado emocional.',
     ruta: null,
     color: '#8e6bbf',
+    size: 'sm' as const,
   },
   {
     icon: <FileTextOutlined />,
     titulo: 'Encuestas y tareas',
-    texto: 'Actividades y encuestas que tu psicólogo te asigna para acompañar tu proceso entre sesiones.',
+    texto: 'Actividades que tu psicólogo te asigna para acompañar tu proceso entre sesiones.',
     ruta: null,
-    color: '#f3a738',
-  },
-  {
-    icon: <BulbOutlined />,
-    titulo: 'Recomendaciones del psicólogo',
-    texto: 'Sugerencias personalizadas que tu profesional comparte contigo según tu avance.',
-    ruta: null,
-    color: '#6ba283',
+    color: '#4da6b0',
+    size: 'sm' as const,
   },
 ];
 
-const Servicios: React.FC = () => {
+const Recursos: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <div style={styles.page}>
       <style>{`
-        .cm-serv-row {
+        .cm-rec-tile {
           transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
-        .cm-serv-row:hover {
-          transform: translateX(6px);
-          box-shadow: 0 14px 30px rgba(29, 88, 99, 0.10);
-          border-color: rgba(29, 88, 99, 0.18);
+        .cm-rec-tile:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 16px 34px rgba(29, 88, 99, 0.12);
+          border-color: rgba(29, 88, 99, 0.16);
         }
-        .cm-serv-cta:hover {
+        .cm-rec-cta:hover {
           filter: brightness(1.08);
         }
-        .cm-serv-link:hover {
+        .cm-rec-link:hover {
           gap: 10px;
         }
-        .cm-serv-link {
+        .cm-rec-link {
           transition: gap 0.2s ease;
         }
-        .cm-serv-num {
-          transition: color 0.25s ease;
+        .cm-rec-bento {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 18px;
         }
-        .cm-serv-row:hover .cm-serv-num {
-          color: var(--num-hover-color, ${COLORS.accent});
+        .cm-rec-bento .cm-rec-lg {
+          grid-column: span 2;
         }
-        @media (max-width: 820px) {
-          .cm-hero-grid { grid-template-columns: 1fr !important; }
-          .cm-hero-image-wrap { order: -1; clip-path: none !important; height: 260px !important; }
+        @media (max-width: 620px) {
+          .cm-rec-bento { grid-template-columns: 1fr; }
+          .cm-rec-bento .cm-rec-lg { grid-column: span 1; }
+          .cm-hero-grid-r { grid-template-columns: 1fr !important; }
+          .cm-hero-image-wrap-r { order: -1; height: 240px !important; }
         }
       `}</style>
 
@@ -104,110 +121,81 @@ const Servicios: React.FC = () => {
         Volver
       </Button>
 
-      {/* HERO — diagonal split */}
-      <div className="cm-hero-grid" style={styles.heroGrid}>
+      {/* HERO */}
+      <div className="cm-hero-grid-r" style={styles.heroGrid}>
         <div style={styles.heroText}>
           <Logo size={40} textColor={COLORS.primary} accentColor={COLORS.accent} />
 
           <div style={styles.eyebrowRow}>
             <span style={styles.eyebrowLine} />
-            <span style={styles.eyebrow}>Todo en un mismo lugar</span>
+            <span style={styles.eyebrow}>Tu espacio de seguimiento</span>
           </div>
 
           <h1 style={styles.heroTitle}>
-            Servicios pensados
+            Recursos para
             <br />
-            para <span style={styles.heroTitleAccent}>tu proceso</span>
+            acompañar <span style={styles.heroTitleAccent}>tu camino</span>
           </h1>
 
           <p style={styles.heroSubtitle}>
-            En ConectaMente encuentras acompañamiento profesional en distintos
-            formatos: sesiones individuales, grupos de apoyo, evaluaciones y
-            seguimiento cercano de tu psicólogo, todo en un solo lugar.
+            Además de tus sesiones, ConectaMente te da herramientas para dar
+            seguimiento a tu proceso: historial, progreso, recordatorios y
+            actividades que tu psicólogo comparte contigo.
           </p>
 
           <Button
             type="primary"
             size="large"
             icon={<RocketOutlined />}
-            className="cm-serv-cta"
+            className="cm-rec-cta"
             style={styles.ctaButtonHero}
             onClick={() => navigate('/register')}
           >
-            Empezar ahora
+            Crear mi cuenta
           </Button>
         </div>
 
-        <div className="cm-hero-image-wrap" style={styles.heroImageWrap}>
-          <img src={imgHero} alt="Servicios ConectaMente" style={styles.heroImage} />
+        <div className="cm-hero-image-wrap-r" style={styles.heroImageWrap}>
+          <img src={imgHero} alt="Recursos ConectaMente" style={styles.heroImage} />
           <div style={styles.heroOverlay} />
         </div>
       </div>
 
-      {/* FRANJA DE ESTADÍSTICAS */}
-      <div style={styles.statsStrip}>
-        <div style={styles.statsInner}>
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>5</span>
-            <span style={styles.statLabel}>servicios integrados</span>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>100%</span>
-            <span style={styles.statLabel}>acompañamiento profesional</span>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>24/7</span>
-            <span style={styles.statLabel}>acceso a tu plataforma</span>
-          </div>
-        </div>
-      </div>
-
-      {/* LISTA EDITORIAL DE SERVICIOS */}
+      {/* BENTO GRID DE RECURSOS */}
       <div style={styles.section}>
         <div style={styles.sectionHeader}>
-          <span style={styles.sectionKicker}>Explora</span>
-          <h2 style={styles.sectionTitle}>¿Qué puedes hacer en ConectaMente?</h2>
+          <span style={styles.sectionKicker}>Disponible en tu cuenta</span>
+          <h2 style={styles.sectionTitle}>Todo tu proceso, en un solo lugar</h2>
           <p style={styles.sectionSubtitle}>
-            Cada servicio está pensado para acompañarte antes, durante y después de tus sesiones.
+            Estos recursos se activan en cuanto inicias tu acompañamiento con un psicólogo.
           </p>
         </div>
 
-        <div style={styles.list}>
-          {SERVICIOS.map((s, i) => (
+        <div className="cm-rec-bento">
+          {RECURSOS.map((r) => (
             <div
-              key={s.titulo}
-              className="cm-serv-row"
-              style={styles.servRow}
+              key={r.titulo}
+              className={`cm-rec-tile ${r.size === 'lg' ? 'cm-rec-lg' : ''}`}
+              style={styles.recTile}
             >
-              <span
-                className="cm-serv-num"
-                style={{ ...styles.servNum, ['--num-hover-color' as any]: s.color }}
-              >
-                {String(i + 1).padStart(2, '0')}
-              </span>
-
-              <div style={{ ...styles.servIconCircle, background: `${s.color}1A`, color: s.color }}>
-                {s.icon}
+              <div style={{ ...styles.recIcon, background: `${r.color}1A`, color: r.color }}>
+                {r.icon}
               </div>
 
-              <div style={styles.servBody}>
-                <h3 style={styles.servTitulo}>{s.titulo}</h3>
-                <p style={styles.servTexto}>{s.texto}</p>
-              </div>
+              <div style={styles.recBody}>
+                <h3 style={styles.recTitulo}>{r.titulo}</h3>
+                <p style={styles.recTexto}>{r.texto}</p>
 
-              <div style={styles.servAction}>
-                {s.ruta ? (
+                {r.ruta ? (
                   <span
-                    className="cm-serv-link"
-                    style={styles.servLink}
-                    onClick={() => navigate(s.ruta as string)}
+                    className="cm-rec-link"
+                    style={styles.recLink}
+                    onClick={() => navigate(r.ruta as string)}
                   >
                     Conocer más <ArrowRightOutlined style={{ fontSize: 12 }} />
                   </span>
                 ) : (
-                  <span style={styles.servTag}>Guiado por tu psicólogo</span>
+                  <span style={styles.recTag}>Parte de tu acompañamiento</span>
                 )}
               </div>
             </div>
@@ -215,25 +203,25 @@ const Servicios: React.FC = () => {
         </div>
       </div>
 
-      {/* PUENTE HACIA RECURSOS */}
+      {/* PUENTE HACIA SERVICIOS */}
       <div style={styles.bridgeSection}>
         <div style={styles.bridgeCard}>
           <div style={styles.bridgePattern} />
           <div style={styles.bridgeText}>
-            <span style={styles.infoEyebrow}>¿Buscas herramientas de autoayuda?</span>
-            <h3 style={styles.bridgeTitle}>Explora también nuestros Recursos</h3>
+            <span style={styles.infoEyebrow}>¿Aún no agendas tu primera sesión?</span>
+            <h3 style={styles.bridgeTitle}>Conoce nuestros Servicios</h3>
             <p style={styles.bridgeSubtitle}>
-              Historial, notificaciones y seguimiento de tu progreso, siempre disponibles para ti.
+              Terapias en línea, grupos de apoyo y más formas de empezar tu proceso.
             </p>
           </div>
           <Button
             type="primary"
             size="large"
-            className="cm-serv-cta"
+            className="cm-rec-cta"
             style={styles.ctaButtonFinal}
-            onClick={() => navigate('/recursos')}
+            onClick={() => navigate('/servicios')}
           >
-            Ver Recursos
+            Ver Servicios
           </Button>
         </div>
       </div>
@@ -259,7 +247,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'grid',
     gridTemplateColumns: '1.05fr 0.95fr',
     alignItems: 'center',
-    gap: 0,
+    gap: 40,
     maxWidth: 1240,
     margin: '10px auto 0',
     padding: '20px 0 0',
@@ -268,7 +256,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     gap: 6,
-    paddingRight: 48,
   },
   eyebrowRow: {
     display: 'flex',
@@ -292,15 +279,14 @@ const styles: { [key: string]: React.CSSProperties } = {
   heroTitle: {
     fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: COLORS.primary,
-    fontSize: 46,
+    fontSize: 44,
     fontWeight: 800,
     letterSpacing: '-1.2px',
-    lineHeight: 1.12,
+    lineHeight: 1.14,
     margin: '14px 0 18px',
   },
   heroTitleAccent: {
     color: COLORS.accent,
-    fontStyle: 'italic',
   },
   heroSubtitle: {
     color: COLORS.textMuted,
@@ -321,9 +307,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   heroImageWrap: {
     position: 'relative',
-    height: 460,
-    clipPath: 'polygon(14% 0, 100% 0, 100% 100%, 0% 100%)',
-    marginLeft: -8,
+    height: 400,
+    borderRadius: 28,
+    overflow: 'hidden',
+    boxShadow: '0 20px 50px rgba(29, 88, 99, 0.18)',
   },
   heroImage: {
     width: '100%',
@@ -334,55 +321,12 @@ const styles: { [key: string]: React.CSSProperties } = {
   heroOverlay: {
     position: 'absolute',
     inset: 0,
-    background: `linear-gradient(200deg, rgba(29,88,99,0.28) 0%, rgba(29,88,99,0) 45%)`,
+    background: `linear-gradient(200deg, rgba(29,88,99,0.24) 0%, rgba(29,88,99,0) 45%)`,
   },
 
-  // STATS STRIP
-  statsStrip: {
-    maxWidth: 980,
-    margin: '56px auto 0',
-    position: 'relative',
-    zIndex: 2,
-    padding: '0 20px',
-  },
-  statsInner: {
-    background: COLORS.primary,
-    borderRadius: 22,
-    padding: '26px 40px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    boxShadow: '0 20px 40px rgba(18, 65, 74, 0.25)',
-    flexWrap: 'wrap',
-    gap: 20,
-  },
-  statItem: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    minWidth: 140,
-  },
-  statNumber: {
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
-    color: '#ffffff',
-    fontSize: 28,
-    fontWeight: 800,
-  },
-  statLabel: {
-    color: COLORS.accentSoft,
-    fontSize: 12.5,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  statDivider: {
-    width: 1,
-    height: 36,
-    background: 'rgba(255,255,255,0.18)',
-  },
-
-  // SERVICES LIST
+  // BENTO SECTION
   section: {
-    maxWidth: 980,
+    maxWidth: 1100,
     margin: '90px auto 0',
     padding: '0 0 20px',
   },
@@ -409,58 +353,43 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 14.5,
     margin: 0,
   },
-  list: {
+  recTile: {
+    background: COLORS.card,
+    borderRadius: 22,
+    border: `1px solid ${COLORS.border}`,
+    padding: '26px',
     display: 'flex',
     flexDirection: 'column',
-    gap: 14,
   },
-  servRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 22,
-    background: COLORS.card,
-    borderRadius: 20,
-    padding: '22px 26px',
-    border: `1px solid ${COLORS.border}`,
-  },
-  servNum: {
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
-    fontSize: 22,
-    fontWeight: 800,
-    color: COLORS.border,
-    minWidth: 40,
-  },
-  servIconCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: '50%',
-    fontSize: 20,
+  recIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 14,
+    fontSize: 19,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 14,
     flexShrink: 0,
   },
-  servBody: {
-    flex: 1,
-    minWidth: 180,
+  recBody: {
+    display: 'flex',
+    flexDirection: 'column',
   },
-  servTitulo: {
+  recTitulo: {
     fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: COLORS.primary,
     fontSize: 16.5,
     fontWeight: 700,
-    margin: '0 0 4px',
+    margin: '0 0 6px',
   },
-  servTexto: {
+  recTexto: {
     color: COLORS.textMuted,
     fontSize: 13.5,
     lineHeight: 1.55,
     margin: 0,
   },
-  servAction: {
-    flexShrink: 0,
-  },
-  servLink: {
+  recLink: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: 6,
@@ -468,17 +397,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 700,
     fontSize: 13.5,
     cursor: 'pointer',
-    whiteSpace: 'nowrap',
+    width: 'fit-content',
+    marginTop: 14,
   },
-  servTag: {
+  recTag: {
     display: 'inline-block',
-    whiteSpace: 'nowrap',
+    width: 'fit-content',
     background: COLORS.accentSoft,
     color: COLORS.primary,
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: 700,
-    padding: '6px 14px',
+    padding: '5px 12px',
     borderRadius: 14,
+    marginTop: 14,
   },
 
   // BRIDGE
@@ -548,4 +479,4 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-export default Servicios;
+export default Recursos;

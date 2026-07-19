@@ -18,6 +18,7 @@ import UnetePsicologo from '../pages/public/UnetePsicologo';
 import TerapiasOnline from '../pages/public/TerapiasOnline';
 import GruposApoyo from '../pages/public/GruposApoyo';
 import Servicios from '../pages/public/Servicios';
+import Recursos from '../pages/public/Recursos';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -34,7 +35,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/unete-psicologo" element={<UnetePsicologo />} />
       <Route path="/terapias-online" element={<TerapiasOnline />} />  
       <Route path="/grupos-apoyo" element={<GruposApoyo />} />
-      <Route path="/servicios" element={<Servicios />} /> 
+      <Route path="/servicios" element={<Servicios />} />
+      <Route path="/recursos" element={<Recursos />} />
       
 
       
