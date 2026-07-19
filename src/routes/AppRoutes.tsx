@@ -19,6 +19,7 @@ import TerapiasOnline from '../pages/public/TerapiasOnline';
 import GruposApoyo from '../pages/public/GruposApoyo';
 import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
+import UsuariosAdmin from '../pages/admin/UsuariosAdmin'; // 🎯 AGREGAR ESTA LÍNEA
 
 const AppRoutes: React.FC = () => {
   return (
@@ -66,6 +67,14 @@ const AppRoutes: React.FC = () => {
 
       {/* Redirección por defecto si entran a una ruta inexistente */}
       <Route path="*" element={<Navigate to="/login" replace />} />
+
+      {/* --- RUTAS PRIVADAS EXCLUSIVAS DE ADMINISTRACIÓN --- */}
+      <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard/psicologos" element={<Psicologos />} />
+          <Route path="/dashboard/usuarios" element={<UsuariosAdmin />} /> {/* 🚀 NUEVA RUTA CONFIGURADA */}
+        </Route>
+      </Route>
     </Routes>
   );
 };

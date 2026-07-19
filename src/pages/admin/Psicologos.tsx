@@ -14,7 +14,6 @@ const Psicologos: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchText, setSearchText] = useState<string>('');
   
-  // Estados para el Modal y el psicólogo en edición
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [formLoading, setFormLoading] = useState<boolean>(false);
   const [psicologoSeleccionado, setPsicologoSeleccionado] = useState<Psicologo | null>(null);
@@ -50,20 +49,23 @@ const Psicologos: React.FC = () => {
     setFormLoading(true);
     try {
       if (psicologoSeleccionado) {
-        // MODO EDICIÓN
-        await psicologosService.update(psicologoSeleccionado.id, data);
+        const usuarioId = psicologoSeleccionado.usuario?.id;
+        if (!usuarioId) {
+          throw new Error('No se encontró el ID de usuario del psicólogo seleccionado.');
+        }
+
+        await psicologosService.update(usuarioId, {
+          especialidad: data.especialidad,
+          registroProfesional: data.licenciaProfesional
+        });
         message.success('Perfil de psicólogo actualizado correctamente.');
       } else {
-        // MODO CREACIÓN (El backend procesa la creación del usuario y del perfil en un solo paso)
         await psicologosService.create(data);
         message.success('Psicólogo registrado y cuenta asignada con éxito.');
       }
       
-      // Cerramos el modal de inmediato
       setIsModalOpen(false);
       setPsicologoSeleccionado(null);
-      
-      // Forzamos la actualización inmediata de la tabla pidiendo los datos actualizados al servidor
       await cargarPsicologos();
 
     } catch (error: any) {
@@ -78,15 +80,19 @@ const Psicologos: React.FC = () => {
     }
   };
 
-  const handleEliminar = async (id: string) => {
+  const handleEliminar = async (record: Psicologo) => {
+    const usuarioId = record.usuario?.id;
+    if (!usuarioId) {
+      return message.error('No se pudo encontrar el ID de usuario para realizar la desactivación.');
+    }
+
     try {
-      await psicologosService.remove(id);
-      message.success('Psicólogo eliminado correctamente.');
-      // Actualización reactiva instantánea para no requerir llamada de red
-      setPsicologos(psicologos.filter(p => p.id !== id));
+      await psicologosService.remove(usuarioId);
+      message.success('Psicólogo desactivado correctamente.');
+      setPsicologos(psicologos.filter(p => p.id !== record.id));
     } catch (error) {
       console.error(error);
-      message.error('No se pudo procesar la eliminación en el servidor.');
+      message.error('No se pudo procesar la desactivación en el servidor.');
     }
   };
 
@@ -127,10 +133,10 @@ const Psicologos: React.FC = () => {
                   onClick={() => abrirEditar(record)}
                 />
                 <Popconfirm
-                  title="¿Estás seguro de eliminar este profesional?"
-                  description="Se inhabilitará su acceso al sistema."
-                  onConfirm={() => handleEliminar(record.id)}
-                  okText="Sí, eliminar"
+                  title="¿Estás seguro de inhabilitar este profesional?"
+                  description="Se desactivará su cuenta de acceso al sistema."
+                  onConfirm={() => handleEliminar(record)}
+                  okText="Sí, desactivar"
                   cancelText="Cancelar"
                   okButtonProps={{ danger: true }}
                 >
