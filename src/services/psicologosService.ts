@@ -1,46 +1,48 @@
 import api from '../api/axiosConfig';
 import { Psicologo, CreatePsicologoInput } from '../types';
 
+export interface PsicologoPerfil {
+  id: string;
+  especialidad: string;
+  numColegiatura: string; // 🎯 CORREGIDO: Refleja el nombre real de tu columna en TypeORM
+  telefono?: string;
+  usuario: {
+    id: string;
+    nombre: string;
+    apellido: string;
+    email: string;
+    activo: boolean;
+    rol: string;
+  };
+}
+
 export const psicologosService = {
-  // GET /usuarios - Trae todos los psicólogos registrados procesando la envoltura de paginación
+  // 🚀 GET /psicologos - Trae todos los psicólogos mapeados desde NestJS
   getAll: async () => {
-    const response = await api.get<any>('/usuarios');
-    let listaUsuarios: any[] = [];
+    const { data } = await api.get<PsicologoPerfil[]>('/psicologos');
     
-    if (response && response.data) {
-      // Si el endpoint de usuarios devuelve el listado paginado en { data: [...] } o directo
-      listaUsuarios = Array.isArray(response.data) ? response.data : (response.data.data || []);
-    }
-
-    // Filtramos únicamente a los usuarios con rol de Psicólogo
-    const psicologos = listaUsuarios.filter((u: any) => 
-      u && typeof u.rol === 'string' && u.rol.trim().toUpperCase() === 'PSICOLOGO'
-    );
-
-    return psicologos.map((u: any) => {
-      const perfil = u.perfilPsicologo || {};
-      return {
-        id: u.id, // ID único del usuario para evitar colisiones en AntD
-        especialidad: perfil.especialidad || 'Terapia General',
-        licenciaProfesional: perfil.numColegiatura || 'Sin asignar perfil',
-        telefono: perfil.biografia || 'Sin teléfono',
-        usuario: {
-          id: u.id,
-          nombre: (u.nombre || '').trim(),
-          apellido: (u.apellido || '').trim(),
-          email: u.email || '',
-          rol: u.rol || 'PSICOLOGO'
-        }
-      };
-    }) as Psicologo[];
+    return data.map((p) => ({
+      id: p.id,
+      especialidad: p.especialidad || 'Psicología Clínica',
+      licenciaProfesional: p.numColegiatura || 'Sin asignar', // 🎯 Mapeamos numColegiatura a lo que espera la tabla
+      telefono: p.telefono || 'Sin teléfono',
+      usuario: {
+        id: p.usuario?.id,
+        nombre: p.usuario?.nombre || '',
+        apellido: p.usuario?.apellido || '',
+        email: p.usuario?.email || '',
+        rol: p.usuario?.rol || 'PSICOLOGO'
+      }
+    })) as unknown as Psicologo[];
   },
 
+  // 🚀 GET /psicologos/:id - Obtener un perfil específico
   getById: async (id: string) => {
-    const { data } = await api.get<Psicologo>(`/usuarios/${id}`);
+    const { data } = await api.get<Psicologo>(`/psicologos/${id}`);
     return data;
   },
 
-  // POST /usuarios - UN SOLO DISPARO DIRECTO. El backend se encarga de toda la transacción
+  // 🚀 POST /psicologos - Envía el payload con la estructura correcta hacia NestJS
   create: async (psicologoData: CreatePsicologoInput) => {
     const payload = {
       nombre: psicologoData.nombre,
@@ -49,25 +51,29 @@ export const psicologosService = {
       password: psicologoData.password || 'Psicologo123*',
       rol: 'PSICOLOGO',
       especialidad: psicologoData.especialidad,
-      licenciaProfesional: psicologoData.licenciaProfesional,
+      numColegiatura: psicologoData.licenciaProfesional, // 🎯 Sincronizado con el backend
       telefono: psicologoData.telefono
     };
 
-    const { data } = await api.post<any>('/usuarios', payload);
+    const { data } = await api.post<any>('/psicologos', payload);
     return data;
   },
 
-  update: async (id: string, psicologoData: Partial<CreatePsicologoInput>) => {
+  // 🚀 PATCH /psicologos/:usuarioId - Modifica los datos usando el campo numColegiatura
+  update: async (usuarioId: string, psicologoData: { especialidad?: string; registroProfesional?: string; telefono?: string }) => {
     const payload = {
-      nombre: psicologoData.nombre,
-      apellido: psicologoData.apellido,
+      especialidad: psicologoData.especialidad,
+      numColegiatura: psicologoData.registroProfesional, // 🎯 Sincronizado con el backend
+      telefono: psicologoData.telefono
     };
-    const { data } = await api.patch<any>(`/usuarios/${id}`, payload);
+
+    const { data } = await api.patch<any>(`/psicologos/${usuarioId}`, payload);
     return data;
   },
 
-  remove: async (id: string) => {
-    const { data } = await api.delete<{ message: string }>(`/usuarios/${id}`);
+  // 🚀 DELETE /psicologos/:usuarioId - Desactiva el perfil profesional (Borrado Lógico)
+  remove: async (usuarioId: string) => {
+    const { data } = await api.delete<{ message: string }>(`/psicologos/${usuarioId}`);
     return data;
   }
 };
