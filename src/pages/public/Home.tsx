@@ -130,7 +130,7 @@ const Home = () => {
             lineHeight: "80px",
           }}
           items={[
-            { key: "servicios", label: <span style={{ color: "#4a5568" }}>Servicios</span> },
+            { key: "servicios", label: <span onClick={() => navigate("/servicios")} style={{ color: "#4a5568", cursor: "pointer" }}>Servicios</span> },
             { key: "recursos", label: <span style={{ color: "#4a5568" }}>Recursos</span> },
             { key: "profesionales", label: <span onClick={() => navigate("/profesionales")} style={{ color: "#4a5568", cursor: "pointer" }}>Profesionales</span> },
             { key: "contacto", label: <span onClick={() => navigate("/contacto")} style={{ color: "#4a5568", cursor: "pointer" }}>Contacto</span> },
