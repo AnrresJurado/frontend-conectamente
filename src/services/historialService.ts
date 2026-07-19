@@ -10,10 +10,8 @@ export interface HistorialClinico {
 
 export const historialService = {
   // 🚀 GET /historiales - Traemos todos y filtramos en frontend por el ID de Usuario del Paciente
-  // Tu backend actual no tiene "getByPacienteId", así que utilizaremos findAll y filtraremos de forma segura.
   getByPacienteUsuarioId: async (usuarioId: string) => {
     const { data } = await api.get<any[]>('/historiales');
-    // Filtramos los historiales que correspondan al ID de usuario del paciente
     return data.filter(h => h.paciente?.id === usuarioId).map(h => ({
       id: h.id,
       fechaSesion: h.fechaSesion,
@@ -23,13 +21,14 @@ export const historialService = {
     })) as HistorialClinico[];
   },
 
-  // 🚀 POST /historiales - Guardamos mandando las variables que tu DTO y NestJS exigen
-  create: async (usuarioId: string, datos: { diagnostico: string; observaciones: string }) => {
+  // 🚀 POST /historiales - AHORA ADMITE FECHASESION DESDE EL FORMULARIO
+  create: async (usuarioId: string, datos: { diagnostico: string; observaciones: string; fechaSesion?: string | Date }) => {
     const { data } = await api.post<any>('/historiales', {
-      fechaSesion: new Date().toISOString(), // Fecha actual de la consulta
+      // 🎯 Si le mandamos la fecha de la cita la usa, si no, tira la fecha de hoy por defecto
+      fechaSesion: datos.fechaSesion ? new Date(datos.fechaSesion).toISOString() : new Date().toISOString(),
       diagnostico: datos.diagnostico,
       observaciones: datos.observaciones,
-      pacienteId: usuarioId // Vinculamos al id de Usuario del paciente
+      pacienteId: usuarioId 
     });
     return data;
   }

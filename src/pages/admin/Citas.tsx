@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Table, Tag, Button, Space, Modal, Form, Select, Input, Popconfirm, message, Typography } from 'antd';
-import { PlusOutlined, CloseCircleOutlined, CheckCircleOutlined, SaveOutlined } from '@ant-design/icons';
+import { PlusOutlined, CloseCircleOutlined, CheckCircleOutlined, SaveOutlined, DollarCircleOutlined } from '@ant-design/icons';
 import { citasService, Cita } from '../../services/citasService';
 import { pacientesService } from '../../services/pacientesService';
-import { historialService } from '../../services/historialService'; // 🚀 Importado para registrar el avance
+import { historialService } from '../../services/historialService'; 
 import api from '../../api/axiosConfig'; 
 import { useAuth } from '../../hooks/useAuth';
 import { Paciente } from '../../types';
@@ -58,19 +58,17 @@ const Citas: React.FC = () => {
     }
   }, [user]);
 
+  // 🚀 REFACTORIZADO: Eliminamos la mutación manual del estado para evitar colisiones de renderizado
   const handleAgendarCita = async (values: { pacienteId: string; agendaId: string; motivo: string }) => {
     setFormLoading(true);
     try {
-      const nuevaCita = await citasService.create(values.agendaId, values.motivo, values.pacienteId);
+      await citasService.create(values.agendaId, values.motivo, values.pacienteId);
       message.success('Cita médica agendada de manera exitosa.');
       
       setIsModalOpen(false);
       form.resetFields();
-      setCitas(prev => [nuevaCita, ...prev]);
 
-      setTimeout(async () => {
-        await cargarCitasYDatos();
-      }, 500);
+      await cargarCitasYDatos();
 
     } catch (error: any) {
       console.error(error);
@@ -80,7 +78,6 @@ const Citas: React.FC = () => {
     }
   };
 
-  // 🚀 Al pulsar Completar, abrimos el modal clínico en vez de mandar una cadena por defecto
   const abrirModalCompletar = (cita: Cita) => {
     setCitaSeleccionada(cita);
     setNuevoDiagnostico('');
@@ -88,7 +85,7 @@ const Citas: React.FC = () => {
     setIsClinicoModalOpen(true);
   };
 
-  // 🚀 Guardar el registro clínico e impactar la cita al mismo tiempo
+  // 🚀 OPTIMIZADO: Coherencia cronológica e inyección de fecha real de la cita
   const handleGuardarCitaClinica = async () => {
     if (!citaSeleccionada) return;
     if (!nuevaNota.trim()) {
@@ -96,17 +93,16 @@ const Citas: React.FC = () => {
       return;
     }
 
-    setFormLoading(true);
+    setFormLoading(true); // 🎯 Bloquea dobles clics de inmediato
     try {
-      // 1. Mandamos el historial clínico con el ID del paciente asociado
       if (citaSeleccionada.paciente?.id) {
         await historialService.create(citaSeleccionada.paciente.id, {
           diagnostico: nuevoDiagnostico || 'Consulta Completada',
           observaciones: nuevaNota,
+          fechaSesion: citaSeleccionada.fechaHora, // 🚀 ENVIAMOS LA FECHA REAL DE LA CITA AL HISTORIAL
         });
       }
 
-      // 2. Actualizamos el estado de la cita pasándole las notas ingresadas en tiempo real
       await citasService.update(citaSeleccionada.id, 'REALIZADA', nuevaNota);
       
       message.success('Cita completada y registro clínico de avance guardado.');
@@ -117,7 +113,18 @@ const Citas: React.FC = () => {
       console.error(error);
       message.error('No se pudo procesar la evolución de la cita.');
     } finally {
-      setFormLoading(false);
+      setFormLoading(false); // Libera el estado de carga
+    }
+  };
+
+  const handleRegistrarPago = async (pagoId: string) => {
+    try {
+      await citasService.updatePagoStatus(pagoId, 'PAGADO');
+      message.success('Cobro de consulta registrado de manera exitosa.');
+      cargarCitasYDatos();
+    } catch (error) {
+      console.error(error);
+      message.error('No se pudo actualizar el estado de la transacción.');
     }
   };
 
@@ -154,7 +161,7 @@ const Citas: React.FC = () => {
       ellipsis: true,
     },
     {
-      title: 'Estado',
+      title: 'Estado Cita',
       dataIndex: 'estado',
       key: 'estado',
       render: (estado: string) => {
@@ -165,10 +172,24 @@ const Citas: React.FC = () => {
       },
     },
     {
+      title: 'Monto y Estado de Pago',
+      key: 'pago',
+      render: (_: any, record: Cita) => {
+        if (!record.pago) return <Tag color="default">N/A</Tag>;
+        const esPagado = record.pago.estado === 'PAGADO';
+        return (
+          <Space direction="vertical" size={2}>
+            <Text strong>${Number(record.pago.monto).toFixed(2)}</Text>
+            <Tag color={esPagado ? 'gold' : 'volcano'}>{record.pago.estado}</Tag>
+          </Space>
+        );
+      },
+    },
+    {
       title: 'Acciones',
       key: 'acciones',
       render: (_: any, record: Cita) => (
-        <Space size="middle">
+        <Space size="small">
           {record.estado === 'PENDIENTE' && (
             <>
               <Button 
@@ -191,6 +212,23 @@ const Citas: React.FC = () => {
                 </Button>
               </Popconfirm>
             </>
+          )}
+
+          {record.pago && record.pago.estado === 'PENDIENTE' && record.estado !== 'CANCELADA' && (
+            <Popconfirm
+              title="¿Confirmar el cobro?"
+              description={`Se registrará el abono de $${Number(record.pago.monto).toFixed(2)} como liquidado.`}
+              onConfirm={() => handleRegistrarPago(record.pago!.id)}
+              okText="Marcar Pagado"
+              cancelText="Volver"
+            >
+              <Button 
+                type="text" 
+                icon={<DollarCircleOutlined style={{ color: '#fa8c16' }} />}
+              >
+                Cobrar
+              </Button>
+            </Popconfirm>
           )}
         </Space>
       ),
@@ -230,12 +268,25 @@ const Citas: React.FC = () => {
         destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleAgendarCita} style={{ marginTop: 20 }}>
+          {/* 🚀 SELECTOR CON AUTOCOMPLETADO INTELIGENTE INTEGRADO */}
           <Form.Item 
             name="pacienteId" 
             label="Seleccionar Paciente" 
             rules={[{ required: true, message: 'Por favor selecciona el paciente' }]}
           >
-            <Select showSearch placeholder="Buscar por nombre..." optionFilterProp="children">
+            <Select 
+              showSearch 
+              placeholder="Buscar por nombre..." 
+              optionFilterProp="children"
+              onChange={(value: string) => {
+                const pacienteEncontrado = pacientes.find(p => p.usuario?.id === value);
+                if (pacienteEncontrado && pacienteEncontrado.motivoConsultaInicial) {
+                  form.setFieldsValue({ motivo: pacienteEncontrado.motivoConsultaInicial });
+                } else {
+                  form.setFieldsValue({ motivo: '' });
+                }
+              }}
+            >
               {pacientes.map(p => (
                 <Option key={p.id} value={p.usuario?.id}>
                   {p.usuario?.nombre} {p.usuario?.apellido} ({p.usuario?.email})
@@ -277,7 +328,7 @@ const Citas: React.FC = () => {
         </Form>
       </Modal>
 
-      {/* 🚀 NUEVO MODAL: FORMULARIO CLÍNICO AL COMPLETAR CITA */}
+      {/* FORMULARIO CLÍNICO AL COMPLETAR CITA */}
       <Modal
         title={`Registrar Evolución Clínica: ${citaSeleccionada?.paciente?.nombre || ''} ${citaSeleccionada?.paciente?.apellido || ''}`}
         open={isClinicoModalOpen}
@@ -315,7 +366,7 @@ const Citas: React.FC = () => {
                   type="primary" 
                   icon={<SaveOutlined />} 
                   onClick={handleGuardarCitaClinica} 
-                  loading={formLoading}
+                  loading={formLoading} // 🎯 Evita dobles clics congelando el botón mientras procesa
                 >
                   Confirmar y Finalizar Cita
                 </Button>
