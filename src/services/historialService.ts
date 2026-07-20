@@ -9,6 +9,13 @@ export interface HistorialClinico {
 }
 
 export const historialService = {
+  // 🚀 GET /historiales - Trae el listado completo con relaciones de paciente y psicólogo.
+  // Usado por el Dashboard para construir el gráfico de "Historial por especialidad".
+  getAll: async () => {
+    const { data } = await api.get<any[]>('/historiales');
+    return data;
+  },
+
   // 🚀 GET /historiales - Traemos todos y filtramos en frontend por el ID de Usuario del Paciente
   getByPacienteUsuarioId: async (usuarioId: string) => {
     const { data } = await api.get<any[]>('/historiales');

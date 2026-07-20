@@ -38,6 +38,7 @@ const DashboardLayout: React.FC = () => {
   
   { key: '/dashboard/citas', icon: <CalendarOutlined />, label: 'Citas' },
   ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []),
+  ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/analitica', icon: <TeamOutlined />, label: 'Analítica' }] : []),
 ];
 
   const iniciales = `${user?.nombre?.charAt(0) || ''}${user?.apellido?.charAt(0) || ''}`.toUpperCase() || 'CM';

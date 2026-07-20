@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, DatePicker, TimePicker, Select, Input, Popconfirm, message, Empty } from 'antd';
+import { Table, Modal, Form, DatePicker, TimePicker, Select, Input, Popconfirm, message, Empty } from 'antd';
 import { PlusOutlined, DeleteOutlined, ClockCircleOutlined, CalendarOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { agendasService, AgendaBlock, HorarioTrabajo, ExcepcionDisponibilidad } from '../../services/agendasService';
-import dayjs from 'dayjs';
 
 const { Option } = Select;
 

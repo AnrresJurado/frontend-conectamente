@@ -3,10 +3,12 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import Dashboard from '../pages/admin/Dashboard';
+import Analitica from '../pages/admin/Analitica';
 import Pacientes from '../pages/admin/Pacientes';
 import Psicologos from '../pages/admin/Psicologos'; 
 import Citas from '../pages/admin/Citas'; 
 import Agenda from '../pages/admin/Agenda'; 
+import UsuariosAdmin from '../pages/admin/UsuariosAdmin';
 import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from '../layouts/DashboardLayout';
 import Home from '../pages/public/Home';
@@ -19,7 +21,6 @@ import TerapiasOnline from '../pages/public/TerapiasOnline';
 import GruposApoyo from '../pages/public/GruposApoyo';
 import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
-import UsuariosAdmin from '../pages/admin/UsuariosAdmin'; // 🎯 AGREGAR ESTA LÍNEA
 
 const AppRoutes: React.FC = () => {
   return (
@@ -38,9 +39,6 @@ const AppRoutes: React.FC = () => {
       <Route path="/grupos-apoyo" element={<GruposApoyo />} />
       <Route path="/servicios" element={<Servicios />} />
       <Route path="/recursos" element={<Recursos />} />
-      
-
-      
 
       {/* --- RUTAS PRIVADAS COMPARTIDAS --- */}
       <Route element={<ProtectedRoute />}>
@@ -55,6 +53,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/pacientes" element={<Pacientes />} />
           <Route path="/dashboard/citas" element={<Citas />} /> 
           <Route path="/dashboard/agenda" element={<Agenda />} />
+          <Route path="/dashboard/analitica" element={<Analitica />} />
         </Route>
       </Route>
 
@@ -62,19 +61,12 @@ const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard/psicologos" element={<Psicologos />} />
+          <Route path="/dashboard/usuarios" element={<UsuariosAdmin />} />
         </Route>
       </Route>
 
       {/* Redirección por defecto si entran a una ruta inexistente */}
       <Route path="*" element={<Navigate to="/login" replace />} />
-
-      {/* --- RUTAS PRIVADAS EXCLUSIVAS DE ADMINISTRACIÓN --- */}
-      <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard/psicologos" element={<Psicologos />} />
-          <Route path="/dashboard/usuarios" element={<UsuariosAdmin />} /> {/* 🚀 NUEVA RUTA CONFIGURADA */}
-        </Route>
-      </Route>
     </Routes>
   );
 };
