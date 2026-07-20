@@ -29,8 +29,19 @@ const Login: React.FC = () => {
 
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      // Llamamos a la función login del hook (asumiendo que puede retornar la respuesta del backend)
+      const response: any = await login(email, password);
+      
+      // Obtenemos el rol utilizando las mismas variables y propiedades que maneja tu backend (rol)
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const userRole = response?.rol || response?.user?.rol || storedUser?.rol;
+
+      // REDIRECCIÓN CONDICIONAL SEGÚN EL ROL DE PACIENTE VS PSICÓLOGO/ADMIN
+      if (userRole === 'PACIENTE') {
+        navigate('/mi-espacio');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       console.error(err);
       if (err.response && err.response.status === 401) {
@@ -100,8 +111,6 @@ const Login: React.FC = () => {
 
       {/* PANEL DERECHO */}
       <section style={styles.rightPanel}>
-        
-
         <div style={styles.formCard}>
           <h2 style={styles.title}>Bienvenido de nuevo</h2>
           <p style={styles.subtitle}>Ingresa a tu cuenta para continuar</p>
