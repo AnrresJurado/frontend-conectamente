@@ -5,10 +5,14 @@ import Register from '../pages/public/Register';
 import Dashboard from '../pages/admin/Dashboard';
 import Analitica from '../pages/admin/Analitica';
 import Pacientes from '../pages/admin/Pacientes';
-import Psicologos from '../pages/admin/Psicologos'; 
-import Citas from '../pages/admin/Citas'; 
-import Agenda from '../pages/admin/Agenda'; 
+import Psicologos from '../pages/admin/Psicologos';
+import Citas from '../pages/admin/Citas';
+import Agenda from '../pages/admin/Agenda';
 import UsuariosAdmin from '../pages/admin/UsuariosAdmin';
+import Progreso from '../pages/admin/Progreso';
+import Encuestas from '../pages/admin/Encuestas';
+import MiProgreso from '../pages/admin/MiProgreso';
+import MisEncuestas from '../pages/admin/MisEncuestas';
 import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from '../layouts/DashboardLayout';
 import Home from '../pages/public/Home';
@@ -63,7 +67,7 @@ const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'PSICOLOGO']} />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard/pacientes" element={<Pacientes />} />
-          <Route path="/dashboard/citas" element={<Citas />} /> 
+          <Route path="/dashboard/citas" element={<Citas />} />
           <Route path="/dashboard/agenda" element={<Agenda />} />
           <Route path="/dashboard/analitica" element={<Analitica />} />
           <Route path="/dashboard/chats" element={<Chats />} />
