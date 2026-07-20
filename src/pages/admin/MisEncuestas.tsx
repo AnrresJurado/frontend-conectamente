@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Tag, Spin, Alert, message, Card, Statistic, Button, Modal } from 'antd';
-import { encuestasService, Encuesta, RespuestaEncuesta } from '../../services/encuestasService';
+import { encuestasService, Encuesta, Respuesta } from '../../services/encuestasService';
 
 const PALETTE = {
   primaryDark: '#12414a',
@@ -18,7 +18,7 @@ const PALETTE = {
 
 const MisEncuestas: React.FC = () => {
   const [encuestas, setEncuestas] = useState<Encuesta[]>([]);
-  const [misRespuestas, setMisRespuestas] = useState<RespuestaEncuesta[]>([]);
+  const [misRespuestas, setMisRespuestas] = useState<Respuesta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [encuestaSeleccionada, setEncuestaSeleccionada] = useState<Encuesta | null>(null);
@@ -34,7 +34,7 @@ const MisEncuestas: React.FC = () => {
     try {
       const [encuestasData, respuestasData] = await Promise.all([
         encuestasService.getAll(),
-        encuestasService.misRespuestas(),
+        encuestasService.getMisRespuestas(),
       ]);
       setEncuestas(encuestasData);
       setMisRespuestas(respuestasData);

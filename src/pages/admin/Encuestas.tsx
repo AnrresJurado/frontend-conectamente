@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { encuestasService, Encuesta, RespuestaEncuesta, MetricasEncuestas } from '../../services/encuestasService';
+import { encuestasService, Encuesta, Respuesta, AsignacionEncuesta } from '../../services/encuestasService';
 
 const PALETTE = {
   primaryDark: '#12414a',
@@ -29,8 +29,8 @@ const COLORS = ['#1d5863', '#4da6b0', '#e0a13a', '#c0564e', '#7c6fda', '#3f9d6f'
 
 const Encuestas: React.FC = () => {
   const [encuestas, setEncuestas] = useState<Encuesta[]>([]);
-  const [metricas, setMetricas] = useState<MetricasEncuestas | null>(null);
-  const [respuestas, setRespuestas] = useState<RespuestaEncuesta[]>([]);
+  const [metricas, setMetricas] = useState<any>(null);
+  const [respuestas, setRespuestas] = useState<Respuesta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [encuestaSeleccionada, setEncuestaSeleccionada] = useState<Encuesta | null>(null);
@@ -46,7 +46,7 @@ const Encuestas: React.FC = () => {
     try {
       const [encuestasData, metricasData] = await Promise.all([
         encuestasService.getAll(),
-        encuestasService.getMetricas(),
+        encuestasService.getMetricasGenerales(),
       ]);
       setEncuestas(encuestasData);
       setMetricas(metricasData);
@@ -75,7 +75,7 @@ const Encuestas: React.FC = () => {
   };
 
   // Datos para el gráfico de respuestas por encuesta
-  const datosRespuestasPorEncuesta = metricas?.respuestasPorEncuesta?.map((item, index) => ({
+  const datosRespuestasPorEncuesta = metricas?.respuestasPorEncuesta?.map((item: any, index: number) => ({
     nombre: item.encuestaTitulo,
     cantidad: item.cantidad,
     color: COLORS[index % COLORS.length],

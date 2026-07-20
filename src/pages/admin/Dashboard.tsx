@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
         if (esAdmin || esPsicologo) {
           const [metricasProg, metricasEnc, metricasTest] = await Promise.all([
             progresoService.getMetricas(),
-            encuestasService.getMetricas(),
+            encuestasService.getMetricasGenerales(),
             testsPsicometricosService.estadisticasPorTipo('general'),
           ]);
           if (activo) {
