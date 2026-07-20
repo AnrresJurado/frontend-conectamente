@@ -3,7 +3,7 @@ import { Layout, Avatar, Space } from 'antd';
 import {
   MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined, UserOutlined,
   CalendarOutlined, LogoutOutlined, TeamOutlined, ScheduleOutlined, HeartFilled,
-  BarChartOutlined, FileTextOutlined, RiseOutlined
+  BarChartOutlined, FileTextOutlined, RiseOutlined, InboxOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -31,20 +31,26 @@ const DashboardLayout: React.FC = () => {
   if (!user) return <Navigate to="/login" replace />;
 
   const menuItems = [
-  { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-  ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/pacientes', icon: <UserOutlined />, label: 'Pacientes' }] : []),
-  ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/psicologos', icon: <TeamOutlined />, label: 'Psicólogos' }] : []),
-
-  ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/usuarios', icon: <TeamOutlined />, label: 'Control de Usuarios' }] : []),
-  
-  { key: '/dashboard/citas', icon: <CalendarOutlined />, label: 'Citas' },
-  ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []),
-  ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/progreso', icon: <RiseOutlined />, label: 'Progreso' }] : []),
-  ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/encuestas', icon: <FileTextOutlined />, label: 'Encuestas' }] : []),
-  ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/analitica', icon: <BarChartOutlined />, label: 'Analítica' }] : []),
-  ...(user?.rol === 'PACIENTE' ? [{ key: '/dashboard/mi-progreso', icon: <RiseOutlined />, label: 'Mi Progreso' }] : []),
-  ...(user?.rol === 'PACIENTE' ? [{ key: '/dashboard/mis-encuestas', icon: <FileTextOutlined />, label: 'Mis Encuestas' }] : []),
-];
+    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/pacientes', icon: <UserOutlined />, label: 'Pacientes' }] : []),
+    
+    // 🩺 BANDEJA DE SOLICITUDES: Visible para Psicólogos y Administradores
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/solicitudes', icon: <InboxOutlined />, label: 'Bandeja Solicitudes' }] : []),
+    
+    ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/psicologos', icon: <TeamOutlined />, label: 'Psicólogos' }] : []),
+    ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/usuarios', icon: <TeamOutlined />, label: 'Control de Usuarios' }] : []),
+    
+    { key: '/dashboard/citas', icon: <CalendarOutlined />, label: 'Citas' },
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/progreso', icon: <RiseOutlined />, label: 'Progreso' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/encuestas', icon: <FileTextOutlined />, label: 'Encuestas' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/analitica', icon: <BarChartOutlined />, label: 'Analítica' }] : []),
+    
+    // 🚪 BUSCAR ESPECIALISTA: Exclusivo para Pacientes autónomos que entran al sistema
+    ...(user?.rol === 'PACIENTE' ? [{ key: '/dashboard/buscar-psicologo', icon: <UserOutlined />, label: 'Buscar Especialista' }] : []),
+    ...(user?.rol === 'PACIENTE' ? [{ key: '/dashboard/mi-progreso', icon: <RiseOutlined />, label: 'Mi Progreso' }] : []),
+    ...(user?.rol === 'PACIENTE' ? [{ key: '/dashboard/mis-encuestas', icon: <FileTextOutlined />, label: 'Mis Encuestas' }] : []),
+  ];
 
   const iniciales = `${user?.nombre?.charAt(0) || ''}${user?.apellido?.charAt(0) || ''}`.toUpperCase() || 'CM';
 
@@ -57,7 +63,6 @@ const DashboardLayout: React.FC = () => {
         width={260}
         style={{ background: '#ffffff', borderRight: `1px solid ${COLORS.border}` }}
       >
-        {/* Logo con acento de marca */}
         <div style={styles.logoBlock}>
           <div style={styles.logoBadge}>
             <HeartFilled style={{ fontSize: 18, color: '#ffffff' }} />
@@ -65,7 +70,6 @@ const DashboardLayout: React.FC = () => {
           {!collapsed && <span style={styles.logoText}>ConectaMente</span>}
         </div>
 
-        {/* Navegación propia (sin Menu genérico de antd) */}
         <nav style={styles.nav}>
           {menuItems.map((item) => {
             const activo = location.pathname === item.key;
@@ -86,7 +90,6 @@ const DashboardLayout: React.FC = () => {
           })}
         </nav>
 
-        {/* Cerrar sesión */}
         <div style={styles.logoutWrapper}>
           <button onClick={handleLogout} style={styles.logoutButton}>
             <LogoutOutlined style={{ fontSize: 16 }} />

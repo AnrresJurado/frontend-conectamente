@@ -25,6 +25,8 @@ import TerapiasOnline from '../pages/public/TerapiasOnline';
 import GruposApoyo from '../pages/public/GruposApoyo';
 import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
+import BuscarPsicologo from '../pages/public/BuscarPsicologo'; 
+import BandejaSolicitudes from '../pages/admin/BandejaSolicitudes'; // 🎯 Importado correctamente
 
 const AppRoutes: React.FC = () => {
   return (
@@ -60,6 +62,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/analitica" element={<Analitica />} />
           <Route path="/dashboard/progreso" element={<Progreso />} />
           <Route path="/dashboard/encuestas" element={<Encuestas />} />
+          <Route path="/dashboard/solicitudes" element={<BandejaSolicitudes />} /> {/* 👈 🎯 Inyectado en el contenedor compartido */}
         </Route>
       </Route>
 
@@ -68,6 +71,7 @@ const AppRoutes: React.FC = () => {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard/mi-progreso" element={<MiProgreso />} />
           <Route path="/dashboard/mis-encuestas" element={<MisEncuestas />} />
+          <Route path="/dashboard/buscar-psicologo" element={<BuscarPsicologo />} /> 
         </Route>
       </Route>
 
