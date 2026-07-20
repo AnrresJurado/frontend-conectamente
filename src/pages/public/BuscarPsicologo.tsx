@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Button, Input, Modal, message, List, Tag, Typography } from 'antd';
+import { Card, Button, Input, Modal, message, List, Tag, Typography } from 'antd';
 import { psicologosService } from '../../services/psicologosService';
 import { solicitudesService } from '../../services/solicitudesService';
 import { Psicologo } from '../../types';
@@ -92,7 +92,7 @@ const BuscarPsicologo: React.FC = () => {
           <TextArea 
             rows={4} 
             value={mensaje} 
-            onChange={(e) => setMensaje(e.target.value)} 
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMensaje(e.target.value)} 
             placeholder="Ej. Hola, requiero acompañamiento debido a problemas constantes de estrés y ansiedad..." 
           />
         </div>

@@ -33,6 +33,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 const { Title, Paragraph, Text } = Typography;
 
+
 // ─────────────────────────────────────────────────────────────
 // Paleta e identidad visual — misma familia que Dashboard
 // ─────────────────────────────────────────────────────────────
@@ -116,6 +117,7 @@ const getColorPorEstado = (estado: string) => {
   };
   return map[estado?.toUpperCase()] || '#4da6b0';
 };
+
 
 export const MiEspacio: React.FC = () => {
   const { user } = useAuth();
