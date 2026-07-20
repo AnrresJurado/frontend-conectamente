@@ -5,8 +5,6 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import api from "../../api/axiosConfig";
 import Logo from "../../components/Logo";
 
-const { TextArea } = Input;
-
 const RegisterPsicologo: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");

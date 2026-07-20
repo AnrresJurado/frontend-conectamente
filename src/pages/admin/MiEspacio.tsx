@@ -14,7 +14,6 @@ import {
 } from '@ant-design/icons';
 
 const { Title, Paragraph, Text } = Typography;
-const { TextArea } = Input;
 
 export const MiEspacio: React.FC = () => {
   const [activeTab, setActiveTab] = useState('1');
