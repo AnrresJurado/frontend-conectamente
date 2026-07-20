@@ -25,8 +25,16 @@ import TerapiasOnline from '../pages/public/TerapiasOnline';
 import GruposApoyo from '../pages/public/GruposApoyo';
 import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
+
+// 🎯 Tus importaciones
 import BuscarPsicologo from '../pages/public/BuscarPsicologo'; 
-import BandejaSolicitudes from '../pages/admin/BandejaSolicitudes'; // 🎯 Importado correctamente
+import BandejaSolicitudes from '../pages/admin/BandejaSolicitudes';
+
+// 💬 Importaciones unificadas de tu compañera
+import Chats from '../pages/admin/Chats';
+import PacienteLayout from '../layouts/PacienteLayout';
+import { MiEspacio } from '../pages/admin/MiEspacio';
+import RegisterPsicologo from '../pages/public/RegisterPsicologo';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -35,7 +43,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/registro" element={<Register />} /> {/* Mantiene soporte para la ruta en español */}
+      <Route path="/registro" element={<Register />} />
       <Route path="/profesionales" element={<Profesionales />} />
       <Route path="/profesionales/:id" element={<ProfesionalDetalle />} />
       <Route path="/contacto" element={<Contacto />} />
@@ -45,6 +53,21 @@ const AppRoutes: React.FC = () => {
       <Route path="/grupos-apoyo" element={<GruposApoyo />} />
       <Route path="/servicios" element={<Servicios />} />
       <Route path="/recursos" element={<Recursos />} />
+      
+      {/* Rutas de registro específicas para psicólogos */}
+      <Route path="/register/psicologo" element={<RegisterPsicologo />} />
+      <Route path="/registro-psicologo" element={<RegisterPsicologo />} />
+      
+      {/* --- RUTA EXCLUSIVA PARA PACIENTE (Layout unificado de tu compañera + Tus vistas) --- */}
+      <Route element={<ProtectedRoute allowedRoles={['PACIENTE']} />}>
+        <Route element={<PacienteLayout />}>
+          <Route path="/mi-espacio" element={<MiEspacio />} />
+          <Route path="/mi-progreso" element={<MiProgreso />} />
+          <Route path="/mis-encuestas" element={<MisEncuestas />} />
+          <Route path="/buscar-psicologo" element={<BuscarPsicologo />} /> {/* 👈 🎯 Inyectado de forma segura dentro de PacienteLayout */}
+          <Route path="/chats" element={<Chats />} /> {/* Si el paciente también usa chats */}
+        </Route>
+      </Route>
 
       {/* --- RUTAS PRIVADAS COMPARTIDAS --- */}
       <Route element={<ProtectedRoute />}>
@@ -60,21 +83,13 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/citas" element={<Citas />} />
           <Route path="/dashboard/agenda" element={<Agenda />} />
           <Route path="/dashboard/analitica" element={<Analitica />} />
+          <Route path="/dashboard/chats" element={<Chats />} />
           <Route path="/dashboard/progreso" element={<Progreso />} />
           <Route path="/dashboard/encuestas" element={<Encuestas />} />
-          <Route path="/dashboard/solicitudes" element={<BandejaSolicitudes />} /> {/* 👈 🎯 Inyectado en el contenedor compartido */}
+          <Route path="/dashboard/solicitudes" element={<BandejaSolicitudes />} /> {/* 👈 🎯 Tu bandeja de entrada */}
         </Route>
       </Route>
-
-      {/* --- RUTAS PRIVADAS PARA PACIENTE --- */}
-      <Route element={<ProtectedRoute allowedRoles={['PACIENTE']} />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard/mi-progreso" element={<MiProgreso />} />
-          <Route path="/dashboard/mis-encuestas" element={<MisEncuestas />} />
-          <Route path="/dashboard/buscar-psicologo" element={<BuscarPsicologo />} /> 
-        </Route>
-      </Route>
-
+      
       {/* --- RUTAS PRIVADAS EXCLUSIVAS DE ADMINISTRACIÓN --- */}
       <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
         <Route element={<DashboardLayout />}>
