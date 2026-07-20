@@ -27,7 +27,8 @@ import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
 import Chats from '../pages/admin/Chats';
 import PacienteLayout from '../layouts/PacienteLayout';
-import { MiEspacio } from '../pages/admin/MiEspacio'; // <-- CORREGIDO AQUÍ
+import { MiEspacio } from '../pages/admin/MiEspacio';
+import RegisterPsicologo from '../pages/public/RegisterPsicologo';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -47,10 +48,16 @@ const AppRoutes: React.FC = () => {
       <Route path="/servicios" element={<Servicios />} />
       <Route path="/recursos" element={<Recursos />} />
       
+      {/* Rutas de registro específicas */}
+      <Route path="/register/psicologo" element={<RegisterPsicologo />} />
+      <Route path="/registro-psicologo" element={<RegisterPsicologo />} />
+      
       {/* --- RUTA EXCLUSIVA PARA PACIENTE --- */}
       <Route element={<ProtectedRoute allowedRoles={['PACIENTE']} />}>
         <Route element={<PacienteLayout />}>
           <Route path="/mi-espacio" element={<MiEspacio />} />
+          <Route path="/mi-progreso" element={<MiProgreso />} />
+          <Route path="/mis-encuestas" element={<MisEncuestas />} />
         </Route>
       </Route>
 
@@ -69,6 +76,8 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/agenda" element={<Agenda />} />
           <Route path="/dashboard/analitica" element={<Analitica />} />
           <Route path="/dashboard/chats" element={<Chats />} />
+          <Route path="/dashboard/progreso" element={<Progreso />} />
+          <Route path="/dashboard/encuestas" element={<Encuestas />} />
         </Route>
       </Route>
       

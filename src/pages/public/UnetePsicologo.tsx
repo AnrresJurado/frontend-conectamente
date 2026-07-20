@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from 'antd';
 import {
   ArrowLeftOutlined, CalendarOutlined, TeamOutlined,
-  DollarCircleOutlined, SafetyCertificateOutlined, RocketOutlined,
+  DollarCircleOutlined, SafetyCertificateOutlined, 
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import Logo from "../../components/Logo";
@@ -49,7 +49,7 @@ const UnetePsicologo: React.FC = () => {
 
   const irARegistro = () => {
     // Le pasamos el rol sugerido a Register.tsx para preseleccionar "Psicólogo"
-    navigate('/register', { state: { rolSugerido: 'PSICOLOGO' } });
+    navigate('/register/psicologo', { state: { rolSugerido: 'PSICOLOGO' } });
   };
 
   return (
@@ -91,16 +91,6 @@ const UnetePsicologo: React.FC = () => {
             acompañan a cientos de personas en su bienestar emocional, con
             todas las herramientas que necesitas en un solo lugar.
           </p>
-          <Button
-            type="primary"
-            size="large"
-            icon={<RocketOutlined />}
-            className="cm-unete-cta"
-            style={styles.ctaButtonHero}
-            onClick={irARegistro}
-          >
-            Ser Psicólogo
-          </Button>
         </div>
 
         <div style={styles.heroImageWrapper}>
