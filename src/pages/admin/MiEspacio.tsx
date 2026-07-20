@@ -24,15 +24,15 @@ import {
   SearchOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import api from '../../api/axiosConfig';
 import { progresoService } from '../../services/progresoService';
 import { chatsService } from '../../services/chatsService';
 import { psicologosService } from '../../services/psicologosService';
 import { notificacionesService } from '../../services/notificacionesService';
+import { pacientesService } from '../../services/pacientesService';
+import { citasService } from '../../services/citasService';
 import { useAuth } from '../../hooks/useAuth';
 
 const { Title, Paragraph, Text } = Typography;
-
 
 // ─────────────────────────────────────────────────────────────
 // Paleta e identidad visual — misma familia que Dashboard
@@ -118,7 +118,6 @@ const getColorPorEstado = (estado: string) => {
   return map[estado?.toUpperCase()] || '#4da6b0';
 };
 
-
 export const MiEspacio: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('1');
@@ -162,8 +161,17 @@ export const MiEspacio: React.FC = () => {
   const fetchDataPaciente = async () => {
     setLoading(true);
     try {
-      const resPaciente = await api.get('/pacientes/perfil-me');
-      const dataPac = resPaciente.data;
+      // 🎯 Usa pacientesService.getAll() — GET /pacientes real, el backend ya filtra
+      // por token: para un usuario con rol PACIENTE devuelve su propio expediente.
+      const pacientes = await pacientesService.getAll();
+      const dataPac: any = pacientes?.[0];
+
+      if (!dataPac) {
+        message.warning('No encontramos tu expediente de paciente todavía.');
+        setLoading(false);
+        return;
+      }
+
       setPacienteData(dataPac);
       setNombre(dataPac.usuario?.nombre || '');
       setApellido(dataPac.usuario?.apellido || '');
@@ -176,8 +184,9 @@ export const MiEspacio: React.FC = () => {
         }
       }
 
-      const resCitas = await api.get('/citas/mis-citas');
-      setCitas(resCitas.data || []);
+      // 🎯 Usa citasService.getAll() — GET /citas real (mismo servicio que ya usa Dashboard.tsx)
+      const citasData = await citasService.getAll();
+      setCitas(citasData || []);
 
       try {
         if (dataPac.id) {
@@ -191,12 +200,9 @@ export const MiEspacio: React.FC = () => {
         console.warn("No se pudo cargar el progreso:", errProg);
       }
 
-      try {
-        const resRecom = await api.get('/recomendaciones/mis-recomendaciones');
-        setRecomendaciones(resRecom.data || []);
-      } catch {
-        console.warn("No se pudieron cargar recomendaciones");
-      }
+      // ⏳ PENDIENTE: no existe todavía un recomendacionesService.ts confirmado.
+      // Se deja en blanco hasta que exista ese endpoint real; así no se rompe la pantalla.
+      setRecomendaciones([]);
 
     } catch (err) {
       console.error("Error al cargar la información:", err);
@@ -229,10 +235,10 @@ export const MiEspacio: React.FC = () => {
   const solicitarPsicologo = async (psicologo: any) => {
     setSolicitandoPsicologo(true);
     try {
-      // 1. Asignar el psicólogo al paciente
-      await api.patch(`/pacientes/${pacienteData.id}/asignar-psicologo`, {
-        psicologoId: psicologo.id,
-      });
+      // 🎯 Asignación directa vía PATCH /pacientes/:id (endpoint real y confirmado).
+      // ⚠️ Requiere que tu UpdatePacienteDto (backend) acepte el campo "psicologoId".
+      // Si no lo acepta todavía, agrégalo: @IsUUID() @IsOptional() psicologoId?: string;
+      await pacientesService.update(pacienteData.id, { psicologoId: psicologo.id } as any);
 
       // 2. Enviar notificación al psicólogo
       const usuarioPsicologoId = psicologo.usuario?.id;
@@ -312,14 +318,17 @@ export const MiEspacio: React.FC = () => {
   };
 
   const handleUpdateProfile = async () => {
+    if (!pacienteData?.id) return;
     setGuardandoPerfil(true);
     try {
-      await api.patch('/usuarios/actualizar-perfil', {
-        nombre,
-        apellido,
+      // 🎯 Usa PATCH /pacientes/:id (real) para guardar el teléfono de emergencia.
+      // ⏳ Nombre y apellido viven en la entidad Usuario, no en Paciente — todavía no
+      // tenemos confirmado un endpoint real para editarlos (ej. PATCH /usuarios/:id),
+      // así que por ahora esos campos quedan de solo lectura para no romper nada.
+      await pacientesService.update(pacienteData.id, {
         telefonoEmergencia: telefono,
-      });
-      message.success("¡Perfil actualizado con éxito!");
+      } as any);
+      message.success("¡Teléfono actualizado con éxito!");
       fetchDataPaciente();
     } catch (err) {
       console.error(err);
@@ -572,9 +581,17 @@ export const MiEspacio: React.FC = () => {
                     <div style={{ textAlign: 'center' }}>
                       <Avatar 
                         size={100} 
-                        src={psicologoData?.fotoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${psicologoData?.usuario?.nombre || 'psicologo'}`}
-                        style={{ border: '4px solid #EEF2FF', marginBottom: 16 }}
-                      />
+                        style={{
+                          border: '4px solid #EEF2FF',
+                          marginBottom: 16,
+                          background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: 32,
+                        }}
+                      >
+                        {`${psicologoData?.usuario?.nombre?.charAt(0) || ''}${psicologoData?.usuario?.apellido?.charAt(0) || ''}`.toUpperCase() || <TeamOutlined />}
+                      </Avatar>
                       {psicologoData ? (
                         <>
                           <Title level={4} style={{ margin: 0, color: '#1E293B' }}>
@@ -885,7 +902,6 @@ export const MiEspacio: React.FC = () => {
                         size={88} 
                         icon={<UserOutlined />} 
                         style={{ backgroundColor: PALETTE.primary, marginBottom: 12 }}
-                        src={pacienteData?.fotoUrl || null}
                       />
                       <Title level={4} style={{ margin: 0, color: '#1E293B' }}>
                         {nombre} {apellido}
@@ -896,22 +912,22 @@ export const MiEspacio: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                       <div>
                         <Text type="secondary" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
-                          Nombre
+                          Nombre <Text type="secondary" style={{ fontSize: 11 }}>(contacta a soporte para cambiarlo)</Text>
                         </Text>
                         <Input 
                           value={nombre} 
-                          onChange={(e) => setNombre(e.target.value)} 
+                          disabled
                           style={{ borderRadius: 10, padding: '8px 12px' }}
                           prefix={<UserOutlined style={{ color: PALETTE.textMuted }} />}
                         />
                       </div>
                       <div>
                         <Text type="secondary" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
-                          Apellido
+                          Apellido <Text type="secondary" style={{ fontSize: 11 }}>(contacta a soporte para cambiarlo)</Text>
                         </Text>
                         <Input 
                           value={apellido} 
-                          onChange={(e) => setApellido(e.target.value)} 
+                          disabled
                           style={{ borderRadius: 10, padding: '8px 12px' }}
                           prefix={<UserOutlined style={{ color: PALETTE.textMuted }} />}
                         />
@@ -1013,9 +1029,15 @@ export const MiEspacio: React.FC = () => {
                     avatar={
                       <Avatar 
                         size={56} 
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${nombrePsi}`}
-                        style={{ border: `2px solid ${PALETTE.accent}` }}
-                      />
+                        style={{
+                          border: `2px solid ${PALETTE.accent}`,
+                          background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
+                          color: '#ffffff',
+                          fontWeight: 700,
+                        }}
+                      >
+                        {`${nombrePsi.charAt(0) || ''}${apellidoPsi.charAt(0) || ''}`.toUpperCase()}
+                      </Avatar>
                     }
                     title={
                       <Text strong style={{ color: '#1E293B', fontSize: 15 }}>
