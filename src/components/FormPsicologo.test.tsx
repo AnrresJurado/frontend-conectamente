@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import FormPsicologo from './FormPsicologo';
 import { vi, describe, it, expect, beforeAll } from 'vitest'; // Cambia 'vitest' por 'jest' si usas Jest
