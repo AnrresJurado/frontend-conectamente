@@ -24,6 +24,7 @@ import Recursos from '../pages/public/Recursos';
 import Chats from '../pages/admin/Chats';
 import PacienteLayout from '../layouts/PacienteLayout';
 import { MiEspacio } from '../pages/admin/MiEspacio'; // <-- CORREGIDO AQUÍ
+import RegisterPsicologo from '../pages/public/RegisterPsicologo';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -42,6 +43,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/grupos-apoyo" element={<GruposApoyo />} />
       <Route path="/servicios" element={<Servicios />} />
       <Route path="/recursos" element={<Recursos />} />
+      <Route path="/register/psicologo" element={<RegisterPsicologo />} />
       
       {/* --- RUTA EXCLUSIVA PARA PACIENTE --- */}
       <Route element={<ProtectedRoute allowedRoles={['PACIENTE']} />}>
