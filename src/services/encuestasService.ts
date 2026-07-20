@@ -58,4 +58,10 @@ export const encuestasService = {
     const { data } = await api.get<MetricasEncuestas>('/encuestas/metricas/generales');
     return data;
   },
+
+  // GET /encuestas/mis-respuestas - Obtiene las respuestas del usuario autenticado
+  misRespuestas: async () => {
+    const { data } = await api.get<RespuestaEncuesta[]>('/encuestas/mis-respuestas');
+    return data;
+  },
 };
