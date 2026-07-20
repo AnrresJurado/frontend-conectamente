@@ -24,7 +24,7 @@ export const adminService = {
     if (rol) params.rol = rol;
 
     const { data } = await api.get<any>('/admin/usuarios', { params });
-    return data; // Retorna el listado paginado directo desde NestJS
+    return data;
   },
 
   // 🚀 2. Registrar nuevo personal interno (Staff)
@@ -36,6 +36,12 @@ export const adminService = {
   // 🚀 3. Borrado lógico (Desactivar usuario de la plataforma)
   darDeBaja: async (id: string) => {
     const { data } = await api.delete<{ mensaje: string }>(`/admin/usuarios/${id}`);
+    return data;
+  },
+
+  // 🎯 4. NUEVO: Revertir la baja del usuario en la base de datos
+  reactivarUsuario: async (id: string) => {
+    const { data } = await api.patch<{ mensaje: string }>(`/admin/usuarios/${id}/reactivar`);
     return data;
   }
 };
