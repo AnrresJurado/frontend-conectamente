@@ -14,7 +14,6 @@ import {
 import {
   SearchOutlined,
   VideoCameraOutlined,
-  UsergroupAddOutlined,
   BookOutlined,
   FolderOpenOutlined,
   MailOutlined,
