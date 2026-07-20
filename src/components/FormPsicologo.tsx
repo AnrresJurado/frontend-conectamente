@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, Input, Button, Row, Col } from 'antd';
+import { Form, Input, Button, Row, Col, Select, message } from 'antd';
 import { psicologoSchema, PsicologoFormData } from '../types';
+import { especialidadesService, EspecialidadMaestra } from '../services/especialidadesService';
 
 interface FormPsicologoProps {
   onSubmit: (data: PsicologoFormData) => void;
@@ -11,13 +12,29 @@ interface FormPsicologoProps {
 }
 
 const FormPsicologo: React.FC<FormPsicologoProps> = ({ onSubmit, loading, initialValues }) => {
+  const [especialidades, setEspecialidades] = useState<EspecialidadMaestra[]>([]);
+
+  // Cargamos las especialidades maestras desde la base de datos
+  useEffect(() => {
+    const cargarEspecialidadesMaestras = async () => {
+      try {
+        const data = await especialidadesService.getAll();
+        setEspecialidades(data);
+      } catch (error) {
+        console.error(error);
+        message.error('No se pudieron cargar las especialidades del servidor.');
+      }
+    };
+    cargarEspecialidadesMaestras();
+  }, []);
+
   const { control, handleSubmit, formState: { errors } } = useForm<PsicologoFormData>({
     resolver: zodResolver(psicologoSchema),
     values: {
       nombre: initialValues?.nombre ?? '',
       apellido: initialValues?.apellido ?? '',
       email: initialValues?.email ?? '',
-      password: '', // Siempre vacío por defecto en el cliente
+      password: '', 
       especialidad: initialValues?.especialidad ?? '',
       licenciaProfesional: initialValues?.licenciaProfesional ?? '',
       telefono: initialValues?.telefono ?? '',
@@ -46,7 +63,7 @@ const FormPsicologo: React.FC<FormPsicologoProps> = ({ onSubmit, loading, initia
           </Form.Item>
         </Col>
 
-        {/* --- CONTRASEÑA (SOLO CUANDO SE CREA UN USUARIO NUEVO) --- */}
+        {/* --- CONTRASEÑA --- */}
         {!esEdicion && (
           <Col span={24}>
             <Form.Item label="Contraseña Temporal" validateStatus={errors.password ? 'error' : ''} help={errors.password?.message}>
@@ -58,7 +75,19 @@ const FormPsicologo: React.FC<FormPsicologoProps> = ({ onSubmit, loading, initia
         {/* --- DATOS PROFESIONALES --- */}
         <Col span={12}>
           <Form.Item label="Especialidad Clínica" validateStatus={errors.especialidad ? 'error' : ''} help={errors.especialidad?.message}>
-            <Controller name="especialidad" control={control} render={({ field }) => <Input {...field} placeholder="Terapia Cognitivo Conductual" />} />
+            <Controller 
+              name="especialidad" 
+              control={control} 
+              render={({ field }) => (
+                <Select 
+                  {...field} 
+                  placeholder="Selecciona la especialidad"
+                  showSearch
+                  optionFilterProp="label"
+                  options={especialidades.map(e => ({ value: e.nombre, label: e.nombre }))}
+                />
+              )} 
+            />
           </Form.Item>
         </Col>
         <Col span={12}>
