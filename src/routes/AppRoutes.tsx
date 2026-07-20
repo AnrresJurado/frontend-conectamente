@@ -25,6 +25,8 @@ import TerapiasOnline from '../pages/public/TerapiasOnline';
 import GruposApoyo from '../pages/public/GruposApoyo';
 import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
+import Recomendaciones from '../pages/admin/Recomendaciones';
+import MisRecomendaciones from '../pages/paciente/MisRecomendaciones';
 
 // 🎯 Tus importaciones
 import BuscarPsicologo from '../pages/public/BuscarPsicologo'; 
@@ -66,6 +68,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/mis-encuestas" element={<MisEncuestas />} />
           <Route path="/buscar-psicologo" element={<BuscarPsicologo />} /> {/* 👈 🎯 Inyectado de forma segura dentro de PacienteLayout */}
           <Route path="/chats" element={<Chats />} /> {/* Si el paciente también usa chats */}
+          <Route path="/mis-recomendaciones" element={<MisRecomendaciones />} /> {/* 🎯 Módulo de recomendaciones para pacientes */}
         </Route>
       </Route>
 
@@ -87,6 +90,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/progreso" element={<Progreso />} />
           <Route path="/dashboard/encuestas" element={<Encuestas />} />
           <Route path="/dashboard/solicitudes" element={<BandejaSolicitudes />} /> {/* 👈 🎯 Tu bandeja de entrada */}
+          <Route path="/dashboard/recomendaciones" element={<Recomendaciones />} /> {/* 🎯 Módulo de recomendaciones para psicólogos */}
         </Route>
       </Route>
       
