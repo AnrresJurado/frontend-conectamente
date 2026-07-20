@@ -22,6 +22,8 @@ import GruposApoyo from '../pages/public/GruposApoyo';
 import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
 import Chats from '../pages/admin/Chats';
+import PacienteLayout from '../layouts/PacienteLayout';
+import { MiEspacio } from '../pages/admin/MiEspacio'; // <-- CORREGIDO AQUÍ
 
 const AppRoutes: React.FC = () => {
   return (
@@ -30,7 +32,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/registro" element={<Register />} /> {/* Mantiene soporte para la ruta en español */}
+      <Route path="/registro" element={<Register />} />
       <Route path="/profesionales" element={<Profesionales />} />
       <Route path="/profesionales/:id" element={<ProfesionalDetalle />} />
       <Route path="/contacto" element={<Contacto />} />
@@ -40,13 +42,13 @@ const AppRoutes: React.FC = () => {
       <Route path="/grupos-apoyo" element={<GruposApoyo />} />
       <Route path="/servicios" element={<Servicios />} />
       <Route path="/recursos" element={<Recursos />} />
-<<<<<<< HEAD
       
-      
-
-      
-=======
->>>>>>> d78d9fdc8b736e408d2a6049045aa9a23bd5288f
+      {/* --- RUTA EXCLUSIVA PARA PACIENTE --- */}
+      <Route element={<ProtectedRoute allowedRoles={['PACIENTE']} />}>
+        <Route element={<PacienteLayout />}>
+          <Route path="/mi-espacio" element={<MiEspacio />} />
+        </Route>
+      </Route>
 
       {/* --- RUTAS PRIVADAS COMPARTIDAS --- */}
       <Route element={<ProtectedRoute />}>
@@ -61,14 +63,11 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/pacientes" element={<Pacientes />} />
           <Route path="/dashboard/citas" element={<Citas />} /> 
           <Route path="/dashboard/agenda" element={<Agenda />} />
-<<<<<<< HEAD
-          <Route path="/dashboard/chats" element={<Chats />} />
-=======
           <Route path="/dashboard/analitica" element={<Analitica />} />
->>>>>>> d78d9fdc8b736e408d2a6049045aa9a23bd5288f
+          <Route path="/dashboard/chats" element={<Chats />} />
         </Route>
       </Route>
-
+      
       {/* --- RUTAS PRIVADAS EXCLUSIVAS DE ADMINISTRACIÓN --- */}
       <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
         <Route element={<DashboardLayout />}>

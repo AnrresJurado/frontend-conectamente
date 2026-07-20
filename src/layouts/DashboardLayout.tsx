@@ -8,6 +8,7 @@ import {
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Logo from '../components/Logo';
+import NotificationBell from '../components/NotificationBell';
 
 const { Header, Sider, Content } = Layout;
 
@@ -100,6 +101,7 @@ const DashboardLayout: React.FC = () => {
           </button>
 
           <Space size={16}>
+            <NotificationBell />
             <div style={{ textAlign: 'right' }}>
               <div style={styles.userName}>{user?.nombre} {user?.apellido}</div>
               <div style={styles.userRol}>{user?.rol}</div>

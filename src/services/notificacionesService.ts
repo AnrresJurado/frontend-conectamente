@@ -1,10 +1,13 @@
 import api from '../api/axiosConfig';
 
+export type TipoNotificacion = 'INFO' | 'ALERTA' | 'CITA';
+
 export interface Notificacion {
   _id: string;
   usuarioId: string;
   titulo: string;
-  cuerpo: string;
+  mensaje: string;
+  tipo?: TipoNotificacion;
   leido: boolean;
   createdAt?: string;
 }
@@ -12,7 +15,8 @@ export interface Notificacion {
 export interface CreateNotificacionDto {
   usuarioId: string;
   titulo: string;
-  cuerpo: string;
+  mensaje: string;
+  tipo?: TipoNotificacion;
 }
 
 export const notificacionesService = {
