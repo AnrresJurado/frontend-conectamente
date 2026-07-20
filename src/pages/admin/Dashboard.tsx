@@ -16,6 +16,9 @@ import { citasService, Cita } from '../../services/citasService';
 import { pacientesService } from '../../services/pacientesService';
 import { psicologosService } from '../../services/psicologosService';
 import { historialService } from '../../services/historialService';
+import { progresoService } from '../../services/progresoService';
+import { encuestasService } from '../../services/encuestasService';
+import { testsPsicometricosService } from '../../services/testsPsicometricosService';
 import { useAuth } from '../../hooks/useAuth';
 
 // ─────────────────────────────────────────────────────────────
@@ -77,9 +80,13 @@ const Dashboard: React.FC = () => {
   const [historiales, setHistoriales] = useState<HistorialConRelaciones[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [metricasProgreso, setMetricasProgreso] = useState<any>(null);
+  const [metricasEncuestas, setMetricasEncuestas] = useState<any>(null);
+  const [metricasTests, setMetricasTests] = useState<any>(null);
 
   const rol = user?.rol;
   const esAdmin = rol === 'ADMIN';
+  const esPsicologo = rol === 'PSICOLOGO';
 
   useEffect(() => {
     let activo = true;
@@ -109,6 +116,20 @@ const Dashboard: React.FC = () => {
         if (esAdmin) {
           const psicologos = await psicologosService.getAll();
           if (activo) setTotalPsicologos(psicologos.length);
+        }
+
+        // Cargar métricas de progreso para ADMIN y PSICÓLOGO
+        if (esAdmin || esPsicologo) {
+          const [metricasProg, metricasEnc, metricasTest] = await Promise.all([
+            progresoService.getMetricas(),
+            encuestasService.getMetricas(),
+            testsPsicometricosService.estadisticasPorTipo('general'),
+          ]);
+          if (activo) {
+            setMetricasProgreso(metricasProg);
+            setMetricasEncuestas(metricasEnc);
+            setMetricasTests(metricasTest);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -184,6 +205,15 @@ const Dashboard: React.FC = () => {
       .map(([especialidad, valor]) => ({ especialidad, valor }))
       .sort((a, b) => b.valor - a.valor);
   }, [historiales]);
+
+  // Progreso agrupado por estado emocional (para el gráfico)
+  const progresoPorEstadoEmocional = useMemo(() => {
+    if (!metricasProgreso?.porEstadoEmocional) return [];
+    return metricasProgreso.porEstadoEmocional.map((item: any) => ({
+      estado: item.estado,
+      cantidad: item.cantidad,
+    }));
+  }, [metricasProgreso]);
 
   const nombrePropio = user?.nombre
     ? rol === 'PSICOLOGO'
@@ -279,6 +309,46 @@ const Dashboard: React.FC = () => {
             <span style={styles.statLabel}>Historiales clínicos</span>
           </div>
         </div>
+
+        {(esAdmin || esPsicologo) && metricasProgreso && (
+          <>
+            <div style={styles.statCard}>
+              <span style={{ ...styles.statIcon, background: '#3f9d6f1a', color: '#3f9d6f' }}>📊</span>
+              <div>
+                <span style={styles.statValue}>{metricasProgreso.totalProgresos}</span>
+                <span style={styles.statLabel}>Registros de progreso</span>
+              </div>
+            </div>
+
+            <div style={styles.statCard}>
+              <span style={{ ...styles.statIcon, background: '#7c6fda1a', color: '#7c6fda' }}>📈</span>
+              <div>
+                <span style={styles.statValue}>{metricasProgreso.progresosUltimos30Dias}</span>
+                <span style={styles.statLabel}>Progresos (últ. 30 días)</span>
+              </div>
+            </div>
+          </>
+        )}
+
+        {(esAdmin || esPsicologo) && metricasEncuestas && (
+          <>
+            <div style={styles.statCard}>
+              <span style={{ ...styles.statIcon, background: '#e0a13a1a', color: '#e0a13a' }}>📝</span>
+              <div>
+                <span style={styles.statValue}>{metricasEncuestas.totalEncuestas}</span>
+                <span style={styles.statLabel}>Encuestas activas</span>
+              </div>
+            </div>
+
+            <div style={styles.statCard}>
+              <span style={{ ...styles.statIcon, background: '#c0564e1a', color: '#c0564e' }}>✅</span>
+              <div>
+                <span style={styles.statValue}>{metricasEncuestas.totalRespuestas}</span>
+                <span style={styles.statLabel}>Respuestas registradas</span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* ═══════════════ CONTENIDO ═══════════════ */}
@@ -456,6 +526,67 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* ═══════════════ GRÁFICO DE PROGRESO EMOCIONAL ═══════════════ */}
+      {(esAdmin || esPsicologo) && metricasProgreso && progresoPorEstadoEmocional.length > 0 && (
+        <div style={styles.chartsGrid}>
+          <div style={styles.panel}>
+            <h2 style={styles.panelTitle}>Distribución de estados emocionales</h2>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={progresoPorEstadoEmocional} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={PALETTE.border} />
+                <XAxis dataKey="estado" tick={{ fontSize: 12, fill: PALETTE.textMuted }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: PALETTE.textMuted }} />
+                <Tooltip contentStyle={{ borderRadius: 10, border: `1px solid ${PALETTE.border}` }} />
+                <Bar dataKey="cantidad" name="Registros" fill={PALETTE.primary} radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════ GRÁFICO DE ENCUESTAS ═══════════════ */}
+      {(esAdmin || esPsicologo) && metricasEncuestas?.respuestasPorEncuesta?.length > 0 && (
+        <div style={styles.chartsGrid}>
+          <div style={styles.panel}>
+            <h2 style={styles.panelTitle}>Respuestas por encuesta</h2>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={metricasEncuestas.respuestasPorEncuesta} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={PALETTE.border} />
+                <XAxis dataKey="encuestaTitulo" tick={{ fontSize: 11, fill: PALETTE.textMuted }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: PALETTE.textMuted }} />
+                <Tooltip contentStyle={{ borderRadius: 10, border: `1px solid ${PALETTE.border}` }} />
+                <Bar dataKey="cantidad" name="Respuestas" fill={PALETTE.accent} radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════ GRÁFICO DE TESTS PSICOMÉTRICOS ═══════════════ */}
+      {(esAdmin || esPsicologo) && metricasTests?.length > 0 && (
+        <div style={styles.chartsGrid}>
+          <div style={styles.panel}>
+            <h2 style={styles.panelTitle}>Promedios mensuales de tests psicométricos</h2>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={metricasTests} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={PALETTE.border} />
+                <XAxis 
+                  dataKey="_id" 
+                  tick={{ fontSize: 11, fill: PALETTE.textMuted }}
+                  tickFormatter={(value) => `${value.mes}/${value.año}`}
+                />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: PALETTE.textMuted }} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: 10, border: `1px solid ${PALETTE.border}` }}
+                  labelFormatter={(value) => `Mes ${value.mes}/${value.año}`}
+                />
+                <Bar dataKey="promedioPuntaje" name="Promedio" fill={PALETTE.primaryDark} radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

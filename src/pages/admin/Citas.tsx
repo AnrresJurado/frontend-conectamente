@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import { Table, Tag, Button, Space, Modal, Form, Select, Input, Popconfirm, message, Typography } from 'antd';
-=======
-// 🎯 CORREGIDO: Agregado CheckCircleOutlined a la lista de importaciones
->>>>>>> e83a049d36b41ca5092a3f8ad76fb664cb2de171
 import { PlusOutlined, CloseCircleOutlined, CheckCircleOutlined, SaveOutlined, DollarCircleOutlined } from '@ant-design/icons';
-import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Typography, message } from 'antd';
-import React, { useEffect, useState } from 'react';
 import api from '../../api/axiosConfig';
 import { useAuth } from '../../hooks/useAuth';
 import { Cita, citasService } from '../../services/citasService';

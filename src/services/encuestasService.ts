@@ -21,6 +21,16 @@ export interface RespuestaEncuesta {
   createdAt: string;
 }
 
+export interface MetricasEncuestas {
+  totalEncuestas: number;
+  totalRespuestas: number;
+  respuestasPorEncuesta: Array<{
+    encuestaId: string;
+    encuestaTitulo: string;
+    cantidad: number;
+  }>;
+}
+
 export const encuestasService = {
   // GET /encuestas
   getAll: async () => {
@@ -40,6 +50,12 @@ export const encuestasService = {
       usuarioId,
       respuestas,
     });
+    return data;
+  },
+
+  // GET /encuestas/metricas/generales - Métricas para dashboard
+  getMetricas: async () => {
+    const { data } = await api.get<MetricasEncuestas>('/encuestas/metricas/generales');
     return data;
   },
 };

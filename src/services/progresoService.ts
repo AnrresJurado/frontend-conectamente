@@ -21,6 +21,16 @@ export interface CreateProgresoInput {
   observaciones?: string;
 }
 
+export interface MetricasProgreso {
+  totalProgresos: number;
+  progresosUltimos30Dias: number;
+  porEstadoEmocional: Array<{
+    estado: string;
+    cantidad: number;
+  }>;
+  ultimosProgresos: Progreso[];
+}
+
 export const progresoService = {
   // GET /progreso
   getAll: async () => {
@@ -29,11 +39,14 @@ export const progresoService = {
   },
 
   // GET /progreso/paciente/:id
-  // ⚠️ Backend actual filtra por historial.id en vez de historial.paciente.id, así que
-  // para un ID de PACIENTE real este endpoint hoy devuelve siempre un arreglo vacío.
-  // Es un bug de backend (progreso.service.ts -> findByPaciente), no de este servicio.
   getByPaciente: async (pacienteId: string) => {
     const { data } = await api.get<Progreso[]>(`/progreso/paciente/${pacienteId}`);
+    return data;
+  },
+
+  // GET /progreso/metricas/generales
+  getMetricas: async () => {
+    const { data } = await api.get<MetricasProgreso>('/progreso/metricas/generales');
     return data;
   },
 
