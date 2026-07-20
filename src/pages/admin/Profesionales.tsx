@@ -190,7 +190,8 @@ const Profesionales: React.FC = () => {
 
 const InfoRow = ({ icon, text }: { icon: React.ReactNode, text: string }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#64748b', fontSize: '13px' }}>
-    {React.cloneElement(icon as React.ReactElement, { style: { color: COLORS.accent } })}
+    {/* Ajuste aquí: añadimos el tipo de la propiedad style */}
+    {React.cloneElement(icon as React.ReactElement<{ style?: React.CSSProperties }>, { style: { color: COLORS.accent } })}
     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</span>
   </div>
 );

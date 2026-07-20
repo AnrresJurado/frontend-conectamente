@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Table, Tag, Button, Space, Modal, Form, Select, Input, Popconfirm, message, Typography } from 'antd';
-import { UserAddOutlined, UserDeleteOutlined } from '@ant-design/icons';
+import { UserAddOutlined, UserDeleteOutlined, CheckCircleOutlined } from '@ant-design/icons'; // 🎯 Importado CheckCircleOutlined
 import { adminService, UsuarioStaff } from '../../services/adminService';
 
 const { Title } = Typography;
@@ -22,7 +22,6 @@ const UsuariosAdmin: React.FC = () => {
     setLoading(true);
     try {
       const data = await adminService.listarUsuarios(page, 8, rol);
-      // Validamos si tu backend devuelve un array directo o un objeto con { data, total }
       if (Array.isArray(data)) {
         setUsuarios(data);
         setTotal(data.length);
@@ -65,6 +64,17 @@ const UsuariosAdmin: React.FC = () => {
       cargarUsuarios(paginaActual);
     } catch (error) {
       message.error('No se pudo desactivar al usuario seleccionado.');
+    }
+  };
+
+  // 🎯 NUEVO: Manejador para devolverle el acceso a la cuenta
+  const handleReactivarUsuario = async (id: string) => {
+    try {
+      await adminService.reactivarUsuario(id);
+      message.success('Usuario reactivado de forma exitosa en el sistema.');
+      cargarUsuarios(paginaActual);
+    } catch (error) {
+      message.error('No se pudo reactivar al usuario seleccionado.');
     }
   };
 
@@ -112,7 +122,8 @@ const UsuariosAdmin: React.FC = () => {
       key: 'acciones',
       render: (_: any, record: UsuarioStaff) => (
         <Space size="middle">
-          {record.activo && (
+          {record.activo ? (
+            // Botón para suspender accesos (Activo)
             <Popconfirm
               title="¿Dar de baja a este usuario?"
               description="Perderá los accesos a la plataforma de inmediato."
@@ -123,6 +134,19 @@ const UsuariosAdmin: React.FC = () => {
             >
               <Button type="text" danger icon={<UserDeleteOutlined />}>
                 Dar de Baja
+              </Button>
+            </Popconfirm>
+          ) : (
+            // 🎯 NUEVO: Botón para reactivar accesos (Inactivo)
+            <Popconfirm
+              title="¿Reactivar a este usuario?"
+              description="Se le concederán nuevamente sus accesos y permisos."
+              onConfirm={() => handleReactivarUsuario(record.id)}
+              okText="Sí, reactivar"
+              cancelText="Volver"
+            >
+              <Button type="text" icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}>
+                Reactivar Usuario
               </Button>
             </Popconfirm>
           )}

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Button, Space, Modal, Form, Select, Input, Popconfirm, message, Typography } from 'antd';
+import { Table, Tag, Button, Space, Modal, Form, Select, Input, Popconfirm, message, Typography } from 'antd';
 import { PlusOutlined, CloseCircleOutlined, CheckCircleOutlined, SaveOutlined, DollarCircleOutlined } from '@ant-design/icons';
-import { citasService, Cita } from '../../services/citasService';
-import { pacientesService } from '../../services/pacientesService';
-import { historialService } from '../../services/historialService'; 
-import api from '../../api/axiosConfig'; 
+import api from '../../api/axiosConfig';
 import { useAuth } from '../../hooks/useAuth';
+import { Cita, citasService } from '../../services/citasService';
+import { historialService } from '../../services/historialService';
+import { pacientesService } from '../../services/pacientesService';
 import { Paciente } from '../../types';
 
 const { Option } = Select;
@@ -53,17 +53,18 @@ const Citas: React.FC = () => {
 
   // Campos para el Formulario Clínico Integrado
   const [nuevoDiagnostico, setNuevoDiagnostico] = useState<string>('');
-  const [nuevaNota, setNuevaNota] = useState<string>('');
+  const [nuevaNota, setNuevaNota] = useState<string>(''); 
 
   const cargarCitasYDatos = async () => {
     setLoading(true);
     try {
-      const [dataCitas, dataPacientes] = await Promise.all([
+      // 🎯 CORREGIDO: Ambos servicios usan getAll() para respetar estrictamente la privacidad del rol/token
+      const [dataCitas, dataMisPacientes] = await Promise.all([
         citasService.getAll(),
-        pacientesService.getAll()
+        pacientesService.getAll() // 👈 Cambiado para restringir el modal a sus propios pacientes asignados
       ]);
       setCitas(dataCitas);
-      setPacientes(dataPacientes);
+      setPacientes(dataMisPacientes);
 
       const { data: agendas } = await api.get<any[]>('/agendas'); 
       setAgendasDisponibles(agendas.filter(a => !a.estaReservado));

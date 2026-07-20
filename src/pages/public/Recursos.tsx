@@ -190,7 +190,7 @@ const Recursos: React.FC = () => {
                   <span
                     className="cm-rec-link"
                     style={styles.recLink}
-                    onClick={() => navigate(r.ruta as string)}
+                    onClick={() => navigate(r.ruta as unknown as string)}
                   >
                     Conocer más <ArrowRightOutlined style={{ fontSize: 12 }} />
                   </span>

@@ -3,10 +3,12 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import Dashboard from '../pages/admin/Dashboard';
+import Analitica from '../pages/admin/Analitica';
 import Pacientes from '../pages/admin/Pacientes';
 import Psicologos from '../pages/admin/Psicologos'; 
 import Citas from '../pages/admin/Citas'; 
 import Agenda from '../pages/admin/Agenda'; 
+import UsuariosAdmin from '../pages/admin/UsuariosAdmin';
 import ProtectedRoute from './ProtectedRoute';
 import DashboardLayout from '../layouts/DashboardLayout';
 import Home from '../pages/public/Home';
@@ -38,10 +40,13 @@ const AppRoutes: React.FC = () => {
       <Route path="/grupos-apoyo" element={<GruposApoyo />} />
       <Route path="/servicios" element={<Servicios />} />
       <Route path="/recursos" element={<Recursos />} />
+<<<<<<< HEAD
       
       
 
       
+=======
+>>>>>>> d78d9fdc8b736e408d2a6049045aa9a23bd5288f
 
       {/* --- RUTAS PRIVADAS COMPARTIDAS --- */}
       <Route element={<ProtectedRoute />}>
@@ -56,7 +61,11 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/pacientes" element={<Pacientes />} />
           <Route path="/dashboard/citas" element={<Citas />} /> 
           <Route path="/dashboard/agenda" element={<Agenda />} />
+<<<<<<< HEAD
           <Route path="/dashboard/chats" element={<Chats />} />
+=======
+          <Route path="/dashboard/analitica" element={<Analitica />} />
+>>>>>>> d78d9fdc8b736e408d2a6049045aa9a23bd5288f
         </Route>
       </Route>
 
@@ -64,6 +73,7 @@ const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard/psicologos" element={<Psicologos />} />
+          <Route path="/dashboard/usuarios" element={<UsuariosAdmin />} />
         </Route>
       </Route>
 

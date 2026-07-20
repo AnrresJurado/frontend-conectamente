@@ -11,7 +11,6 @@ import Logo from '../components/Logo';
 
 const { Header, Sider, Content } = Layout;
 
-// Misma identidad visual que Login / Register / Home / Dashboard
 const COLORS = {
   primary: '#1d5863',
   primaryDark: '#12414a',
@@ -36,10 +35,12 @@ const DashboardLayout: React.FC = () => {
     { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/pacientes', icon: <UserOutlined />, label: 'Pacientes' }] : []),
     ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/psicologos', icon: <TeamOutlined />, label: 'Psicólogos' }] : []),
+    ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/usuarios', icon: <TeamOutlined />, label: 'Control de Usuarios' }] : []),
     { key: '/dashboard/citas', icon: <CalendarOutlined />, label: 'Citas' },
     // Chats: solo tiene sentido para quien participa en una conversación paciente <-> psicólogo
     ...(user?.rol === 'PACIENTE' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/chats', icon: <MessageOutlined />, label: 'Chats' }] : []),
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/analitica', icon: <TeamOutlined />, label: 'Analítica' }] : []),
   ];
 
   const iniciales = `${user?.nombre?.charAt(0) || ''}${user?.apellido?.charAt(0) || ''}`.toUpperCase() || 'CM';
