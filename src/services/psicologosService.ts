@@ -4,7 +4,7 @@ import { Psicologo, CreatePsicologoInput } from '../types';
 export interface PsicologoPerfil {
   id: string;
   especialidad: string;
-  numColegiatura: string; // 🎯 CORREGIDO: Refleja el nombre real de tu columna en TypeORM
+  numColegiatura: string; 
   telefono?: string;
   usuario: {
     id: string;
@@ -17,14 +17,14 @@ export interface PsicologoPerfil {
 }
 
 export const psicologosService = {
-  // 🚀 GET /psicologos - Trae todos los psicólogos mapeados desde NestJS
+  // 🚀 GET psicologos - Trae todos los psicólogos mapeados desde NestJS
   getAll: async () => {
-    const { data } = await api.get<PsicologoPerfil[]>('/psicologos');
+    const { data } = await api.get<PsicologoPerfil[]>('psicologos'); // 🎯 CORREGIDO: Sin slash inicial
     
     return data.map((p) => ({
       id: p.id,
       especialidad: p.especialidad || 'Psicología Clínica',
-      licenciaProfesional: p.numColegiatura || 'Sin asignar', // 🎯 Mapeamos numColegiatura a lo que espera la tabla
+      licenciaProfesional: p.numColegiatura || 'Sin asignar', 
       telefono: p.telefono || 'Sin teléfono',
       usuario: {
         id: p.usuario?.id,
@@ -36,13 +36,13 @@ export const psicologosService = {
     })) as unknown as Psicologo[];
   },
 
-  // 🚀 GET /psicologos/:id - Obtener un perfil específico
+  // 🚀 GET psicologos/:id - Obtener un perfil específico
   getById: async (id: string) => {
-    const { data } = await api.get<Psicologo>(`/psicologos/${id}`);
+    const { data } = await api.get<Psicologo>(`psicologos/${id}`); // 🎯 CORREGIDO: Sin slash inicial
     return data;
   },
 
-  // 🚀 POST /psicologos - Envía el payload con la estructura correcta hacia NestJS
+  // 🚀 POST psicologos - Envía el payload con la estructura correcta hacia NestJS
   create: async (psicologoData: CreatePsicologoInput) => {
     const payload = {
       nombre: psicologoData.nombre,
@@ -51,29 +51,29 @@ export const psicologosService = {
       password: psicologoData.password || 'Psicologo123*',
       rol: 'PSICOLOGO',
       especialidad: psicologoData.especialidad,
-      numColegiatura: psicologoData.licenciaProfesional, // 🎯 Sincronizado con el backend
+      numColegiatura: psicologoData.licenciaProfesional, 
       telefono: psicologoData.telefono
     };
 
-    const { data } = await api.post<any>('/psicologos', payload);
+    const { data } = await api.post<any>('psicologos', payload); // 🎯 CORREGIDO: Sin slash inicial
     return data;
   },
 
-  // 🚀 PATCH /psicologos/:usuarioId - Modifica los datos usando el campo numColegiatura
+  // 🚀 PATCH psicologos/:usuarioId - Modifica los datos usando el campo numColegiatura
   update: async (usuarioId: string, psicologoData: { especialidad?: string; registroProfesional?: string; telefono?: string }) => {
     const payload = {
       especialidad: psicologoData.especialidad,
-      numColegiatura: psicologoData.registroProfesional, // 🎯 Sincronizado con el backend
+      numColegiatura: psicologoData.registroProfesional, 
       telefono: psicologoData.telefono
     };
 
-    const { data } = await api.patch<any>(`/psicologos/${usuarioId}`, payload);
+    const { data } = await api.patch<any>(`psicologos/${usuarioId}`, payload); // 🎯 CORREGIDO: Sin slash inicial
     return data;
   },
 
-  // 🚀 DELETE /psicologos/:usuarioId - Desactiva el perfil profesional (Borrado Lógico)
+  // 🚀 DELETE psicologos/:usuarioId - Desactiva el perfil profesional (Borrado Lógico)
   remove: async (usuarioId: string) => {
-    const { data } = await api.delete<{ message: string }>(`/psicologos/${usuarioId}`);
+    const { data } = await api.delete<{ message: string }>(`psicologos/${usuarioId}`); // 🎯 CORREGIDO: Sin slash inicial
     return data;
   }
 };
