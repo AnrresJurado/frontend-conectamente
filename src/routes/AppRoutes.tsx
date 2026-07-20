@@ -37,6 +37,7 @@ import Chats from '../pages/admin/Chats';
 import PacienteLayout from '../layouts/PacienteLayout';
 import { MiEspacio } from '../pages/admin/MiEspacio';
 import RegisterPsicologo from '../pages/public/RegisterPsicologo';
+import MiPerfil from '../pages/admin/MiPerfil';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -69,6 +70,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/buscar-psicologo" element={<BuscarPsicologo />} /> {/* 👈 🎯 Inyectado de forma segura dentro de PacienteLayout */}
           <Route path="/chats" element={<Chats />} /> {/* Si el paciente también usa chats */}
           <Route path="/mis-recomendaciones" element={<MisRecomendaciones />} /> {/* 🎯 Módulo de recomendaciones para pacientes */}
+          <Route path="/mi-perfil" element={<MiPerfil />} />
         </Route>
       </Route>
 

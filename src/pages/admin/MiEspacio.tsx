@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, Card, Button, Progress, Timeline, Input, Avatar, Space, Typography, Row, Col, message, Spin, Empty, Tag, Badge, Modal, List } from 'antd';
-import { 
-  HomeOutlined, 
-  TeamOutlined, 
-  LineChartOutlined, 
-  FileTextOutlined, 
-  UserOutlined, 
+import {
+  HomeOutlined,
+  TeamOutlined,
+  LineChartOutlined,
+  FileTextOutlined,
+  UserOutlined,
   SendOutlined,
   CalendarOutlined,
   HeartOutlined,
@@ -15,7 +16,6 @@ import {
   MailOutlined,
   SafetyOutlined,
   RightCircleOutlined,
-  SaveOutlined,
   MessageOutlined,
   RiseOutlined,
   StarOutlined,
@@ -23,6 +23,9 @@ import {
   ExperimentOutlined,
   SearchOutlined,
   PlusOutlined,
+  PictureOutlined,
+  ArrowRightOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import { progresoService } from '../../services/progresoService';
 import { chatsService } from '../../services/chatsService';
@@ -31,6 +34,8 @@ import { notificacionesService } from '../../services/notificacionesService';
 import { pacientesService } from '../../services/pacientesService';
 import { citasService } from '../../services/citasService';
 import { useAuth } from '../../hooks/useAuth';
+
+
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -118,8 +123,39 @@ const getColorPorEstado = (estado: string) => {
   return map[estado?.toUpperCase()] || '#4da6b0';
 };
 
+// ─────────────────────────────────────────────────────────────
+// Placeholder reutilizable de imagen — reemplázalo por tu <img />
+// o por background: `url(...)` en el style del contenedor.
+// ─────────────────────────────────────────────────────────────
+const ImagePlaceholder: React.FC<{ height?: number | string; label?: string; radius?: number }> = ({
+  height = 200,
+  label = 'Espacio para imagen',
+  radius = 20,
+}) => (
+  <div
+    style={{
+      height,
+      borderRadius: radius,
+      border: '2px dashed rgba(255,255,255,0.35)',
+      background: 'rgba(255,255,255,0.08)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      color: 'rgba(255,255,255,0.75)',
+    }}
+  >
+    <PictureOutlined style={{ fontSize: 28 }} />
+    <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12.5, textAlign: 'center', padding: '0 16px' }}>
+      {label}
+    </Text>
+  </div>
+);
+
 export const MiEspacio: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('1');
   const [loading, setLoading] = useState(false);
 
@@ -129,18 +165,16 @@ export const MiEspacio: React.FC = () => {
   const [citas, setCitas] = useState<any[]>([]);
   const [progreso, setProgreso] = useState<any[]>([]);
   const [recomendaciones, setRecomendaciones] = useState<any[]>([]);
-  
+
   // Estado del chat
   const [chatMessage, setChatMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [psicologoUserId, setPsicologoUserId] = useState<string | null>(null);
 
-  // Estados para el formulario de perfil editable
+  // Nombre/apellido para el saludo (se siguen cargando aquí; la edición vive en /mi-perfil)
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [guardandoPerfil, setGuardandoPerfil] = useState(false);
 
   // ─── Estados para buscar psicólogos ───
   const [psicologosDisponibles, setPsicologosDisponibles] = useState<any[]>([]);
@@ -175,7 +209,6 @@ export const MiEspacio: React.FC = () => {
       setPacienteData(dataPac);
       setNombre(dataPac.usuario?.nombre || '');
       setApellido(dataPac.usuario?.apellido || '');
-      setTelefono(dataPac.telefonoEmergencia || '');
 
       if (dataPac.psicologo) {
         setPsicologoData(dataPac.psicologo);
@@ -253,7 +286,7 @@ export const MiEspacio: React.FC = () => {
 
       message.success(`Has solicitado a ${psicologo.usuario?.nombre || 'el psicólogo'}. Te notificaremos cuando confirme la asignación.`);
       setModalPsicologosVisible(false);
-      
+
       // Recargar datos para reflejar el nuevo psicólogo asignado
       fetchDataPaciente();
     } catch (err: any) {
@@ -301,11 +334,11 @@ export const MiEspacio: React.FC = () => {
 
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || !psicologoUserId) return;
-    
+
     const texto = chatMessage;
     setChatMessage('');
     setMessages(prev => [...prev, { sender: 'paciente', text: texto }]);
-    
+
     try {
       await chatsService.enviarMensaje({
         destinatarioId: psicologoUserId,
@@ -314,27 +347,6 @@ export const MiEspacio: React.FC = () => {
     } catch (err) {
       console.error("Error al enviar mensaje:", err);
       message.error("No se pudo enviar el mensaje. Intenta de nuevo.");
-    }
-  };
-
-  const handleUpdateProfile = async () => {
-    if (!pacienteData?.id) return;
-    setGuardandoPerfil(true);
-    try {
-      // 🎯 Usa PATCH /pacientes/:id (real) para guardar el teléfono de emergencia.
-      // ⏳ Nombre y apellido viven en la entidad Usuario, no en Paciente — todavía no
-      // tenemos confirmado un endpoint real para editarlos (ej. PATCH /usuarios/:id),
-      // así que por ahora esos campos quedan de solo lectura para no romper nada.
-      await pacientesService.update(pacienteData.id, {
-        telefonoEmergencia: telefono,
-      } as any);
-      message.success("¡Teléfono actualizado con éxito!");
-      fetchDataPaciente();
-    } catch (err) {
-      console.error(err);
-      message.error("Error al actualizar el perfil.");
-    } finally {
-      setGuardandoPerfil(false);
     }
   };
 
@@ -367,7 +379,7 @@ export const MiEspacio: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '120px 0', background: PALETTE.bg, minHeight: '100%' }}>
+      <div style={{ textAlign: 'center', padding: '160px 0', background: PALETTE.bg, minHeight: '100vh' }}>
         <Spin size="large" />
       </div>
     );
@@ -375,33 +387,85 @@ export const MiEspacio: React.FC = () => {
 
   return (
     <div style={styles.page}>
-      {/* ═══════════════ HERO DE BIENVENIDA ═══════════════ */}
-      <div style={styles.hero}>
-        <div>
-          <span style={styles.eyebrow}>{fechaLarga()}</span>
-          <Title level={2} style={styles.heroTitle}>
-            {saludoSegunHora()}, {nombreMostrar} 🌿
-          </Title>
-          <Paragraph style={styles.heroSubtitle}>
-            Tu espacio seguro de bienestar — un lugar diseñado exclusivamente para tu tranquilidad, evolución y acompañamiento profesional.
-          </Paragraph>
-        </div>
+      {/* estilos globales para las pestañas — look de píldoras, más amplio e interactivo */}
+      <style>{`
+        .miespacio-tabs .ant-tabs-nav { margin-bottom: 24px; }
+        .miespacio-tabs .ant-tabs-nav::before { border-bottom: none !important; }
+        .miespacio-tabs .ant-tabs-nav-list {
+          background: #ffffff;
+          padding: 6px;
+          border-radius: 16px;
+          border: 1px solid ${PALETTE.border};
+          gap: 4px;
+          box-shadow: 0 4px 16px rgba(29, 88, 99, 0.05);
+        }
+        .miespacio-tabs .ant-tabs-tab {
+          border: none !important;
+          background: transparent !important;
+          border-radius: 12px !important;
+          margin: 0 !important;
+          padding: 10px 20px !important;
+          transition: all .2s ease;
+        }
+        .miespacio-tabs .ant-tabs-tab:hover { background: ${PALETTE.bg} !important; }
+        .miespacio-tabs .ant-tabs-tab .ant-tabs-tab-btn { color: ${PALETTE.textMuted}; font-weight: 600; }
+        .miespacio-tabs .ant-tabs-tab-active {
+          background: linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.primaryDark}) !important;
+          box-shadow: 0 6px 16px rgba(18, 65, 74, 0.25);
+        }
+        .miespacio-tabs .ant-tabs-tab-active .ant-tabs-tab-btn { color: #ffffff !important; }
+        .miespacio-tabs .ant-tabs-ink-bar { display: none; }
+        .hover-lift { transition: transform .2s ease, box-shadow .2s ease; }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(29, 88, 99, 0.12); }
+      `}</style>
 
-        <div style={styles.heroStat}>
-          <span style={styles.heroStatValue}>
-            {proximaCita ? formatearHora(proximaCita.fechaHora || proximaCita.fecha) : '—'}
-          </span>
-          <span style={styles.heroStatLabel}>
-            {proximaCita 
-              ? `Próxima sesión · ${formatearFecha(proximaCita.fechaHora || proximaCita.fecha)}`
-              : 'Sin cita próxima'}
-          </span>
-        </div>
+      {/* ═══════════════ HERO DE BIENVENIDA — a todo lo ancho ═══════════════ */}
+      <div style={styles.hero}>
+        {/* decoración orgánica de fondo */}
+        <svg style={styles.heroDecoration} viewBox="0 0 800 400" preserveAspectRatio="none" aria-hidden="true">
+          <circle cx="700" cy="60" r="180" fill="rgba(255,255,255,0.05)" />
+          <circle cx="620" cy="340" r="120" fill="rgba(255,255,255,0.04)" />
+          <circle cx="120" cy="380" r="90" fill="rgba(255,255,255,0.035)" />
+        </svg>
+
+        <Row gutter={[32, 32]} align="middle" style={{ position: 'relative', width: '100%' }}>
+          <Col xs={24} lg={15}>
+            <span style={styles.eyebrow}>{fechaLarga()}</span>
+            <Title level={2} style={styles.heroTitle}>
+              {saludoSegunHora()}, {nombreMostrar} 🌿
+            </Title>
+            <Paragraph style={styles.heroSubtitle}>
+              Tu espacio seguro de bienestar — un lugar diseñado exclusivamente para tu tranquilidad, evolución y acompañamiento profesional.
+            </Paragraph>
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 20 }}>
+              <div style={styles.heroStat}>
+                <span style={styles.heroStatValue}>
+                  {proximaCita ? formatearHora(proximaCita.fechaHora || proximaCita.fecha) : '—'}
+                </span>
+                <span style={styles.heroStatLabel}>
+                  {proximaCita
+                    ? `Próxima sesión · ${formatearFecha(proximaCita.fechaHora || proximaCita.fecha)}`
+                    : 'Sin cita próxima'}
+                </span>
+              </div>
+              <div style={styles.heroStat}>
+                <span style={styles.heroStatValue}>{progresoGeneral}%</span>
+                <span style={styles.heroStatLabel}>Progreso general</span>
+              </div>
+            </div>
+          </Col>
+
+          {/* Espacio para una ilustración / foto de bienestar */}
+          <Col xs={24} lg={9}>
+            <ImagePlaceholder height={220} label="Aquí puedes poner una ilustración o foto de bienestar (banner del hero)" />
+          </Col>
+        </Row>
       </div>
 
       {/* ═══════════════ TARJETAS RESUMEN ═══════════════ */}
       <div style={styles.statsGrid}>
-        <div style={styles.statCard}>
+        <div className="hover-lift" style={styles.statCard}>
           <span style={{ ...styles.statIcon, background: `${PALETTE.primary}1a`, color: PALETTE.primary }}>
             <CalendarOutlined />
           </span>
@@ -411,7 +475,7 @@ export const MiEspacio: React.FC = () => {
           </div>
         </div>
 
-        <div style={styles.statCard}>
+        <div className="hover-lift" style={styles.statCard}>
           <span style={{ ...styles.statIcon, background: '#10B9811a', color: '#10B981' }}>
             <CheckCircleOutlined />
           </span>
@@ -421,7 +485,7 @@ export const MiEspacio: React.FC = () => {
           </div>
         </div>
 
-        <div style={styles.statCard}>
+        <div className="hover-lift" style={styles.statCard}>
           <span style={{ ...styles.statIcon, background: '#8B5CF61a', color: '#8B5CF6' }}>
             <RiseOutlined />
           </span>
@@ -431,7 +495,7 @@ export const MiEspacio: React.FC = () => {
           </div>
         </div>
 
-        <div style={styles.statCard}>
+        <div className="hover-lift" style={styles.statCard}>
           <span style={{ ...styles.statIcon, background: '#F59E0B1a', color: '#F59E0B' }}>
             <StarOutlined />
           </span>
@@ -446,9 +510,9 @@ export const MiEspacio: React.FC = () => {
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
-        type="card"
         size="large"
-        style={{ marginTop: 24 }}
+        className="miespacio-tabs"
+        style={{ marginTop: 28 }}
         items={[
           {
             key: '1',
@@ -466,14 +530,14 @@ export const MiEspacio: React.FC = () => {
                         {progresoGeneral}%
                       </Tag>
                     </div>
-                    <Progress 
-                      percent={progresoGeneral} 
+                    <Progress
+                      percent={progresoGeneral}
                       strokeColor={{ '0%': PALETTE.accent, '100%': PALETTE.primary }}
                       trailColor="#E2E8F0"
                       style={{ marginBottom: 16 }}
                     />
                     <Paragraph style={{ color: PALETTE.textMuted, margin: 0 }}>
-                      {progreso.length === 0 
+                      {progreso.length === 0
                         ? 'Aún no tienes registros de progreso. Comienza tu primera evaluación en la pestaña "Progreso".'
                         : `Llevas ${progreso.length} registro${progreso.length !== 1 ? 's' : ''} de tu evolución emocional. ¡Sigue así!`
                       }
@@ -577,17 +641,24 @@ export const MiEspacio: React.FC = () => {
               <Row gutter={[24, 24]}>
                 <Col xs={24} md={8}>
                   {/* Tarjeta del psicólogo asignado */}
-                  <Card bordered={false} style={styles.card}>
-                    <div style={{ textAlign: 'center' }}>
-                      <Avatar 
-                        size={100} 
+                  <Card bordered={false} style={{ ...styles.card, overflow: 'hidden' }} bodyStyle={{ padding: 0 }}>
+                    {/* Portada / imagen del psicólogo */}
+                    <div style={{
+                      height: 84,
+                      background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
+                    }} />
+                    <div style={{ textAlign: 'center', padding: '0 20px 24px' }}>
+                      <Avatar
+                        size={100}
                         style={{
-                          border: '4px solid #EEF2FF',
+                          border: '4px solid #ffffff',
+                          marginTop: -50,
                           marginBottom: 16,
                           background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
                           color: '#ffffff',
                           fontWeight: 700,
                           fontSize: 32,
+                          boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
                         }}
                       >
                         {`${psicologoData?.usuario?.nombre?.charAt(0) || ''}${psicologoData?.usuario?.apellido?.charAt(0) || ''}`.toUpperCase() || <TeamOutlined />}
@@ -637,12 +708,12 @@ export const MiEspacio: React.FC = () => {
                       )}
 
                       <div style={{ marginTop: 20 }}>
-                        <Button 
-                          type="primary" 
+                        <Button
+                          type="primary"
                           icon={<SearchOutlined />}
                           onClick={abrirModalPsicologos}
-                          style={{ 
-                            background: psicologoData ? '#ffffff' : PALETTE.primary, 
+                          style={{
+                            background: psicologoData ? '#ffffff' : PALETTE.primary,
                             border: psicologoData ? `1.5px solid ${PALETTE.primary}` : 'none',
                             color: psicologoData ? PALETTE.primary : '#ffffff',
                             borderRadius: 12,
@@ -657,7 +728,7 @@ export const MiEspacio: React.FC = () => {
                 </Col>
 
                 <Col xs={24} md={16}>
-                  <Card 
+                  <Card
                     bordered={false}
                     style={styles.cardChat}
                     bodyStyle={{ display: 'flex', flexDirection: 'column', height: '480px', padding: 0 }}
@@ -685,8 +756,8 @@ export const MiEspacio: React.FC = () => {
                           <Paragraph type="secondary" style={{ marginTop: 8 }}>
                             Para poder chatear, primero debes buscar y solicitar un psicólogo usando el botón de arriba.
                           </Paragraph>
-                          <Button 
-                            type="primary" 
+                          <Button
+                            type="primary"
                             icon={<SearchOutlined />}
                             onClick={abrirModalPsicologos}
                             style={{ background: PALETTE.primary, border: 'none', borderRadius: 12, marginTop: 8 }}
@@ -705,8 +776,8 @@ export const MiEspacio: React.FC = () => {
                         </div>
                       ) : (
                         messages.map((msg, index) => (
-                          <div 
-                            key={index} 
+                          <div
+                            key={index}
                             style={{
                               ...styles.chatBubble,
                               alignSelf: msg.sender === 'paciente' ? 'flex-end' : 'flex-start',
@@ -728,17 +799,17 @@ export const MiEspacio: React.FC = () => {
                     </div>
 
                     <div style={styles.chatInput}>
-                      <Input 
-                        placeholder="Escribe un mensaje para tu psicólogo..." 
+                      <Input
+                        placeholder="Escribe un mensaje para tu psicólogo..."
                         value={chatMessage}
                         onChange={(e) => setChatMessage(e.target.value)}
                         onPressEnter={handleSendMessage}
                         style={{ borderRadius: 12, padding: '10px 16px', border: '1px solid #E2E8F0' }}
                         disabled={!psicologoUserId}
                       />
-                      <Button 
-                        type="primary" 
-                        icon={<SendOutlined />} 
+                      <Button
+                        type="primary"
+                        icon={<SendOutlined />}
                         onClick={handleSendMessage}
                         style={{ height: 44, borderRadius: 12, background: PALETTE.primary, border: 'none', minWidth: 44 }}
                         disabled={!psicologoUserId || !chatMessage.trim()}
@@ -761,14 +832,14 @@ export const MiEspacio: React.FC = () => {
                       Tu línea de evolución emocional
                     </Title>
                     <Paragraph type="secondary" style={{ margin: '4px 0 0' }}>
-                      {progreso.length > 0 
+                      {progreso.length > 0
                         ? `${progreso.length} registro${progreso.length !== 1 ? 's' : ''} en total`
                         : 'Aún no hay registros de progreso'}
                     </Paragraph>
                   </div>
-                  <Progress 
-                    type="circle" 
-                    percent={progresoGeneral} 
+                  <Progress
+                    type="circle"
+                    percent={progresoGeneral}
                     size={80}
                     strokeColor={{ '0%': PALETTE.accent, '100%': PALETTE.primary }}
                     trailColor="#E2E8F0"
@@ -779,7 +850,7 @@ export const MiEspacio: React.FC = () => {
                 <Timeline
                   mode="left"
                   items={
-                    progreso.length > 0 
+                    progreso.length > 0
                       ? progreso.map((item: any) => ({
                           color: getColorPorEstado(item.estadoEmocional),
                           dot: <span style={{ fontSize: 20 }}>{getEmojiPorEstado(item.estadoEmocional)}</span>,
@@ -829,7 +900,7 @@ export const MiEspacio: React.FC = () => {
                 <Paragraph type="secondary" style={{ marginTop: 8 }}>
                   Revisa las pautas y recomendaciones asignadas por tu especialista para medir tu evolución.
                 </Paragraph>
-                
+
                 <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {recomendaciones.length > 0 ? (
                     recomendaciones.map((rec: any, index: number) => (
@@ -852,8 +923,8 @@ export const MiEspacio: React.FC = () => {
                               </Text>
                             )}
                           </div>
-                          <Button 
-                            type="primary" 
+                          <Button
+                            type="primary"
                             style={{ background: PALETTE.primary, border: 'none', borderRadius: 10 }}
                             icon={<RightCircleOutlined />}
                           >
@@ -876,8 +947,8 @@ export const MiEspacio: React.FC = () => {
                             Evalúa tu estado de ánimo y bienestar emocional — Pendiente
                           </Text>
                         </div>
-                        <Button 
-                          type="primary" 
+                        <Button
+                          type="primary"
                           style={{ background: PALETTE.primary, border: 'none', borderRadius: 10 }}
                           icon={<RightCircleOutlined />}
                         >
@@ -894,82 +965,54 @@ export const MiEspacio: React.FC = () => {
             key: '5',
             label: (<span><UserOutlined /> Perfil</span>),
             children: (
+              // La edición de perfil ahora vive en su propia página (/mi-perfil),
+              // más amplia e interactiva. Aquí solo dejamos una vista previa + acceso directo.
               <Row justify="center">
-                <Col xs={24} md={12} lg={10}>
-                  <Card bordered={false} style={styles.card}>
-                    <div style={{ textAlign: 'center', marginBottom: 28 }}>
-                      <Avatar 
-                        size={88} 
-                        icon={<UserOutlined />} 
-                        style={{ backgroundColor: PALETTE.primary, marginBottom: 12 }}
+                <Col xs={24} md={16} lg={12}>
+                  <Card bordered={false} style={{ ...styles.card, overflow: 'hidden' }} bodyStyle={{ padding: 0 }}>
+                    <div style={{
+                      height: 110,
+                      background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.primaryDark})`,
+                      position: 'relative',
+                    }}>
+                      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 400 110" preserveAspectRatio="none">
+                        <circle cx="360" cy="20" r="70" fill="rgba(255,255,255,0.06)" />
+                      </svg>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '0 28px 28px' }}>
+                      <Avatar
+                        size={92}
+                        icon={<UserOutlined />}
+                        style={{
+                          backgroundColor: PALETTE.primary,
+                          marginTop: -46,
+                          border: '4px solid #ffffff',
+                          boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
+                        }}
                       />
-                      <Title level={4} style={{ margin: 0, color: '#1E293B' }}>
+                      <Title level={4} style={{ margin: '12px 0 0', color: '#1E293B' }}>
                         {nombre} {apellido}
                       </Title>
-                      <Text type="secondary">Actualiza tu información de contacto</Text>
-                    </div>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                      <div>
-                        <Text type="secondary" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
-                          Nombre <Text type="secondary" style={{ fontSize: 11 }}>(contacta a soporte para cambiarlo)</Text>
-                        </Text>
-                        <Input 
-                          value={nombre} 
-                          disabled
-                          style={{ borderRadius: 10, padding: '8px 12px' }}
-                          prefix={<UserOutlined style={{ color: PALETTE.textMuted }} />}
-                        />
-                      </div>
-                      <div>
-                        <Text type="secondary" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
-                          Apellido <Text type="secondary" style={{ fontSize: 11 }}>(contacta a soporte para cambiarlo)</Text>
-                        </Text>
-                        <Input 
-                          value={apellido} 
-                          disabled
-                          style={{ borderRadius: 10, padding: '8px 12px' }}
-                          prefix={<UserOutlined style={{ color: PALETTE.textMuted }} />}
-                        />
-                      </div>
-                      <div>
-                        <Text type="secondary" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
-                          Teléfono de contacto / Emergencia
-                        </Text>
-                        <Input 
-                          value={telefono} 
-                          onChange={(e) => setTelefono(e.target.value)} 
-                          style={{ borderRadius: 10, padding: '8px 12px' }}
-                          prefix={<PhoneOutlined style={{ color: PALETTE.textMuted }} />}
-                        />
-                      </div>
-                      <div>
-                        <Text type="secondary" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
-                          Correo electrónico
-                        </Text>
-                        <Input 
-                          value={pacienteData?.usuario?.email || ''} 
-                          disabled 
-                          style={{ borderRadius: 10, padding: '8px 12px' }}
-                          prefix={<MailOutlined style={{ color: PALETTE.textMuted }} />}
-                        />
-                      </div>
-                      <Button 
-                        type="primary" 
-                        onClick={handleUpdateProfile}
-                        loading={guardandoPerfil}
-                        icon={<SaveOutlined />}
-                        style={{ 
-                          background: PALETTE.primary, 
+                      <Text type="secondary">{pacienteData?.usuario?.email || 'Gestiona tu información personal'}</Text>
+
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<EditOutlined />}
+                        onClick={() => navigate('/mi-perfil')}
+                        style={{
+                          marginTop: 24,
+                          background: PALETTE.primary,
                           border: 'none',
-                          borderRadius: 10, 
-                          marginTop: 8, 
-                          height: 44, 
+                          borderRadius: 14,
+                          height: 48,
                           fontWeight: 600,
-                          fontSize: 15
+                          paddingLeft: 28,
+                          paddingRight: 28,
                         }}
                       >
-                        Guardar Cambios
+                        Ver y editar mi perfil completo
+                        <ArrowRightOutlined style={{ marginLeft: 8 }} />
                       </Button>
                     </div>
                   </Card>
@@ -1016,10 +1059,10 @@ export const MiEspacio: React.FC = () => {
               const nombrePsi = psicologo.usuario?.nombre || '';
               const apellidoPsi = psicologo.usuario?.apellido || '';
               const yaEsMiPsicologo = psicologoData?.id === psicologo.id;
-              
+
               return (
                 <List.Item
-                  style={{ 
+                  style={{
                     padding: '16px 0',
                     borderBottom: `1px solid ${PALETTE.border}`,
                     opacity: yaEsMiPsicologo ? 0.6 : 1
@@ -1027,8 +1070,8 @@ export const MiEspacio: React.FC = () => {
                 >
                   <List.Item.Meta
                     avatar={
-                      <Avatar 
-                        size={56} 
+                      <Avatar
+                        size={56}
                         style={{
                           border: `2px solid ${PALETTE.accent}`,
                           background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
@@ -1076,7 +1119,7 @@ export const MiEspacio: React.FC = () => {
                     {yaEsMiPsicologo ? (
                       <Tag color="success" style={{ borderRadius: 10 }}>Asignado</Tag>
                     ) : (
-                      <Button 
+                      <Button
                         type="primary"
                         icon={<PlusOutlined />}
                         loading={solicitandoPsicologo}
@@ -1103,19 +1146,28 @@ export const MiEspacio: React.FC = () => {
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
     background: PALETTE.bg,
-    minHeight: '100%',
+    minHeight: '100vh',
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: 'clamp(16px, 3vw, 40px)',
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
   },
   hero: {
+    position: 'relative',
+    overflow: 'hidden',
     background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.primaryDark})`,
-    borderRadius: 24,
-    padding: '34px 40px',
+    borderRadius: 28,
+    padding: 'clamp(28px, 4vw, 48px)',
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 24,
     boxShadow: '0 12px 30px rgba(18, 65, 74, 0.25)',
+    width: '100%',
+  },
+  heroDecoration: {
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
   },
   eyebrow: {
     color: PALETTE.accentSoft,
@@ -1127,7 +1179,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   heroTitle: {
     fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: '#ffffff',
-    fontSize: 30,
+    fontSize: 'clamp(24px, 3vw, 34px)',
     fontWeight: 800,
     letterSpacing: '-0.5px',
     margin: '6px 0 4px',
@@ -1136,28 +1188,28 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: PALETTE.accentSoft,
     fontSize: 15,
     margin: '8px 0 0 0',
-    maxWidth: 500,
+    maxWidth: 520,
   },
   heroStat: {
     background: 'rgba(255,255,255,0.12)',
     border: '1px solid rgba(255,255,255,0.18)',
     borderRadius: 18,
-    padding: '18px 28px',
+    padding: '14px 24px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    minWidth: 180,
+    minWidth: 160,
   },
   heroStatValue: {
     fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: '#ffffff',
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: 800,
     lineHeight: 1,
   },
   heroStatLabel: {
     color: PALETTE.accentSoft,
-    fontSize: 12.5,
+    fontSize: 12,
     marginTop: 6,
     textAlign: 'center',
     letterSpacing: '0.02em',
@@ -1167,6 +1219,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     gap: 16,
     marginTop: 24,
+    width: '100%',
   },
   statCard: {
     display: 'flex',
