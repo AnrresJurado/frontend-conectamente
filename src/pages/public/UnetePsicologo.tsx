@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from 'antd';
 import {
   ArrowLeftOutlined, CalendarOutlined, TeamOutlined,
-  DollarCircleOutlined, SafetyCertificateOutlined, RocketOutlined,
+  DollarCircleOutlined, SafetyCertificateOutlined, 
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import Logo from "../../components/Logo";
