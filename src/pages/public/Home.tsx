@@ -261,23 +261,6 @@ const Home = () => {
               </Card>
             </Col>
 
-            {/* Grupos de Apoyo */}
-            <Col xs={24} sm={12} md={6} style={{ display: "flex" }}>
-              <Card hoverable style={styles.serviceCard}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
-                  <div style={{ ...styles.iconContainer, backgroundColor: "#e07a5f" }}>
-                    <UsergroupAddOutlined style={{ fontSize: 24, color: "#ffffff" }} />
-                  </div>
-                  <Title level={4} style={styles.cardTitle}>Grupos de Apoyo</Title>
-                  <Paragraph style={styles.cardText}>
-                    Espacios de escucha guiados para compartir experiencias y encontrar respaldo colectivo.
-                  </Paragraph>
-                </div>
-                <Button type="primary" onClick={() => navigate('grupos-apoyo')} style={styles.cardButton}>
-                  Unirme
-                </Button>
-              </Card>
-            </Col>
 
             {/* Únete como Psicólogo */}
             <Col xs={24} sm={12} md={6} style={{ display: "flex" }}>
