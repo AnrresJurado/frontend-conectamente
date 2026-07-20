@@ -27,9 +27,11 @@ import Servicios from '../pages/public/Servicios';
 import Recursos from '../pages/public/Recursos';
 import Recomendaciones from '../pages/admin/Recomendaciones';
 import MisRecomendaciones from '../pages/paciente/MisRecomendaciones';
+import TestsPsicometricos from '../pages/admin/TestsPsicometricos';
+import MisTestsPsicometricos from '../pages/paciente/MisTestsPsicometricos';
 
 // 🎯 Tus importaciones
-import BuscarPsicologo from '../pages/public/BuscarPsicologo'; 
+import BuscarPsicologo from '../pages/public/BuscarPsicologo';
 import BandejaSolicitudes from '../pages/admin/BandejaSolicitudes';
 
 // 💬 Importaciones unificadas de tu compañera
@@ -66,6 +68,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/mi-espacio" element={<MiEspacio />} />
           <Route path="/mi-progreso" element={<MiProgreso />} />
           <Route path="/mis-encuestas" element={<MisEncuestas />} />
+          <Route path="/mis-tests-psicometricos" element={<MisTestsPsicometricos />} />
           <Route path="/buscar-psicologo" element={<BuscarPsicologo />} /> {/* 👈 🎯 Inyectado de forma segura dentro de PacienteLayout */}
           <Route path="/chats" element={<Chats />} /> {/* Si el paciente también usa chats */}
           <Route path="/mis-recomendaciones" element={<MisRecomendaciones />} /> {/* 🎯 Módulo de recomendaciones para pacientes */}
@@ -89,6 +92,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/chats" element={<Chats />} />
           <Route path="/dashboard/progreso" element={<Progreso />} />
           <Route path="/dashboard/encuestas" element={<Encuestas />} />
+          <Route path="/dashboard/tests-psicometricos" element={<TestsPsicometricos />} />
           <Route path="/dashboard/solicitudes" element={<BandejaSolicitudes />} /> {/* 👈 🎯 Tu bandeja de entrada */}
           <Route path="/dashboard/recomendaciones" element={<Recomendaciones />} /> {/* 🎯 Módulo de recomendaciones para psicólogos */}
         </Route>
