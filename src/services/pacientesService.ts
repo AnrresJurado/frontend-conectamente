@@ -2,9 +2,15 @@ import api from '../api/axiosConfig';
 import { Paciente, PacienteFormData } from '../types';
 
 export const pacientesService = {
-  // GET /pacientes - Trae todos los expedientes clínicos de pacientes
+  // 🚀 GET /pacientes - Trae únicamente los pacientes del psicólogo logueado (O todos si es ADMIN)
   getAll: async () => {
     const { data } = await api.get<Paciente[]>('/pacientes');
+    return data;
+  },
+
+  // 🎯 NUEVO MÉTODO: Trae el universo completo de pacientes activos para los selectores de las citas
+  getTodosParaCitas: async () => {
+    const { data } = await api.get<Paciente[]>('/pacientes/buscar/todos');
     return data;
   },
 
