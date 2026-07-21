@@ -111,8 +111,8 @@ export const MiEspacio: React.FC = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  // Estados dinámicos conectados al backend — solo lectura, sin acciones
-  const [ setPacienteData] = useState<any>(null);
+  // 🎯 ESTADO CORREGIDO: pacienteData + setPacienteData
+  const [pacienteData, setPacienteData] = useState<any>(null);
   const [psicologoData, setPsicologoData] = useState<any>(null);
   const [citas, setCitas] = useState<any[]>([]);
   const [progreso, setProgreso] = useState<any[]>([]);
@@ -121,7 +121,6 @@ export const MiEspacio: React.FC = () => {
   // Nombre/apellido para el saludo
   const [nombre, setNombre] = useState('');
 
-  // Frase del día (cambia cada día según la fecha)
   const fraseDelDia = useMemo(() => {
     const dia = new Date().getDate();
     return frasesDelDia[dia % frasesDelDia.length];
@@ -134,24 +133,31 @@ export const MiEspacio: React.FC = () => {
   const fetchDataPaciente = async () => {
     setLoading(true);
     try {
-      // 🎯 Usa pacientesService.getAll() — GET /pacientes real, el backend ya filtra
-      // por token: para un usuario con rol PACIENTE devuelve su propio expediente.
-      const pacientes = await pacientesService.getAll();
-      const dataPac: any = pacientes?.[0];
-
-      setPacienteData(dataPac);
-      setNombre(dataPac.usuario?.nombre || '');
-
-      if (dataPac.psicologo) {
-        setPsicologoData(dataPac.psicologo);
+      // 🎯 Búsqueda segura del expediente propio del paciente
+      let dataPac: any = null;
+      try {
+        dataPac = await pacientesService.getMe();
+      } catch (e) {
+        // Fallback: si falla getMe, usamos getAll()
+        const pacientes = await pacientesService.getAll();
+        dataPac = pacientes?.[0];
       }
 
-      // 🎯 Usa citasService.getAll() — GET /citas real (mismo servicio que ya usa Dashboard.tsx)
+      if (dataPac) {
+        setPacienteData(dataPac);
+        setNombre(dataPac.usuario?.nombre || '');
+
+        if (dataPac.psicologo) {
+          setPsicologoData(dataPac.psicologo);
+        }
+      }
+
+      // 🎯 Obtener las citas del paciente
       const citasData = await citasService.getAll();
       setCitas(citasData || []);
 
       try {
-        if (dataPac.id) {
+        if (dataPac?.id) {
           const resProgreso = await progresoService.getByPaciente(dataPac.id);
           setProgreso(resProgreso || []);
         } else {
@@ -162,8 +168,6 @@ export const MiEspacio: React.FC = () => {
         console.warn("No se pudo cargar el progreso:", errProg);
       }
 
-      // ⏳ PENDIENTE: no existe todavía un recomendacionesService.ts confirmado.
-      // Se deja en blanco hasta que exista ese endpoint real; así no se rompe la pantalla.
       setRecomendaciones([]);
 
     } catch (err) {
