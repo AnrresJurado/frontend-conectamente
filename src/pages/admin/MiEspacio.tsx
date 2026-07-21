@@ -16,6 +16,7 @@ import { progresoService } from '../../services/progresoService';
 import { pacientesService } from '../../services/pacientesService';
 import { citasService } from '../../services/citasService';
 import { useAuth } from '../../hooks/useAuth';
+import { recomendacionesService } from '../../services/recomendacionesService';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -133,12 +134,10 @@ export const MiEspacio: React.FC = () => {
   const fetchDataPaciente = async () => {
     setLoading(true);
     try {
-      // 🎯 Búsqueda segura del expediente propio del paciente
       let dataPac: any = null;
       try {
         dataPac = await pacientesService.getMe();
       } catch (e) {
-        // Fallback: si falla getMe, usamos getAll()
         const pacientes = await pacientesService.getAll();
         dataPac = pacientes?.[0];
       }
@@ -152,10 +151,11 @@ export const MiEspacio: React.FC = () => {
         }
       }
 
-      // 🎯 Obtener las citas del paciente
+      // Cargar citas
       const citasData = await citasService.getAll();
       setCitas(citasData || []);
 
+      // Cargar progreso emocional
       try {
         if (dataPac?.id) {
           const resProgreso = await progresoService.getByPaciente(dataPac.id);
@@ -168,7 +168,14 @@ export const MiEspacio: React.FC = () => {
         console.warn("No se pudo cargar el progreso:", errProg);
       }
 
-      setRecomendaciones([]);
+      // 🎯 CONECTADO REAL: Cargar recomendaciones y actualizar el contador del dashboard
+      try {
+        const recomendacionesData = await recomendacionesService.getAll();
+        setRecomendaciones(recomendacionesData || []);
+      } catch (errRec) {
+        console.warn("No se pudieron cargar las recomendaciones:", errRec);
+        setRecomendaciones([]);
+      }
 
     } catch (err) {
       console.error("Error al cargar la información:", err);
