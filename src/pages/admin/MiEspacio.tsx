@@ -112,8 +112,8 @@ export const MiEspacio: React.FC = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  // 🎯 SINTAXIS DE HOOKS CORREGIDA
-  const [pacienteData, setPacienteData] = useState<any>(null);
+  // 🎯 ESTADO CORREGIDO: pacienteData + setPacienteData
+  const [setPacienteData] = useState<any>(null);
   const [psicologoData, setPsicologoData] = useState<any>(null);
   const [citas, setCitas] = useState<any[]>([]);
   const [progreso, setProgreso] = useState<any[]>([]);
@@ -168,7 +168,7 @@ export const MiEspacio: React.FC = () => {
         console.warn("No se pudo cargar el progreso:", errProg);
       }
 
-      // 🎯 Cargar recomendaciones y actualizar el contador del dashboard
+      // 🎯 CONECTADO REAL: Cargar recomendaciones y actualizar el contador del dashboard
       try {
         const recomendacionesData = await recomendacionesService.getAll();
         setRecomendaciones(recomendacionesData || []);
@@ -311,7 +311,7 @@ export const MiEspacio: React.FC = () => {
         </div>
       </div>
 
-      {/* ═══════════════ CUERPO ═══════════════ */}
+      {/* ═══════════════ CUERPO: progreso + frase + psicólogo — todo de solo lectura ═══════════════ */}
       <div style={styles.body}>
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={14}>
@@ -340,7 +340,7 @@ export const MiEspacio: React.FC = () => {
               </Paragraph>
             </div>
 
-            {/* Últimos registros emocionales */}
+            {/* Últimos registros emocionales — solo vista */}
             <div style={{ ...styles.card, marginTop: 20 }}>
               <Title level={4} style={{ margin: '0 0 16px', color: PALETTE.primary }}>
                 <HeartOutlined style={{ marginRight: 8 }} />
@@ -393,7 +393,7 @@ export const MiEspacio: React.FC = () => {
               </div>
             </div>
 
-            {/* Próxima sesión */}
+            {/* Próxima sesión — solo vista */}
             <div style={{ ...styles.card, marginTop: 20 }}>
               <Title level={4} style={{ margin: '0 0 12px', color: PALETTE.primary, fontSize: 15 }}>
                 <CalendarOutlined style={{ marginRight: 8 }} />
@@ -428,7 +428,7 @@ export const MiEspacio: React.FC = () => {
               )}
             </div>
 
-            {/* Tu psicólogo asignado */}
+            {/* Tu psicólogo asignado — solo vista, sin botones de acción */}
             <div style={{ ...styles.card, marginTop: 20 }}>
               <Title level={4} style={{ margin: '0 0 12px', color: PALETTE.primary, fontSize: 15 }}>
                 <TeamOutlined style={{ marginRight: 8 }} />
@@ -647,5 +647,3 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: `1px solid ${PALETTE.border}`,
   },
 };
-
-export default MiEspacio;
