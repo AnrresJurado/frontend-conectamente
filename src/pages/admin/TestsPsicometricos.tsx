@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Spin, Alert, message, Card, Typography, Modal, Tag } from 'antd';
+import { Table, Button, Spin, Alert, message, Card, Typography, Modal, Tag, Select, Space, Row, Col } from 'antd';
 import { testsPsicometricosService, AsignacionTest } from '../../services/testsPsicometricosService';
-import { getTestById, TipoTest } from '../../data/testsPredefinidos';
+import { TESTS_PREDEFINIDOS, getTestById, TipoTest } from '../../data/testsPredefinidos';
 import { pacientesService } from '../../services/pacientesService';
-import { EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, PlusOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -30,6 +30,12 @@ const TestsPsicometricos: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [historialVisible, setHistorialVisible] = useState(false);
   const [asignacionSeleccionada, setAsignacionSeleccionada] = useState<AsignacionTest | null>(null);
+  
+  // Modal para asignar test
+  const [isAsignarModalOpen, setIsAsignarModalOpen] = useState(false);
+  const [pacienteSeleccionado, setPacienteSeleccionado] = useState<string>('');
+  const [testSeleccionado, setTestSeleccionado] = useState<TipoTest | null>(null);
+  const [asignando, setAsignando] = useState(false);
 
   useEffect(() => {
     cargarDatos();
@@ -92,6 +98,30 @@ const TestsPsicometricos: React.FC = () => {
       cargarDatos();
     } catch (err) {
       message.error('Error al marcar como visto');
+    }
+  };
+
+  const abrirModalAsignar = () => {
+    setPacienteSeleccionado('');
+    setTestSeleccionado(null);
+    setIsAsignarModalOpen(true);
+  };
+
+  const handleAsignarTest = async () => {
+    if (!pacienteSeleccionado || !testSeleccionado) {
+      message.warning('Selecciona un paciente y un test');
+      return;
+    }
+    setAsignando(true);
+    try {
+      await testsPsicometricosService.asignarTest(pacienteSeleccionado, testSeleccionado);
+      message.success('Test asignado correctamente');
+      setIsAsignarModalOpen(false);
+      cargarDatos();
+    } catch (err) {
+      message.error('Error al asignar el test');
+    } finally {
+      setAsignando(false);
     }
   };
 
@@ -272,6 +302,51 @@ const TestsPsicometricos: React.FC = () => {
         </Text>
       </div>
 
+      {/* Tests Disponibles para Asignar */}
+      <Card style={{ borderRadius: 20, border: `1px solid ${PALETTE.border}`, marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div>
+            <Title level={4} style={{ color: PALETTE.primary, margin: 0 }}>
+              Tests Disponibles
+            </Title>
+            <Text style={{ color: PALETTE.textMuted, fontSize: 13 }}>
+              Asigna tests a tus pacientes
+            </Text>
+          </div>
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />}
+            onClick={abrirModalAsignar}
+            style={{ background: PALETTE.primary, borderColor: PALETTE.primary }}
+          >
+            Asignar Test
+          </Button>
+        </div>
+        <Row gutter={[16, 16]}>
+          {TESTS_PREDEFINIDOS.map(test => (
+            <Col xs={24} sm={12} key={test.id}>
+              <Card 
+                size="small"
+                style={{ 
+                  borderRadius: 12, 
+                  border: `1px solid ${PALETTE.border}`,
+                  background: PALETTE.bg 
+                }}
+              >
+                <Text strong style={{ color: PALETTE.primary, fontSize: 15 }}>
+                  {test.nombre}
+                </Text>
+                <br />
+                <Text style={{ fontSize: 12, color: PALETTE.textMuted }}>
+                  {test.preguntas.length} preguntas · Puntaje máx: {test.puntajeMaximo}
+                </Text>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Card>
+
+      {/* Tabla de Asignaciones */}
       <Card style={{ borderRadius: 20, border: `1px solid ${PALETTE.border}` }}>
         <Table
           className="cm-tests-psico"
@@ -281,6 +356,67 @@ const TestsPsicometricos: React.FC = () => {
           pagination={false}
         />
       </Card>
+
+      {/* Modal Asignar Test */}
+      <Modal
+        title={<span style={{ color: PALETTE.primary, fontWeight: 800, fontSize: 18 }}>Asignar Test a Paciente</span>}
+        open={isAsignarModalOpen}
+        onCancel={() => setIsAsignarModalOpen(false)}
+        footer={null}
+        width={500}
+      >
+        <div style={{ marginTop: 16 }}>
+          <div style={{ marginBottom: 16 }}>
+            <Text strong style={{ display: 'block', marginBottom: 8, color: PALETTE.primary }}>
+              Seleccionar Paciente
+            </Text>
+            <Select
+              style={{ width: '100%' }}
+              placeholder="Buscar paciente..."
+              showSearch
+              optionFilterProp="children"
+              value={pacienteSeleccionado || undefined}
+              onChange={(value) => setPacienteSeleccionado(value)}
+            >
+              {Object.entries(pacientes).map(([id, nombre]) => (
+                <Select.Option key={id} value={id}>{nombre}</Select.Option>
+              ))}
+            </Select>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <Text strong style={{ display: 'block', marginBottom: 8, color: PALETTE.primary }}>
+              Seleccionar Test
+            </Text>
+            <Select
+              style={{ width: '100%' }}
+              placeholder="Seleccionar test..."
+              value={testSeleccionado || undefined}
+              onChange={(value) => setTestSeleccionado(value)}
+            >
+              {TESTS_PREDEFINIDOS.map(test => (
+                <Select.Option key={test.id} value={test.id}>
+                  {test.nombre} ({test.preguntas.length} preguntas)
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
+
+          <div style={{ textAlign: 'right', marginTop: 24 }}>
+            <Space>
+              <Button onClick={() => setIsAsignarModalOpen(false)}>Cancelar</Button>
+              <Button 
+                type="primary" 
+                onClick={handleAsignarTest}
+                loading={asignando}
+                style={{ background: PALETTE.primary, borderColor: PALETTE.primary }}
+              >
+                Asignar Test
+              </Button>
+            </Space>
+          </div>
+        </div>
+      </Modal>
 
       {/* Modal de historial */}
       <Modal
