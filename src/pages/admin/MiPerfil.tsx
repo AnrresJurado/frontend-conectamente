@@ -15,6 +15,7 @@ import {
   IdcardOutlined,
 } from '@ant-design/icons';
 import { pacientesService } from '../../services/pacientesService';
+import { perfilService } from '../../services/perfilService';
 import { citasService } from '../../services/citasService';
 import { progresoService } from '../../services/progresoService';
 import { useAuth } from '../../hooks/useAuth';
@@ -66,9 +67,14 @@ export const MiPerfil: React.FC = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+
+  // 🎯 Ahora la info viene de DOS fuentes combinadas:
+  // - perfilData: GET /perfil                -> nombre, apellido, email (entidad Usuario)
+  // - pacienteData: GET /pacientes/me/perfil  -> telefonoEmergencia, id del paciente (entidad Paciente)
+  const [perfilData, setPerfilData] = useState<any>(null);
   const [pacienteData, setPacienteData] = useState<any>(null);
 
-  // mismos campos y misma lógica que existían en la pestaña "Perfil" de MiEspacio
+  // campos editables del formulario
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -85,19 +91,28 @@ export const MiPerfil: React.FC = () => {
   const fetchDataPaciente = async () => {
     setLoading(true);
     try {
-      const pacientes = await pacientesService.getAll();
-      const dataPac: any = pacientes?.[0];
+      // Se piden en paralelo: datos de Usuario (nombre/apellido/email) y
+      // datos del expediente clínico (telefonoEmergencia + id del paciente)
+      const [perfil, paciente] = await Promise.all([
+        perfilService.getMe(),
+        pacientesService.getMe().catch((e) => {
+          console.warn('No se pudo cargar el expediente de paciente:', e);
+          return null;
+        }),
+      ]);
 
-      if (!dataPac) {
-        message.warning('No encontramos tu expediente de paciente todavía.');
+      if (!perfil) {
+        message.warning('No encontramos tu perfil todavía.');
         setLoading(false);
         return;
       }
 
-      setPacienteData(dataPac);
-      setNombre(dataPac.usuario?.nombre || '');
-      setApellido(dataPac.usuario?.apellido || '');
-      setTelefono(dataPac.telefonoEmergencia || '');
+      setPerfilData(perfil);
+      setPacienteData(paciente);
+
+      setNombre(perfil.nombre || '');
+      setApellido(perfil.apellido || '');
+      setTelefono(paciente?.telefonoEmergencia || '');
 
       try {
         const citasData = await citasService.getAll();
@@ -107,8 +122,8 @@ export const MiPerfil: React.FC = () => {
       }
 
       try {
-        const resProgreso = dataPac.id
-          ? await progresoService.getByPaciente(dataPac.id)
+        const resProgreso = paciente?.id
+          ? await progresoService.getByPaciente(paciente.id)
           : await progresoService.getAll();
         setTotalProgreso((resProgreso || []).length);
       } catch (e) {
@@ -122,19 +137,22 @@ export const MiPerfil: React.FC = () => {
     }
   };
 
-  // ── misma lógica de guardado que tenía MiEspacio.tsx ──
+  // ── guardado: dos llamadas separadas, cada una a su propio recurso ──
   const handleUpdateProfile = async () => {
-    if (!pacienteData?.id) return;
     setGuardandoPerfil(true);
     try {
-      // 🎯 Usa PATCH /pacientes/:id (real) para guardar el teléfono de emergencia.
-      // ⏳ Nombre y apellido viven en la entidad Usuario, no en Paciente — todavía no
-      // tenemos confirmado un endpoint real para editarlos (ej. PATCH /usuarios/:id),
-      // así que por ahora esos campos quedan de solo lectura para no romper nada.
-      await pacientesService.update(pacienteData.id, {
-        telefonoEmergencia: telefono,
-      } as any);
-      message.success('¡Teléfono actualizado con éxito!');
+      // 1) Nombre/apellido viven en Usuario -> PATCH /perfil (no necesita id, usa el JWT)
+      const perfilActualizado = await perfilService.update({ nombre, apellido });
+      setPerfilData(perfilActualizado);
+
+      // 2) Teléfono de emergencia vive en Paciente -> PATCH /pacientes/:id
+      if (pacienteData?.id) {
+        await pacientesService.update(pacienteData.id, {
+          telefonoEmergencia: telefono,
+        } as any);
+      }
+
+      message.success('¡Perfil actualizado con éxito!');
       fetchDataPaciente();
     } catch (err) {
       console.error(err);
@@ -201,7 +219,7 @@ export const MiPerfil: React.FC = () => {
               {nombreMostrar}
             </Title>
             <Text style={{ color: PALETTE.accentSoft, fontSize: 15 }}>
-              {pacienteData?.usuario?.email || 'Tu espacio de bienestar personal'}
+              {perfilData?.email || 'Tu espacio de bienestar personal'}
             </Text>
           </div>
         </div>
@@ -260,24 +278,24 @@ export const MiPerfil: React.FC = () => {
             <Row gutter={[20, 20]}>
               <Col xs={24} md={12}>
                 <Text type="secondary" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
-                  Nombre <Text type="secondary" style={{ fontSize: 11 }}>(contacta a soporte para cambiarlo)</Text>
+                  Nombre
                 </Text>
                 <Input
                   className="miperfil-input"
                   value={nombre}
-                  disabled
+                  onChange={(e) => setNombre(e.target.value)}
                   size="large"
                   prefix={<UserOutlined style={{ color: PALETTE.textMuted }} />}
                 />
               </Col>
               <Col xs={24} md={12}>
                 <Text type="secondary" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
-                  Apellido <Text type="secondary" style={{ fontSize: 11 }}>(contacta a soporte para cambiarlo)</Text>
+                  Apellido
                 </Text>
                 <Input
                   className="miperfil-input"
                   value={apellido}
-                  disabled
+                  onChange={(e) => setApellido(e.target.value)}
                   size="large"
                   prefix={<UserOutlined style={{ color: PALETTE.textMuted }} />}
                 />
@@ -300,7 +318,7 @@ export const MiPerfil: React.FC = () => {
                 </Text>
                 <Input
                   className="miperfil-input"
-                  value={pacienteData?.usuario?.email || ''}
+                  value={perfilData?.email || ''}
                   disabled
                   size="large"
                   prefix={<MailOutlined style={{ color: PALETTE.textMuted }} />}
