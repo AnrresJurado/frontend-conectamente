@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Popconfirm, message, Input, Modal, Form, Empty, Spin } from 'antd';
+import { Table, Popconfirm, message, Input, Modal, Form, Empty, Spin, Tag } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined,
-  FolderOpenOutlined, SaveOutlined, MailOutlined,
+  FolderOpenOutlined, SaveOutlined, MailOutlined, UserOutlined,
 } from '@ant-design/icons';
 import { pacientesService } from '../../services/pacientesService';
 import { historialService, HistorialClinico } from '../../services/historialService';
@@ -10,7 +10,6 @@ import { useAuth } from '../../hooks/useAuth';
 import { Paciente, PacienteFormData } from '../../types';
 import FormPaciente from '../../components/FormPaciente';
 
-// Misma identidad visual que Login / Register / Home / Dashboard / DashboardLayout
 const PALETTE = {
   primary: '#1d5863',
   primaryDark: '#12414a',
@@ -34,12 +33,10 @@ const Pacientes: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchText, setSearchText] = useState<string>('');
 
-  // Estados para el Modal de creación/edición de pacientes
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [formLoading, setFormLoading] = useState<boolean>(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<Paciente | null>(null);
 
-  // Estados para el Modal de Historial / Avances Clínicos
   const [isHistorialModalOpen, setIsHistorialModalOpen] = useState<boolean>(false);
   const [historiales, setHistoriales] = useState<HistorialClinico[]>([]);
   const [loadingHistorial, setLoadingHistorial] = useState<boolean>(false);
@@ -65,7 +62,6 @@ const Pacientes: React.FC = () => {
     cargarPacientes();
   }, []);
 
-  // Abrir gestión de historial clínico
   const abrirHistorial = async (paciente: Paciente) => {
     if (!paciente.usuario?.id) {
       message.error('El paciente no tiene un usuario válido asignado.');
@@ -85,7 +81,6 @@ const Pacientes: React.FC = () => {
     }
   };
 
-  // Guardar una nueva sesión de avance (Historial)
   const guardarAvanceClinico = async () => {
     if (!pacienteSeleccionado || !pacienteSeleccionado.usuario?.id) return;
     if (!nuevaNota.trim()) {
@@ -197,6 +192,25 @@ const Pacientes: React.FC = () => {
         </div>
       ),
     },
+    // 🎯 NUEVA COLUMNA: Muestra el Psicólogo Encargado
+    {
+      title: 'Psicólogo Encargado',
+      key: 'psicologoEncargado',
+      render: (_: any, record: any) => {
+        const nombrePsicologo = record.psicologo?.usuario
+          ? `${record.psicologo.usuario.nombre} ${record.psicologo.usuario.apellido}`
+          : null;
+
+        return nombrePsicologo ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: PALETTE.primary, fontWeight: 600 }}>
+            <UserOutlined style={{ color: PALETTE.accent }} />
+            <span>{nombrePsicologo}</span>
+          </div>
+        ) : (
+          <Tag color="orange" style={{ borderRadius: 12 }}>Sin asignar</Tag>
+        );
+      },
+    },
     {
       title: 'Motivo de Consulta',
       dataIndex: 'motivoConsultaInicial',
@@ -247,7 +261,6 @@ const Pacientes: React.FC = () => {
 
   return (
     <div style={styles.page}>
-      {/* Estilos con alcance local para el look propio de la tabla y modales */}
       <style>{`
         .cm-pacientes .ant-table { background: transparent; }
         .cm-pacientes .ant-table-thead > tr > th {
@@ -273,7 +286,6 @@ const Pacientes: React.FC = () => {
         .cm-form-modal .ant-modal-content { border-radius: 20px; overflow: hidden; }
       `}</style>
 
-      {/* ═══════════════ ENCABEZADO ═══════════════ */}
       <div style={styles.header}>
         <div>
           <h1 style={styles.title}>Gestión de Pacientes Clínicos</h1>
@@ -290,7 +302,6 @@ const Pacientes: React.FC = () => {
         )}
       </div>
 
-      {/* ═══════════════ BUSCADOR ═══════════════ */}
       <div style={{ marginBottom: 20 }}>
         <Input
           placeholder="Buscar por nombre o correo..."
@@ -302,7 +313,6 @@ const Pacientes: React.FC = () => {
         />
       </div>
 
-      {/* ═══════════════ TABLA ═══════════════ */}
       <div style={styles.panel} className="cm-pacientes">
         <Table
           columns={columns as any}
@@ -314,7 +324,6 @@ const Pacientes: React.FC = () => {
         />
       </div>
 
-      {/* MODAL GESTIÓN DE PACIENTES */}
       <Modal
         title={
           <span style={styles.modalTitle}>
@@ -333,7 +342,6 @@ const Pacientes: React.FC = () => {
         </div>
       </Modal>
 
-      {/* MODAL DE HISTORIAL DE SESIONES / AVANCES */}
       <Modal
         title={
           <span style={styles.modalTitle}>
