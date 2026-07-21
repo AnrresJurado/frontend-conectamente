@@ -20,6 +20,11 @@ export const pacientesService = {
     return data;
   },
 
+  getMe: async () => {
+    const { data } = await api.get<Paciente>('/pacientes/me/perfil');
+    return data;
+},
+
   // POST /pacientes - Registra cuenta de usuario + expediente clínico de golpe
   create: async (pacienteData: PacienteFormData) => {
     const { data } = await api.post<Paciente>('/pacientes', pacienteData);
