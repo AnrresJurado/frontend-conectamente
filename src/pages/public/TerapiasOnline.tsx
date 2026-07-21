@@ -67,26 +67,44 @@ const TerapiasOnline: React.FC = () => {
         .cm-t2-comp-row:hover {
           background: ${COLORS.bg};
         }
+        @media (max-width: 768px) {
+          .cm-t2-hero-inner, .cm-t2-comp-section {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+          }
+          .cm-t2-hero-title {
+            font-size: 32px !important;
+          }
+          .cm-t2-section, .cm-t2-closing {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+          }
+          .cm-t2-comp-card, .cm-t2-stats-panel {
+            padding: 24px 20px !important;
+          }
+        }
       `}</style>
 
       <div style={styles.heroDark}>
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate(-1)}
-          style={styles.backButton}
-        >
-          Volver
-        </Button>
+        <div style={styles.heroNavContainer}>
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
+            style={styles.backButton}
+          >
+            Volver
+          </Button>
+        </div>
 
-        <div style={styles.heroInner}>
+        <div style={styles.heroInner} className="cm-t2-hero-inner">
           <div style={styles.heroTextCol}>
             <Logo size={40} textColor="#ffffff" accentColor={COLORS.accentSoft} />
             <div style={styles.heroBadgePill}>
               <VideoCameraOutlined />
               <span>Sesiones por videollamada</span>
             </div>
-            <h1 style={styles.heroTitle}>
+            <h1 style={styles.heroTitle} className="cm-t2-hero-title">
               Terapia psicológica,
               <br />
               sin salir de casa
@@ -113,7 +131,7 @@ const TerapiasOnline: React.FC = () => {
       </div>
 
       {/* PASOS */}
-      <div style={styles.section}>
+      <div style={styles.section} className="cm-t2-section">
         <h2 style={styles.sectionTitle}>Empezar es más simple de lo que crees</h2>
         <p style={styles.sectionSubtitle}>Tres pasos y estarás en tu primera sesión.</p>
 
@@ -129,8 +147,8 @@ const TerapiasOnline: React.FC = () => {
       </div>
 
       {/* COMPARATIVA + STATS */}
-      <div style={styles.compSection}>
-        <div style={styles.compCard}>
+      <div style={styles.compSection} className="cm-t2-comp-section">
+        <div style={styles.compCard} className="cm-t2-comp-card">
           <h2 style={styles.compTitle}>¿Por qué elegir la modalidad online?</h2>
           <p style={styles.compSubtitle}>
             Los mismos beneficios clínicos que una sesión presencial, con
@@ -140,9 +158,9 @@ const TerapiasOnline: React.FC = () => {
             {COMPARATIVA.map((item) => (
               <div key={item.texto} className="cm-t2-comp-row" style={styles.compRow}>
                 {item.online ? (
-                  <CheckCircleFilled style={{ color: COLORS.accent, fontSize: 18 }} />
+                  <CheckCircleFilled style={{ color: COLORS.accent, fontSize: 18, flexShrink: 0 }} />
                 ) : (
-                  <CloseCircleOutlined style={{ color: '#cbd5e1', fontSize: 18 }} />
+                  <CloseCircleOutlined style={{ color: '#cbd5e1', fontSize: 18, flexShrink: 0 }} />
                 )}
                 <span style={{ ...styles.compText, opacity: item.online ? 1 : 0.55 }}>
                   {item.texto}
@@ -152,7 +170,7 @@ const TerapiasOnline: React.FC = () => {
           </div>
         </div>
 
-        <div style={styles.statsPanel}>
+        <div style={styles.statsPanel} className="cm-t2-stats-panel">
           <div style={styles.statBlock}>
             <span style={styles.statNumber}>+30%</span>
             <span style={styles.statLabel}>más económico que una sesión presencial</span>
@@ -171,7 +189,7 @@ const TerapiasOnline: React.FC = () => {
       </div>
 
       {/* CIERRE */}
-      <div style={styles.closingSection}>
+      <div style={styles.closingSection} className="cm-t2-closing">
         <div style={styles.closingCard}>
           <h3 style={styles.closingTitle}>Tu bienestar no debería esperar</h3>
           <p style={styles.closingText}>
@@ -198,10 +216,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: COLORS.bg,
     minHeight: '100vh',
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    overflowX: 'hidden',
   },
   heroDark: {
     background: `linear-gradient(135deg, ${COLORS.primaryDark}, ${COLORS.primary})`,
     padding: '20px 40px 60px',
+  },
+  heroNavContainer: {
+    maxWidth: 1160,
+    margin: '0 auto',
   },
   backButton: {
     color: '#ffffff',
@@ -264,12 +287,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxShadow: '0 10px 24px rgba(0,0,0,0.2)',
   },
   heroImageCol: {
-    flex: '1 1 380px',
+    flex: '1 1 320px',
     maxWidth: 460,
+    width: '100%',
   },
   heroImage: {
     width: '100%',
-    height: 340,
+    height: 'auto',
+    maxHeight: 340,
     objectFit: 'cover',
     borderRadius: 24,
     boxShadow: '0 24px 60px rgba(18, 65, 74, 0.35)',
@@ -346,7 +371,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '48px 56px',
     border: `1px solid ${COLORS.border}`,
     boxShadow: '0 10px 30px rgba(29, 88, 99, 0.08)',
-    flex: '1 1 480px',
+    flex: '1 1 360px',
   },
   compTitle: {
     fontFamily: "'Plus Jakarta Sans', sans-serif",
@@ -379,7 +404,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 14.5,
   },
   statsPanel: {
-    flex: '1 1 320px',
+    flex: '1 1 280px',
     background: `linear-gradient(150deg, ${COLORS.primaryDark}, ${COLORS.primary})`,
     borderRadius: 28,
     padding: '44px 40px',

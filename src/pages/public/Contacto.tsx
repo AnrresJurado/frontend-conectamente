@@ -21,9 +21,26 @@ const Contacto: React.FC = () => {
 
   return (
     <div style={styles.page}>
+      <style>{`
+        @media (max-width: 768px) {
+          .cm-contact-header {
+            padding: 0 16px !important;
+            height: 64px !important;
+          }
+          .cm-contact-hero {
+            padding: 50px 20px !important;
+          }
+          .cm-contact-title {
+            font-size: 32px !important;
+          }
+          .cm-contact-content {
+            padding: 40px 16px 80px !important;
+          }
+        }
+      `}</style>
 
       {/* MINI HEADER */}
-      <div style={styles.header}>
+      <div className="cm-contact-header" style={styles.header}>
         <div onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
           <Logo size={36} />
         </div>
@@ -38,11 +55,11 @@ const Contacto: React.FC = () => {
       </div>
 
       {/* HERO */}
-      <section style={styles.hero}>
+      <section className="cm-contact-hero" style={styles.hero}>
         <div style={styles.decorCircleTop} />
         <div style={styles.decorCircleBottom} />
         <div style={styles.heroContent}>
-          <h1 style={styles.heroTitle}>Hablemos</h1>
+          <h1 className="cm-contact-title" style={styles.heroTitle}>Hablemos</h1>
           <p style={styles.heroSubtitle}>
             ¿Tienes dudas sobre la plataforma o quieres saber más sobre nuestros
             servicios? Estamos aquí para acompañarte.
@@ -51,51 +68,51 @@ const Contacto: React.FC = () => {
       </section>
 
       {/* CONTENIDO - SOLO CONTACTOS */}
-      <section style={styles.content}>
-        <Row gutter={[24, 24]} justify="center" style={{ maxWidth: 800, margin: "0 auto" }}>
+      <section className="cm-contact-content" style={styles.content}>
+        <Row gutter={[24, 24]} justify="center" style={{ maxWidth: 840, margin: "0 auto" }}>
           
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={12} style={{ display: "flex" }}>
             <a href={EMAIL_HREF} style={styles.infoCard}>
               <div style={styles.infoIcon}>
                 <MailOutlined style={{ fontSize: 20, color: "#ffffff" }} />
               </div>
-              <div>
+              <div style={styles.infoTextContainer}>
                 <span style={styles.infoLabel}>Correo electrónico</span>
                 <span style={styles.infoValue}>{EMAIL_ADDRESS}</span>
               </div>
             </a>
           </Col>
 
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={12} style={{ display: "flex" }}>
             <a href={PHONE_HREF} style={styles.infoCard}>
               <div style={styles.infoIcon}>
                 <PhoneOutlined style={{ fontSize: 20, color: "#ffffff" }} />
               </div>
-              <div>
+              <div style={styles.infoTextContainer}>
                 <span style={styles.infoLabel}>Teléfono</span>
                 <span style={styles.infoValue}>{PHONE_NUMBER}</span>
               </div>
             </a>
           </Col>
 
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={12} style={{ display: "flex" }}>
             <div style={{ ...styles.infoCard, cursor: "default" }}>
               <div style={styles.infoIcon}>
                 <EnvironmentOutlined style={{ fontSize: 20, color: "#ffffff" }} />
               </div>
-              <div>
+              <div style={styles.infoTextContainer}>
                 <span style={styles.infoLabel}>Ubicación</span>
                 <span style={styles.infoValue}>Quito, Ecuador</span>
               </div>
             </div>
           </Col>
 
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={12} style={{ display: "flex" }}>
             <div style={{ ...styles.infoCard, cursor: "default" }}>
               <div style={styles.infoIcon}>
                 <ClockCircleOutlined style={{ fontSize: 20, color: "#ffffff" }} />
               </div>
-              <div>
+              <div style={styles.infoTextContainer}>
                 <span style={styles.infoLabel}>Horario de atención</span>
                 <span style={styles.infoValue}>Lunes a viernes, 8:00 - 18:00</span>
               </div>
@@ -113,6 +130,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: "100vh",
     background: "#f4f9f9",
     fontFamily: "'Inter', sans-serif",
+    width: "100%",
+    overflowX: "hidden",
   },
   header: {
     height: 72,
@@ -122,6 +141,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     justifyContent: "space-between",
     padding: "0 60px",
+    width: "100%",
+    boxSizing: "border-box",
   },
   hero: {
     position: "relative",
@@ -171,6 +192,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   content: {
     padding: "60px 60px 100px",
+    boxSizing: "border-box",
+    width: "100%",
   },
   infoCard: {
     display: "flex",
@@ -184,6 +207,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     textDecoration: "none",
     transition: "transform 0.2s ease",
     height: "100%",
+    width: "100%",
+    boxSizing: "border-box",
   },
   infoIcon: {
     width: 44,
@@ -194,6 +219,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+  },
+  infoTextContainer: {
+    minWidth: 0,
+    overflow: "hidden",
   },
   infoLabel: {
     display: "block",
@@ -206,6 +235,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 15,
     fontWeight: 600,
     color: "#1d5863",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'antd';
 import {
-  ArrowLeftOutlined, VideoCameraOutlined, CommentOutlined,
+  ArrowLeftOutlined, VideoCameraOutlined,
   ExperimentOutlined, FileTextOutlined, BulbOutlined,
   RocketOutlined, ArrowRightOutlined,
 } from '@ant-design/icons';
@@ -29,13 +29,6 @@ const SERVICIOS = [
     texto: 'Sesiones individuales por videollamada con un psicólogo acreditado, desde donde estés.',
     ruta: '/terapias-online',
     color: '#1e88e5',
-  },
-  {
-    icon: <CommentOutlined />,
-    titulo: 'Chats grupales',
-    texto: 'Grupos de apoyo guiados para compartir experiencias con otras personas y un profesional.',
-    ruta: '/grupos-apoyo',
-    color: '#e07a5f',
   },
   {
     icon: <ExperimentOutlined />,
@@ -91,150 +84,166 @@ const Servicios: React.FC = () => {
         }
         @media (max-width: 820px) {
           .cm-hero-grid { grid-template-columns: 1fr !important; }
-          .cm-hero-image-wrap { order: -1; clip-path: none !important; height: 260px !important; }
+          .cm-hero-image-wrap { order: -1; clip-path: none !important; height: 260px !important; margin-left: 0 !important; border-radius: 20px; overflow: hidden; }
+        }
+        @media (max-width: 768px) {
+          .cm-page-root { padding: 12px 16px 0 !important; }
+          .cm-hero-text { padding-right: 0 !important; }
+          .cm-hero-title { font-size: 32px !important; letter-spacing: -0.8px !important; }
+          .cm-stats-inner { padding: 20px 16px !important; justify-content: center !important; }
+          .cm-stat-divider { display: none !important; }
+          .cm-stat-item { min-width: 100% !important; margin-bottom: 8px; }
+          .cm-serv-row { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; padding: 18px 20px !important; }
+          .cm-serv-action { width: 100%; display: flex; justify-content: flex-end; }
+          .cm-bridge-card { padding: 28px 20px !important; text-align: left; }
+          .cm-bridge-card .cm-bridge-cta-wrap { width: 100%; }
         }
       `}</style>
 
-      <Button
-        type="text"
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate(-1)}
-        style={styles.backButton}
-      >
-        Volver
-      </Button>
+      <div className="cm-page-root" style={styles.pageInner}>
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(-1)}
+          style={styles.backButton}
+        >
+          Volver
+        </Button>
 
-      {/* HERO — diagonal split */}
-      <div className="cm-hero-grid" style={styles.heroGrid}>
-        <div style={styles.heroText}>
-          <Logo size={40} textColor={COLORS.primary} accentColor={COLORS.accent} />
+        {/* HERO — diagonal split */}
+        <div className="cm-hero-grid" style={styles.heroGrid}>
+          <div className="cm-hero-text" style={styles.heroText}>
+            <Logo size={40} textColor={COLORS.primary} accentColor={COLORS.accent} />
 
-          <div style={styles.eyebrowRow}>
-            <span style={styles.eyebrowLine} />
-            <span style={styles.eyebrow}>Todo en un mismo lugar</span>
-          </div>
-
-          <h1 style={styles.heroTitle}>
-            Servicios pensados
-            <br />
-            para <span style={styles.heroTitleAccent}>tu proceso</span>
-          </h1>
-
-          <p style={styles.heroSubtitle}>
-            En ConectaMente encuentras acompañamiento profesional en distintos
-            formatos: sesiones individuales, grupos de apoyo, evaluaciones y
-            seguimiento cercano de tu psicólogo, todo en un solo lugar.
-          </p>
-
-          <Button
-            type="primary"
-            size="large"
-            icon={<RocketOutlined />}
-            className="cm-serv-cta"
-            style={styles.ctaButtonHero}
-            onClick={() => navigate('/register')}
-          >
-            Empezar ahora
-          </Button>
-        </div>
-
-        <div className="cm-hero-image-wrap" style={styles.heroImageWrap}>
-          <img src={imgHero} alt="Servicios ConectaMente" style={styles.heroImage} />
-          <div style={styles.heroOverlay} />
-        </div>
-      </div>
-
-      {/* FRANJA DE ESTADÍSTICAS */}
-      <div style={styles.statsStrip}>
-        <div style={styles.statsInner}>
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>5</span>
-            <span style={styles.statLabel}>servicios integrados</span>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>100%</span>
-            <span style={styles.statLabel}>acompañamiento profesional</span>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.statItem}>
-            <span style={styles.statNumber}>24/7</span>
-            <span style={styles.statLabel}>acceso a tu plataforma</span>
-          </div>
-        </div>
-      </div>
-
-      {/* LISTA EDITORIAL DE SERVICIOS */}
-      <div style={styles.section}>
-        <div style={styles.sectionHeader}>
-          <span style={styles.sectionKicker}>Explora</span>
-          <h2 style={styles.sectionTitle}>¿Qué puedes hacer en ConectaMente?</h2>
-          <p style={styles.sectionSubtitle}>
-            Cada servicio está pensado para acompañarte antes, durante y después de tus sesiones.
-          </p>
-        </div>
-
-        <div style={styles.list}>
-          {SERVICIOS.map((s, i) => (
-            <div
-              key={s.titulo}
-              className="cm-serv-row"
-              style={styles.servRow}
-            >
-              <span
-                className="cm-serv-num"
-                style={{ ...styles.servNum, ['--num-hover-color' as any]: s.color }}
-              >
-                {String(i + 1).padStart(2, '0')}
-              </span>
-
-              <div style={{ ...styles.servIconCircle, background: `${s.color}1A`, color: s.color }}>
-                {s.icon}
-              </div>
-
-              <div style={styles.servBody}>
-                <h3 style={styles.servTitulo}>{s.titulo}</h3>
-                <p style={styles.servTexto}>{s.texto}</p>
-              </div>
-
-              <div style={styles.servAction}>
-                {s.ruta ? (
-                  <span
-                    className="cm-serv-link"
-                    style={styles.servLink}
-                    onClick={() => navigate(s.ruta as string)}
-                  >
-                    Conocer más <ArrowRightOutlined style={{ fontSize: 12 }} />
-                  </span>
-                ) : (
-                  <span style={styles.servTag}>Guiado por tu psicólogo</span>
-                )}
-              </div>
+            <div style={styles.eyebrowRow}>
+              <span style={styles.eyebrowLine} />
+              <span style={styles.eyebrow}>Todo en un mismo lugar</span>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* PUENTE HACIA RECURSOS */}
-      <div style={styles.bridgeSection}>
-        <div style={styles.bridgeCard}>
-          <div style={styles.bridgePattern} />
-          <div style={styles.bridgeText}>
-            <span style={styles.infoEyebrow}>¿Buscas herramientas de autoayuda?</span>
-            <h3 style={styles.bridgeTitle}>Explora también nuestros Recursos</h3>
-            <p style={styles.bridgeSubtitle}>
-              Historial, notificaciones y seguimiento de tu progreso, siempre disponibles para ti.
+            <h1 className="cm-hero-title" style={styles.heroTitle}>
+              Servicios pensados
+              <br />
+              para <span style={styles.heroTitleAccent}>tu proceso</span>
+            </h1>
+
+            <p style={styles.heroSubtitle}>
+              En ConectaMente encuentras acompañamiento profesional en distintos
+              formatos: sesiones individuales, grupos de apoyo, evaluaciones y
+              seguimiento cercano de tu psicólogo, todo en un solo lugar.
+            </p>
+
+            <Button
+              type="primary"
+              size="large"
+              icon={<RocketOutlined />}
+              className="cm-serv-cta"
+              style={styles.ctaButtonHero}
+              onClick={() => navigate('/register')}
+            >
+              Empezar ahora
+            </Button>
+          </div>
+
+          <div className="cm-hero-image-wrap" style={styles.heroImageWrap}>
+            <img src={imgHero} alt="Servicios ConectaMente" style={styles.heroImage} />
+            <div style={styles.heroOverlay} />
+          </div>
+        </div>
+
+        {/* FRANJA DE ESTADÍSTICAS */}
+        <div style={styles.statsStrip}>
+          <div className="cm-stats-inner" style={styles.statsInner}>
+            <div className="cm-stat-item" style={styles.statItem}>
+              <span style={styles.statNumber}>5</span>
+              <span style={styles.statLabel}>servicios integrados</span>
+            </div>
+            <div className="cm-stat-divider" style={styles.statDivider} />
+            <div className="cm-stat-item" style={styles.statItem}>
+              <span style={styles.statNumber}>100%</span>
+              <span style={styles.statLabel}>acompañamiento profesional</span>
+            </div>
+            <div className="cm-stat-divider" style={styles.statDivider} />
+            <div className="cm-stat-item" style={styles.statItem}>
+              <span style={styles.statNumber}>24/7</span>
+              <span style={styles.statLabel}>acceso a tu plataforma</span>
+            </div>
+          </div>
+        </div>
+
+        {/* LISTA EDITORIAL DE SERVICIOS */}
+        <div style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <span style={styles.sectionKicker}>Explora</span>
+            <h2 style={styles.sectionTitle}>¿Qué puedes hacer en ConectaMente?</h2>
+            <p style={styles.sectionSubtitle}>
+              Cada servicio está pensado para acompañarte antes, durante y después de tus sesiones.
             </p>
           </div>
-          <Button
-            type="primary"
-            size="large"
-            className="cm-serv-cta"
-            style={styles.ctaButtonFinal}
-            onClick={() => navigate('/recursos')}
-          >
-            Ver Recursos
-          </Button>
+
+          <div style={styles.list}>
+            {SERVICIOS.map((s, i) => (
+              <div
+                key={s.titulo}
+                className="cm-serv-row"
+                style={styles.servRow}
+              >
+                <span
+                  className="cm-serv-num"
+                  style={{ ...styles.servNum, ['--num-hover-color' as any]: s.color }}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+
+                <div style={{ ...styles.servIconCircle, background: `${s.color}1A`, color: s.color }}>
+                  {s.icon}
+                </div>
+
+                <div style={styles.servBody}>
+                  <h3 style={styles.servTitulo}>{s.titulo}</h3>
+                  <p style={styles.servTexto}>{s.texto}</p>
+                </div>
+
+                <div className="cm-serv-action" style={styles.servAction}>
+                  {s.ruta ? (
+                    <span
+                      className="cm-serv-link"
+                      style={styles.servLink}
+                      onClick={() => navigate(s.ruta as string)}
+                    >
+                      Conocer más <ArrowRightOutlined style={{ fontSize: 12 }} />
+                    </span>
+                  ) : (
+                    <span style={styles.servTag}>Guiado por tu psicólogo</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* PUENTE HACIA RECURSOS */}
+        <div style={styles.bridgeSection}>
+          <div className="cm-bridge-card" style={styles.bridgeCard}>
+            <div style={styles.bridgePattern} />
+            <div style={styles.bridgeText}>
+              <span style={styles.infoEyebrow}>¿Buscas herramientas de autoayuda?</span>
+              <h3 style={styles.bridgeTitle}>Explora también nuestros Recursos</h3>
+              <p style={styles.bridgeSubtitle}>
+                Historial, notificaciones y seguimiento de tu progreso, siempre disponibles para ti.
+              </p>
+            </div>
+            <div className="cm-bridge-cta-wrap" style={{ flexShrink: 0, position: 'relative', zIndex: 1 }}>
+              <Button
+                type="primary"
+                size="large"
+                className="cm-serv-cta"
+                style={styles.ctaButtonFinal}
+                onClick={() => navigate('/recursos')}
+              >
+                Ver Recursos
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -246,6 +255,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: COLORS.bg,
     minHeight: '100vh',
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+  },
+  pageInner: {
     padding: '20px 40px 0',
   },
   backButton: {
