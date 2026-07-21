@@ -58,10 +58,29 @@ const Profesionales: React.FC = () => {
   };
 
   return (
-    <div style={{ background: COLORS.bg, minHeight: '100vh' }}>
+    <div style={{ background: COLORS.bg, minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .cm-prof-header {
+            padding: 0 16px !important;
+            height: 64px !important;
+          }
+          .cm-prof-content {
+            padding: 24px 16px !important;
+          }
+          .cm-prof-title {
+            font-size: 24px !important;
+          }
+          .cm-prof-search {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+        }
+      `}</style>
 
       {/* MINI HEADER DE NAVEGACIÓN */}
       <div
+        className="cm-prof-header"
         style={{
           background: '#ffffff',
           boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
@@ -70,6 +89,8 @@ const Profesionales: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
         <div
@@ -89,16 +110,17 @@ const Profesionales: React.FC = () => {
         </Button>
       </div>
 
-      <div style={{ padding: '40px 60px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div className="cm-prof-content" style={{ padding: '40px 60px', boxSizing: 'border-box', width: '100%' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
 
           <div style={{ marginBottom: 48, textAlign: 'center' }}>
-            <Title level={2} style={{ color: COLORS.primary, marginBottom: 12 }}>Nuestros Especialistas</Title>
-            <Paragraph style={{ color: '#64748b', fontSize: '16px', maxWidth: 600, margin: '0 auto' }}>
+            <Title level={2} className="cm-prof-title" style={{ color: COLORS.primary, marginBottom: 12 }}>Nuestros Especialistas</Title>
+            <Paragraph style={{ color: '#64748b', fontSize: '16px', maxWidth: 600, margin: '0 auto', padding: '0 16px' }}>
               Selecciona el profesional que mejor se adapte a tus necesidades y comienza tu camino al bienestar.
             </Paragraph>
 
             <Input
+              className="cm-prof-search"
               placeholder="Busca por nombre o especialidad..."
               prefix={<SearchOutlined style={{ color: COLORS.accent }} />}
               value={searchText}
@@ -107,11 +129,13 @@ const Profesionales: React.FC = () => {
               style={{
                 marginTop: 32,
                 maxWidth: 500,
+                width: '100%',
                 height: 50,
                 borderRadius: 25,
                 padding: '0 20px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                border: 'none'
+                border: 'none',
+                boxSizing: 'border-box',
               }}
             />
           </div>
@@ -132,8 +156,9 @@ const Profesionales: React.FC = () => {
                       borderRadius: 24,
                       border: '1px solid #e2e8f0',
                       cursor: 'pointer',
+                      height: '100%',
                     }}
-                    bodyStyle={{ padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                    bodyStyle={{ padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', boxSizing: 'border-box' }}
                   >
                     <Avatar
                       size={80}
@@ -148,7 +173,7 @@ const Profesionales: React.FC = () => {
                       {`${p.usuario?.nombre?.charAt(0) || ''}${p.usuario?.apellido?.charAt(0) || ''}`.toUpperCase()}
                     </Avatar>
 
-                    <Title level={4} style={{ margin: '0 0 8px 0', color: COLORS.primary }}>
+                    <Title level={4} style={{ margin: '0 0 8px 0', color: COLORS.primary, textAlign: 'center' }}>
                       {p.usuario?.nombre} {p.usuario?.apellido}
                     </Title>
 
@@ -156,7 +181,7 @@ const Profesionales: React.FC = () => {
                       {p.especialidad || 'Psicología General'}
                     </Tag>
 
-                    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+                    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24, flex: 1 }}>
                       <InfoRow icon={<IdcardOutlined />} text={p.licenciaProfesional || 'Licencia activa'} />
                       <InfoRow icon={<MailOutlined />} text={p.usuario?.email || ''} />
                       <InfoRow icon={<PhoneOutlined />} text={p.telefono || 'Sin contacto'} />
@@ -172,7 +197,8 @@ const Profesionales: React.FC = () => {
                         borderRadius: 12,
                         background: COLORS.primary,
                         fontWeight: 600,
-                        height: 48
+                        height: 48,
+                        marginTop: 'auto'
                       }}
                     >
                       Agendar Cita
@@ -189,10 +215,9 @@ const Profesionales: React.FC = () => {
 };
 
 const InfoRow = ({ icon, text }: { icon: React.ReactNode, text: string }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#64748b', fontSize: '13px' }}>
-    {/* Ajuste aquí: añadimos el tipo de la propiedad style */}
-    {React.cloneElement(icon as React.ReactElement<{ style?: React.CSSProperties }>, { style: { color: COLORS.accent } })}
-    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</span>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#64748b', fontSize: '13px', width: '100%', overflow: 'hidden' }}>
+    {React.cloneElement(icon as React.ReactElement<{ style?: React.CSSProperties }>, { style: { color: COLORS.accent, flexShrink: 0 } })}
+    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>{text}</span>
   </div>
 );
 

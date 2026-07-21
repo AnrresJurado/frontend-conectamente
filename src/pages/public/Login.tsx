@@ -55,9 +55,30 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="cm-login-page">
+      <style>{`
+        @media (max-width: 991px) {
+          .cm-login-page {
+            flex-direction: column !important;
+          }
+          .cm-left-panel {
+            padding: 40px 20px !important;
+            min-height: auto !important;
+          }
+          .cm-right-panel {
+            padding: 20px 16px 40px !important;
+          }
+          .cm-form-card {
+            padding: 32px 20px !important;
+          }
+          .cm-hero-title {
+            font-size: 32px !important;
+            marginTop: 40px !important;
+          }
+        }
+      `}</style>
       {/* PANEL IZQUIERDO */}
-      <section style={styles.leftPanel}>
+      <section style={styles.leftPanel} className="cm-left-panel">
         {/* Formas decorativas de fondo */}
         <div style={styles.decorCircleTop} />
         <div style={styles.decorCircleBottom} />
@@ -75,7 +96,7 @@ const Login: React.FC = () => {
             <Logo size={44} textColor="#ffffff" accentColor="#a8dde2" />
           </div>
 
-          <h1 style={styles.heroTitle}>
+          <h1 style={styles.heroTitle} className="cm-hero-title">
             Cuida tu bienestar,
             <br />
             un paso a la vez.
@@ -110,8 +131,8 @@ const Login: React.FC = () => {
       </section>
 
       {/* PANEL DERECHO */}
-      <section style={styles.rightPanel}>
-        <div style={styles.formCard}>
+      <section style={styles.rightPanel} className="cm-right-panel">
+        <div style={styles.formCard} className="cm-form-card">
           <h2 style={styles.title}>Bienvenido de nuevo</h2>
           <p style={styles.subtitle}>Ingresa a tu cuenta para continuar</p>
 
@@ -306,7 +327,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     outline: "none",
     color: "#000000",
     textAlign: "left",
-    fontFamily: "inherit"
+    fontFamily: "inherit",
+    width: "100%",
+    boxSizing: "border-box"
   },
   inputPassword: {
     padding: "14px 18px",
@@ -316,7 +339,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 15,
     outline: "none",
     color: "#000000",
-    fontFamily: "inherit"
+    fontFamily: "inherit",
+    width: "100%",
+    boxSizing: "border-box"
   },
   button: {
     marginTop: 8,
@@ -329,7 +354,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 700,
     fontFamily: "inherit",
     boxShadow: "0 8px 20px rgba(0, 131, 143, 0.3)",
-    transition: "opacity 0.2s ease"
+    transition: "opacity 0.2s ease",
+    width: "100%"
   },
   error: {
     background: "#fee2e2",
@@ -337,7 +363,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: 12,
     borderRadius: 12,
     fontSize: 14,
-    textAlign: "center"
+    textAlign: "center",
+    marginBottom: 16
   },
   register: { textAlign: "center", marginTop: 26, color: "#64748b", fontSize: "14px" },
   link: { color: "#1d5863", fontWeight: 700, textDecoration: "none" }

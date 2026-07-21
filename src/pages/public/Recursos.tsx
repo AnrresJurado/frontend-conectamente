@@ -104,125 +104,135 @@ const Recursos: React.FC = () => {
         .cm-rec-bento .cm-rec-lg {
           grid-column: span 2;
         }
-        @media (max-width: 620px) {
-          .cm-rec-bento { grid-template-columns: 1fr; }
-          .cm-rec-bento .cm-rec-lg { grid-column: span 1; }
+        @media (max-width: 820px) {
           .cm-hero-grid-r { grid-template-columns: 1fr !important; }
-          .cm-hero-image-wrap-r { order: -1; height: 240px !important; }
+          .cm-hero-image-wrap-r { order: -1; height: 260px !important; }
+        }
+        @media (max-width: 768px) {
+          .cm-page-root { padding: 12px 16px 0 !important; }
+          .cm-hero-title { font-size: 32px !important; letter-spacing: -0.8px !important; }
+          .cm-rec-bento { grid-template-columns: 1fr !important; }
+          .cm-rec-bento .cm-rec-lg { grid-column: span 1 !important; }
+          .cm-bridge-card { padding: 28px 20px !important; text-align: left; }
+          .cm-bridge-card .cm-bridge-cta-wrap { width: 100%; }
         }
       `}</style>
 
-      <Button
-        type="text"
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate(-1)}
-        style={styles.backButton}
-      >
-        Volver
-      </Button>
+      <div className="cm-page-root" style={styles.pageInner}>
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(-1)}
+          style={styles.backButton}
+        >
+          Volver
+        </Button>
 
-      {/* HERO */}
-      <div className="cm-hero-grid-r" style={styles.heroGrid}>
-        <div style={styles.heroText}>
-          <Logo size={40} textColor={COLORS.primary} accentColor={COLORS.accent} />
+        {/* HERO */}
+        <div className="cm-hero-grid-r" style={styles.heroGrid}>
+          <div style={styles.heroText}>
+            <Logo size={40} textColor={COLORS.primary} accentColor={COLORS.accent} />
 
-          <div style={styles.eyebrowRow}>
-            <span style={styles.eyebrowLine} />
-            <span style={styles.eyebrow}>Tu espacio de seguimiento</span>
+            <div style={styles.eyebrowRow}>
+              <span style={styles.eyebrowLine} />
+              <span style={styles.eyebrow}>Tu espacio de seguimiento</span>
+            </div>
+
+            <h1 className="cm-hero-title" style={styles.heroTitle}>
+              Recursos para
+              <br />
+              acompañar <span style={styles.heroTitleAccent}>tu camino</span>
+            </h1>
+
+            <p style={styles.heroSubtitle}>
+              Además de tus sesiones, ConectaMente te da herramientas para dar
+              seguimiento a tu proceso: historial, progreso, recordatorios y
+              actividades que tu psicólogo comparte contigo.
+            </p>
+
+            <Button
+              type="primary"
+              size="large"
+              icon={<RocketOutlined />}
+              className="cm-rec-cta"
+              style={styles.ctaButtonHero}
+              onClick={() => navigate('/register')}
+            >
+              Crear mi cuenta
+            </Button>
           </div>
 
-          <h1 style={styles.heroTitle}>
-            Recursos para
-            <br />
-            acompañar <span style={styles.heroTitleAccent}>tu camino</span>
-          </h1>
-
-          <p style={styles.heroSubtitle}>
-            Además de tus sesiones, ConectaMente te da herramientas para dar
-            seguimiento a tu proceso: historial, progreso, recordatorios y
-            actividades que tu psicólogo comparte contigo.
-          </p>
-
-          <Button
-            type="primary"
-            size="large"
-            icon={<RocketOutlined />}
-            className="cm-rec-cta"
-            style={styles.ctaButtonHero}
-            onClick={() => navigate('/register')}
-          >
-            Crear mi cuenta
-          </Button>
+          <div className="cm-hero-image-wrap-r" style={styles.heroImageWrap}>
+            <img src={imgHero} alt="Recursos ConectaMente" style={styles.heroImage} />
+            <div style={styles.heroOverlay} />
+          </div>
         </div>
 
-        <div className="cm-hero-image-wrap-r" style={styles.heroImageWrap}>
-          <img src={imgHero} alt="Recursos ConectaMente" style={styles.heroImage} />
-          <div style={styles.heroOverlay} />
-        </div>
-      </div>
-
-      {/* BENTO GRID DE RECURSOS */}
-      <div style={styles.section}>
-        <div style={styles.sectionHeader}>
-          <span style={styles.sectionKicker}>Disponible en tu cuenta</span>
-          <h2 style={styles.sectionTitle}>Todo tu proceso, en un solo lugar</h2>
-          <p style={styles.sectionSubtitle}>
-            Estos recursos se activan en cuanto inicias tu acompañamiento con un psicólogo.
-          </p>
-        </div>
-
-        <div className="cm-rec-bento">
-          {RECURSOS.map((r) => (
-            <div
-              key={r.titulo}
-              className={`cm-rec-tile ${r.size === 'lg' ? 'cm-rec-lg' : ''}`}
-              style={styles.recTile}
-            >
-              <div style={{ ...styles.recIcon, background: `${r.color}1A`, color: r.color }}>
-                {r.icon}
-              </div>
-
-              <div style={styles.recBody}>
-                <h3 style={styles.recTitulo}>{r.titulo}</h3>
-                <p style={styles.recTexto}>{r.texto}</p>
-
-                {r.ruta ? (
-                  <span
-                    className="cm-rec-link"
-                    style={styles.recLink}
-                    onClick={() => navigate(r.ruta as unknown as string)}
-                  >
-                    Conocer más <ArrowRightOutlined style={{ fontSize: 12 }} />
-                  </span>
-                ) : (
-                  <span style={styles.recTag}>Parte de tu acompañamiento</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* PUENTE HACIA SERVICIOS */}
-      <div style={styles.bridgeSection}>
-        <div style={styles.bridgeCard}>
-          <div style={styles.bridgePattern} />
-          <div style={styles.bridgeText}>
-            <span style={styles.infoEyebrow}>¿Aún no agendas tu primera sesión?</span>
-            <h3 style={styles.bridgeTitle}>Conoce nuestros Servicios</h3>
-            <p style={styles.bridgeSubtitle}>
-              Terapias en línea, grupos de apoyo y más formas de empezar tu proceso.
+        {/* BENTO GRID DE RECURSOS */}
+        <div style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <span style={styles.sectionKicker}>Disponible en tu cuenta</span>
+            <h2 style={styles.sectionTitle}>Todo tu proceso, en un solo lugar</h2>
+            <p style={styles.sectionSubtitle}>
+              Estos recursos se activan en cuanto inicias tu acompañamiento con un psicólogo.
             </p>
           </div>
-          <Button
-            type="primary"
-            size="large"
-            className="cm-rec-cta"
-            style={styles.ctaButtonFinal}
-            onClick={() => navigate('/servicios')}
-          >
-            Ver Servicios
-          </Button>
+
+          <div className="cm-rec-bento">
+            {RECURSOS.map((r) => (
+              <div
+                key={r.titulo}
+                className={`cm-rec-tile ${r.size === 'lg' ? 'cm-rec-lg' : ''}`}
+                style={styles.recTile}
+              >
+                <div style={{ ...styles.recIcon, background: `${r.color}1A`, color: r.color }}>
+                  {r.icon}
+                </div>
+
+                <div style={styles.recBody}>
+                  <h3 style={styles.recTitulo}>{r.titulo}</h3>
+                  <p style={styles.recTexto}>{r.texto}</p>
+
+                  {r.ruta ? (
+                    <span
+                      className="cm-rec-link"
+                      style={styles.recLink}
+                      onClick={() => navigate(r.ruta as unknown as string)}
+                    >
+                      Conocer más <ArrowRightOutlined style={{ fontSize: 12 }} />
+                    </span>
+                  ) : (
+                    <span style={styles.recTag}>Parte de tu acompañamiento</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* PUENTE HACIA SERVICIOS */}
+        <div style={styles.bridgeSection}>
+          <div className="cm-bridge-card" style={styles.bridgeCard}>
+            <div style={styles.bridgePattern} />
+            <div style={styles.bridgeText}>
+              <span style={styles.infoEyebrow}>¿Aún no agendas tu primera sesión?</span>
+              <h3 style={styles.bridgeTitle}>Conoce nuestros Servicios</h3>
+              <p style={styles.bridgeSubtitle}>
+                Terapias en línea, grupos de apoyo y más formas de empezar tu proceso.
+              </p>
+            </div>
+            <div className="cm-bridge-cta-wrap" style={{ flexShrink: 0, position: 'relative', zIndex: 1 }}>
+              <Button
+                type="primary"
+                size="large"
+                className="cm-rec-cta"
+                style={styles.ctaButtonFinal}
+                onClick={() => navigate('/servicios')}
+              >
+                Ver Servicios
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -234,6 +244,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: COLORS.bg,
     minHeight: '100vh',
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+  },
+  pageInner: {
     padding: '20px 40px 0',
   },
   backButton: {

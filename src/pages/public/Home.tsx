@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Layout,
-  Menu,
   Button,
   Typography,
   Row,
   Col,
   Card,
-  Input
+  Input,
+  Drawer,
 } from "antd";
 
 import {
@@ -18,6 +18,11 @@ import {
   FolderOpenOutlined,
   MailOutlined,
   EnvironmentOutlined,
+  MenuOutlined,
+  TeamOutlined,
+  ReadOutlined,
+  UserOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
 import Logo from "../../components/Logo";
 
@@ -50,12 +55,26 @@ const SERVICIOS_DESTACADOS = [
   },
 ];
 
+// Ítems del menú principal (compartidos entre el header de escritorio y el drawer móvil)
+const NAV_ITEMS = [
+  { key: "servicios", label: "Servicios", path: "/servicios", icon: <TeamOutlined /> },
+  { key: "recursos", label: "Recursos", path: "/recursos", icon: <ReadOutlined /> },
+  { key: "profesionales", label: "Profesionales", path: "/profesionales", icon: <UserOutlined /> },
+  { key: "contacto", label: "Contacto", path: "/contacto", icon: <PhoneOutlined /> },
+];
+
 const Home = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleSearch = () => {
     alert(`Buscando recursos para: ${searchQuery}`);
+  };
+
+  const goTo = (path: string) => {
+    navigate(path);
+    setDrawerOpen(false);
   };
 
   return (
@@ -95,66 +114,212 @@ const Home = () => {
           padding: 24px;
           text-align: center;
         }
+
+        /* ===== HEADER ===== */
+        .cm-nav-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          color: #4a5568;
+          cursor: pointer;
+          font-weight: 500;
+          font-size: 15px;
+          padding: 8px 4px;
+          position: relative;
+          transition: color 0.25s ease;
+        }
+        .cm-nav-link .cm-nav-icon {
+          font-size: 15px;
+          color: #4da6b0;
+          transition: transform 0.25s ease;
+        }
+        .cm-nav-link::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          width: 0%;
+          height: 2px;
+          border-radius: 2px;
+          background: #4da6b0;
+          transition: width 0.25s ease;
+        }
+        .cm-nav-link:hover {
+          color: #1d5863;
+        }
+        .cm-nav-link:hover .cm-nav-icon {
+          transform: translateY(-2px);
+        }
+        .cm-nav-link:hover::after {
+          width: 100%;
+        }
+
+        .cm-mobile-toggle {
+          display: none;
+        }
+
+        .cm-header-cta {
+          display: inline-flex;
+        }
+
+        @media (max-width: 900px) {
+          .cm-desktop-menu {
+            display: none !important;
+          }
+          .cm-mobile-toggle {
+            display: inline-flex !important;
+          }
+          .cm-header-inner {
+            padding: 0 20px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .cm-header-cta-text {
+            display: none;
+          }
+        }
+
+        .cm-drawer-link {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 14px 16px;
+          border-radius: 12px;
+          color: #1d5863;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s ease, color 0.2s ease;
+        }
+        .cm-drawer-link .cm-nav-icon {
+          font-size: 17px;
+          color: #4da6b0;
+        }
+        .cm-drawer-link:hover {
+          background: #eef7f7;
+          color: #00838f;
+        }
       `}</style>
 
       {/* ================= HEADER (Estilo Mente Sana) ================= */}
       <Header
+        className="cm-header-inner"
         style={{
           position: "fixed",
           zIndex: 999,
           width: "100%",
-          background: "#ffffff", 
-          boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+          background: "rgba(255, 255, 255, 0.85)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          boxShadow: "0 2px 16px rgba(29, 88, 99, 0.08)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           padding: "0 60px",
-          height: 80
+          height: 80,
         }}
       >
         {/* LOGO */}
         <Logo size={40} onClick={() => navigate("/")} />
 
-        {/* MENU */}
-        <Menu
-          mode="horizontal"
-          selectable={false}
+        {/* MENU DE ESCRITORIO */}
+        <nav
+          className="cm-desktop-menu"
           style={{
-            background: "transparent",
-            border: "none",
-            flex: 1,
+            display: "flex",
+            alignItems: "center",
             justifyContent: "center",
-            fontWeight: 500,
-            fontSize: 15,
-            lineHeight: "80px",
+            gap: 40,
+            flex: 1,
+            marginLeft: 40,
           }}
-          items={[
-            { key: "servicios", label: <span onClick={() => navigate("/servicios")} style={{ color: "#4a5568", cursor: "pointer" }}>Servicios</span> },
-            { key: "recursos", label: <span onClick={() => navigate("/recursos")} style={{ color: "#4a5568", cursor: "pointer" }}>Recursos</span> },
-            { key: "profesionales", label: <span onClick={() => navigate("/profesionales")} style={{ color: "#4a5568", cursor: "pointer" }}>Profesionales</span> },
-            { key: "contacto", label: <span onClick={() => navigate("/contacto")} style={{ color: "#4a5568", cursor: "pointer" }}>Contacto</span> },
-          ]}
-        />
+        >
+          {NAV_ITEMS.map((item) => (
+            <span key={item.key} className="cm-nav-link" onClick={() => navigate(item.path)}>
+              <span className="cm-nav-icon">{item.icon}</span>
+              {item.label}
+            </span>
+          ))}
+        </nav>
 
-        {/* BOTÓN INICIAR SESIÓN */}
+        {/* ACCIONES (Iniciar sesión + botón hamburguesa) */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Button
+            size="large"
+            className="cm-header-cta"
+            onClick={() => navigate("/login")}
+            style={{
+              borderRadius: 20,
+              height: 40,
+              padding: "0 24px",
+              background: "linear-gradient(135deg, #4da6b0, #00838f)",
+              color: "#ffffff",
+              border: "none",
+              fontWeight: 600,
+              fontSize: 14,
+              boxShadow: "0 4px 12px rgba(77, 166, 176, 0.35)",
+              alignItems: "center",
+            }}
+          >
+            <span className="cm-header-cta-text">Iniciar Sesión</span>
+          </Button>
+
+          <Button
+            className="cm-mobile-toggle"
+            shape="circle"
+            size="large"
+            icon={<MenuOutlined style={{ fontSize: 18 }} />}
+            onClick={() => setDrawerOpen(true)}
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid #cfe8ea",
+              color: "#1d5863",
+              background: "#ffffff",
+            }}
+          />
+        </div>
+      </Header>
+
+      {/* DRAWER DE NAVEGACIÓN MÓVIL */}
+      <Drawer
+        placement="right"
+        onClose={() => setDrawerOpen(false)}
+        open={drawerOpen}
+        width={280}
+        closeIcon={null}
+        styles={{ body: { padding: 16 } }}
+        title={<Logo size={32} onClick={() => goTo("/")} />}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {NAV_ITEMS.map((item) => (
+            <div key={item.key} className="cm-drawer-link" onClick={() => goTo(item.path)}>
+              <span className="cm-nav-icon">{item.icon}</span>
+              {item.label}
+            </div>
+          ))}
+        </div>
+
         <Button
+          block
           size="large"
-          onClick={() => navigate("/login")}
+          onClick={() => goTo("/login")}
           style={{
+            marginTop: 24,
             borderRadius: 20,
-            height: 40,
-            padding: "0 24px",
-            background: "#4da6b0",
+            height: 44,
+            background: "linear-gradient(135deg, #4da6b0, #00838f)",
             color: "#ffffff",
             border: "none",
             fontWeight: 600,
             fontSize: 14,
-            boxShadow: "0 4px 10px rgba(77, 166, 176, 0.3)"
+            boxShadow: "0 4px 12px rgba(77, 166, 176, 0.35)",
           }}
         >
           Iniciar Sesión
         </Button>
-      </Header>
+      </Drawer>
 
       {/* ================= CONTENT ================= */}
       <Content style={{ marginTop: 80 }}>
