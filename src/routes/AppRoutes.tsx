@@ -33,6 +33,7 @@ import MisTestsPsicometricos from '../pages/paciente/MisTestsPsicometricos';
 // 🎯 Tus importaciones
 import BuscarPsicologo from '../pages/public/BuscarPsicologo';
 import BandejaSolicitudes from '../pages/admin/BandejaSolicitudes';
+import SolicitudesPsicologos from '../pages/admin/SolicitudesPsicologos'; // 👈 🎯 1. IMPORTAR VISTA DE SOLICITUDES DE PSICÓLOGOS
 
 // 💬 Importaciones unificadas de tu compañera
 import Chats from '../pages/admin/Chats';
@@ -63,16 +64,16 @@ const AppRoutes: React.FC = () => {
       <Route path="/register/psicologo" element={<RegisterPsicologo />} />
       <Route path="/registro-psicologo" element={<RegisterPsicologo />} />
       
-      {/* --- RUTA EXCLUSIVA PARA PACIENTE (Layout unificado de tu compañera + Tus vistas) --- */}
+      {/* --- RUTA EXCLUSIVA PARA PACIENTE --- */}
       <Route element={<ProtectedRoute allowedRoles={['PACIENTE']} />}>
         <Route element={<PacienteLayout />}>
           <Route path="/mi-espacio" element={<MiEspacio />} />
           <Route path="/mi-progreso" element={<MiProgreso />} />
           <Route path="/mis-encuestas" element={<MisEncuestas />} />
           <Route path="/mis-tests-psicometricos" element={<MisTestsPsicometricos />} />
-          <Route path="/buscar-psicologo" element={<BuscarPsicologo />} /> {/* 👈 🎯 Inyectado de forma segura dentro de PacienteLayout */}
-          <Route path="/chats" element={<Chats />} /> {/* Si el paciente también usa chats */}
-          <Route path="/mis-recomendaciones" element={<MisRecomendaciones />} /> {/* 🎯 Módulo de recomendaciones para pacientes */}
+          <Route path="/buscar-psicologo" element={<BuscarPsicologo />} />
+          <Route path="/chats" element={<Chats />} />
+          <Route path="/mis-recomendaciones" element={<MisRecomendaciones />} />
           <Route path="/mi-perfil" element={<MiPerfil />} />
         </Route>
       </Route>
@@ -95,8 +96,8 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/progreso" element={<Progreso />} />
           <Route path="/dashboard/encuestas" element={<Encuestas />} />
           <Route path="/dashboard/tests-psicometricos" element={<TestsPsicometricos />} />
-          <Route path="/dashboard/solicitudes" element={<BandejaSolicitudes />} /> {/* 👈 🎯 Tu bandeja de entrada */}
-          <Route path="/dashboard/recomendaciones" element={<Recomendaciones />} /> {/* 🎯 Módulo de recomendaciones para psicólogos */}
+          <Route path="/dashboard/solicitudes" element={<BandejaSolicitudes />} />
+          <Route path="/dashboard/recomendaciones" element={<Recomendaciones />} />
         </Route>
       </Route>
       
@@ -105,10 +106,11 @@ const AppRoutes: React.FC = () => {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard/psicologos" element={<Psicologos />} />
           <Route path="/dashboard/usuarios" element={<UsuariosAdmin />} />
+          <Route path="/dashboard/solicitudes-psicologos" element={<SolicitudesPsicologos />} /> {/* 👈 🎯 2. RUTA REGISTRADA EXCLUSIVA PARA ADMIN */}
         </Route>
       </Route>
 
-      {/* Redirección por defecto si entran a una ruta inexistente */}
+      {/* Redirección por defecto */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

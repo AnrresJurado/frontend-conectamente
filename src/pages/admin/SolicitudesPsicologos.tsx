@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Space, Tag, Card, message, Typography, Modal, Descriptions, Popconfirm } from 'antd';
 import { CheckOutlined, CloseOutlined, UserOutlined, MailOutlined, IdcardOutlined, PhoneOutlined, CompassOutlined, MessageOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { solicitudesService, SolicitudPsicologo } from '../../services/solicitudesService';
+import { solicitudesPsicologosService, SolicitudPsicologo } from "../../services/solicitudesPsicologosService";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -15,7 +15,7 @@ const SolicitudesPsicologos: React.FC = () => {
   const cargarSolicitudes = async () => {
     setLoading(true);
     try {
-      const data = await solicitudesService.getSolicitudesPsicologos();
+      const data = await solicitudesPsicologosService.getSolicitudes();
       setSolicitudes(data);
     } catch (error) {
       console.error(error);
@@ -37,7 +37,7 @@ const SolicitudesPsicologos: React.FC = () => {
   const handleAprobar = async (solicitudId: string) => {
     setProcessingId(solicitudId);
     try {
-      await solicitudesService.aprobarSolicitudPsicologo(solicitudId);
+      await solicitudesPsicologosService.aprobarSolicitud(solicitudId);
       message.success('Solicitud aprobada. La cuenta del psicólogo ha sido creada exitosamente.');
       setDetailModalOpen(false);
       setSelectedSolicitud(null);
@@ -54,7 +54,7 @@ const SolicitudesPsicologos: React.FC = () => {
   const handleRechazar = async (solicitudId: string) => {
     setProcessingId(solicitudId);
     try {
-      await solicitudesService.rechazarSolicitudPsicologo(solicitudId);
+      await solicitudesPsicologosService.rechazarSolicitud(solicitudId);
       message.success('Solicitud rechazada correctamente.');
       setDetailModalOpen(false);
       setSelectedSolicitud(null);
