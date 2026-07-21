@@ -1,4 +1,4 @@
-import axios from '../api/axiosConfig';
+import api from '../api/axiosConfig';
 
 export interface Recomendacion {
   id: string;
@@ -45,37 +45,37 @@ export interface UpdateRecomendacionDto {
 export const recomendacionesService = {
   // Obtener todas las recomendaciones (filtradas según el rol del usuario)
   async getAll(): Promise<Recomendacion[]> {
-    const response = await axios.get('/recomendaciones');
-    return response.data;
+    const { data } = await api.get('/recomendaciones');
+    return data;
   },
 
   // Obtener una recomendación por ID
   async getById(id: string): Promise<Recomendacion> {
-    const response = await axios.get(`/recomendaciones/${id}`);
-    return response.data;
+    const { data } = await api.get(`/recomendaciones/${id}`);
+    return data;
   },
 
   // Obtener recomendaciones de un paciente específico
   async getByPaciente(pacienteId: string): Promise<Recomendacion[]> {
-    const response = await axios.get(`/recomendaciones/paciente/${pacienteId}`);
-    return response.data;
+    const { data } = await api.get(`/recomendaciones/paciente/${pacienteId}`);
+    return data;
   },
 
   // Crear una nueva recomendación (solo psicólogos)
   async create(data: CreateRecomendacionDto): Promise<Recomendacion> {
-    const response = await axios.post('/recomendaciones', data);
-    return response.data;
+    const { data: responseData } = await api.post('/recomendaciones', data);
+    return responseData;
   },
 
   // Actualizar una recomendación
   async update(id: string, data: UpdateRecomendacionDto): Promise<Recomendacion> {
-    const response = await axios.patch(`/recomendaciones/${id}`, data);
-    return response.data;
+    const { data: responseData } = await api.patch(`/recomendaciones/${id}`, data);
+    return responseData;
   },
 
   // Eliminar una recomendación
   async delete(id: string): Promise<{ deleted: boolean; id: string }> {
-    const response = await axios.delete(`/recomendaciones/${id}`);
-    return response.data;
+    const { data: responseData } = await api.delete(`/recomendaciones/${id}`);
+    return responseData;
   },
 };

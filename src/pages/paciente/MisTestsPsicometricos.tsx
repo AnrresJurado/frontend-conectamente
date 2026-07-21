@@ -128,6 +128,11 @@ const MisTestsPsicometricos: React.FC = () => {
     return { estado: asignacion.estado, intentos: asignacion.intentos.length };
   };
 
+  const yaCompletoTest = (tipoTest: TipoTest): boolean => {
+    const asignacion = asignaciones.find(a => a.tipoTest === tipoTest);
+    return asignacion ? asignacion.intentos.length >= 1 : false;
+  };
+
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '120px 0', background: PALETTE.bg, minHeight: '100%' }}>
@@ -193,8 +198,12 @@ const MisTestsPsicometricos: React.FC = () => {
                 </div>
                 
                 {isDisponible ? (
-                  <Button type="primary" onClick={() => iniciarTest(test.id)}>
-                    Comenzar Test
+                  <Button 
+                    type="primary" 
+                    onClick={() => iniciarTest(test.id)}
+                    disabled={yaCompletoTest(test.id)}
+                  >
+                    {yaCompletoTest(test.id) ? 'Test Completado' : 'Comenzar Test'}
                   </Button>
                 ) : (
                   <Tag color="default">No habilitado por tu psicólogo</Tag>
