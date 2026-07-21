@@ -23,7 +23,7 @@ export const pacientesService = {
   getMe: async () => {
     const { data } = await api.get<Paciente>('/pacientes/me/perfil');
     return data;
-},
+  },
 
   // POST /pacientes - Registra cuenta de usuario + expediente clínico de golpe
   create: async (pacienteData: PacienteFormData) => {
