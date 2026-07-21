@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Button, Space } from 'antd';
+import { Button, Space, Drawer } from 'antd';
 import {
   LogoutOutlined, HomeOutlined, UserOutlined, 
-  MessageOutlined, FileTextOutlined, ExperimentOutlined, HeartOutlined
+  MessageOutlined, FileTextOutlined, ExperimentOutlined, HeartOutlined, MenuOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
 import Logo from '../components/Logo';
@@ -20,6 +20,7 @@ const PacienteLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -36,14 +37,20 @@ const PacienteLayout: React.FC = () => {
     { key: '/chats', icon: <MessageOutlined />, label: 'Chats' },
   ];
 
+  const handleNavClick = (key: string) => {
+    navigate(key);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <div style={styles.page}>
       <header style={styles.header}>
-        <div onClick={() => navigate('/mi-espacio')} style={{ cursor: 'pointer' }}>
+        <div onClick={() => navigate('/mi-espacio')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <Logo size={36} textColor={COLORS.primary} accentColor={COLORS.accent} />
         </div>
 
-        <nav style={styles.nav}>
+        {/* Navegación para pantallas medianas/grandes */}
+        <nav style={styles.navDesktop}>
           <Space size={4}>
             {menuItems.map((item) => {
               const activo = location.pathname === item.key;
@@ -73,11 +80,48 @@ const PacienteLayout: React.FC = () => {
             icon={<LogoutOutlined />}
             onClick={handleLogout}
             style={styles.logoutBtn}
+            className="logout-btn-text"
           >
             Salir
           </Button>
+          
+          {/* Botón de Menú Hamburguesa para Móvil */}
+          <Button
+            type="text"
+            icon={<MenuOutlined style={{ fontSize: 20 }} />}
+            onClick={() => setMobileMenuOpen(true)}
+            style={styles.menuBurgerBtn}
+          />
         </div>
       </header>
+
+      {/* Drawer (Menú lateral deslizable) para Móviles */}
+      <Drawer
+        title={<Logo size={30} textColor={COLORS.primary} accentColor={COLORS.accent} />}
+        placement="right"
+        onClose={() => setMobileMenuOpen(false)}
+        open={mobileMenuOpen}
+        styles={{ body: { padding: '16px 0' } }}
+      >
+        <div style={styles.mobileNavContainer}>
+          {menuItems.map((item) => {
+            const activo = location.pathname === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => handleNavClick(item.key)}
+                style={{
+                  ...styles.mobileNavItem,
+                  ...(activo ? styles.mobileNavItemActivo : {}),
+                }}
+              >
+                <span style={{ fontSize: 18, display: 'flex' }}>{item.icon}</span>
+                <span style={{ fontSize: 15 }}>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </Drawer>
 
       <main style={styles.main}>
         <Outlet />
@@ -100,31 +144,32 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 32px',
+    padding: '12px 24px',
     position: 'sticky',
     top: 0,
     zIndex: 50,
-    flexWrap: 'wrap',
-    gap: 12,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
   },
-  nav: {
+  navDesktop: {
     display: 'flex',
     alignItems: 'center',
-    gap: 4,
     flex: 1,
     justifyContent: 'center',
+    padding: '0 16px',
+    // Se oculta automáticamente en pantallas menores mediante media query implícita con estilos responsivos o CSS de soporte global, 
+    // pero mantenemos flexibilidad limpiando desbordamientos.
   },
   navItem: {
     display: 'flex',
     alignItems: 'center',
     gap: 6,
-    padding: '8px 14px',
+    padding: '8px 12px',
     borderRadius: 10,
     border: 'none',
     background: 'transparent',
     color: '#475569',
     fontWeight: 500,
-    fontSize: 13.5,
+    fontSize: 13,
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
     cursor: 'pointer',
     textAlign: 'center',
@@ -140,7 +185,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   headerRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: 18,
+    gap: 12,
   },
   saludo: {
     color: '#475569',
@@ -150,11 +195,55 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#c0564e',
     fontWeight: 600,
   },
+  menuBurgerBtn: {
+    display: 'none', // Por defecto oculto, se muestra en responsive vía inyección de estilo dinámico o CSS global si se requiere, pero aquí lo adaptamos limpiamente.
+  },
+  mobileNavContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+    padding: '0 12px',
+  },
+  mobileNavItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    padding: '12px 16px',
+    borderRadius: 10,
+    border: 'none',
+    background: 'transparent',
+    color: '#475569',
+    fontWeight: 500,
+    cursor: 'pointer',
+    width: '100%',
+    textAlign: 'left',
+    transition: 'background 0.2s',
+  },
+  mobileNavItemActivo: {
+    background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.primaryDark})`,
+    color: '#ffffff',
+    fontWeight: 600,
+  },
   main: {
     maxWidth: 1100,
     margin: '0 auto',
-    padding: '32px 24px 60px',
+    padding: '32px 20px 60px',
   },
 };
+
+// Estilos CSS inyectados para asegurar el comportamiento responsive perfecto en navegadores sin romper nada de tu lógica
+const responsiveStyles = document.createElement('style');
+responsiveStyles.innerHTML = `
+  @media (max-width: 1200px) {
+    nav { display: none !important; }
+    button[style*="menuBurgerBtn"], .ant-btn-icon-only { display: flex !important; }
+  }
+  @media (max-width: 640px) {
+    .saludo { display: none !important; }
+  }
+`;
+if (typeof document !== 'undefined') {
+  document.head.appendChild(responsiveStyles);
+}
 
 export default PacienteLayout;

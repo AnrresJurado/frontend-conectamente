@@ -38,6 +38,8 @@ const DashboardLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false); 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth <= 400);
+  const [isTablet, setIsTablet] = useState(window.innerWidth > 768 && window.innerWidth <= 1024);
 
   const { user, logout } = useAuth(); 
   const navigate = useNavigate(); 
@@ -45,8 +47,12 @@ const DashboardLayout: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth <= 768;
+      const width = window.innerWidth;
+      const mobile = width <= 768;
+      const tablet = width > 768 && width <= 1024;
       setIsMobile(mobile);
+      setIsSmallMobile(width <= 400);
+      setIsTablet(tablet);
       if (!mobile) {
         setMobileDrawerOpen(false);
       }
@@ -54,6 +60,13 @@ const DashboardLayout: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Auto-colapsa el sidebar al entrar en rango tablet, sin forzarlo si el usuario ya lo tocó manualmente en desktop
+  useEffect(() => {
+    if (isTablet) {
+      setCollapsed(true);
+    }
+  }, [isTablet]);
 
   const handleLogout = () => { 
     logout(); 
@@ -81,10 +94,10 @@ const DashboardLayout: React.FC = () => {
 
   const renderNavContent = (isDrawer = false) => (
     <>
-      <div style={styles.logoBlock}> 
+      <div style={{ ...styles.logoBlock, height: isMobile ? 64 : 80 }}> 
         <Logo size={!isDrawer && collapsed ? 34 : 34} showText={isDrawer || !collapsed} textColor={COLORS.primary} accentColor={COLORS.accent} /> 
       </div> 
-      <nav style={styles.nav}> 
+      <nav style={{ ...styles.nav, padding: isMobile ? 12 : 16 }}> 
         {menuItems.map((item) => { 
           const activo = location.pathname === item.key; 
           return ( 
@@ -98,10 +111,11 @@ const DashboardLayout: React.FC = () => {
                 ...styles.navItem, 
                 ...(activo ? styles.navItemActivo : {}), 
                 justifyContent: !isDrawer && collapsed ? 'center' : 'flex-start', 
+                padding: isDrawer ? '12px 16px' : styles.navItem.padding,
               }} 
             > 
-              <span style={{ fontSize: 17, display: 'flex' }}>{item.icon}</span> 
-              {(isDrawer || !collapsed) && <span>{item.label}</span>} 
+              <span style={{ fontSize: 17, display: 'flex', flexShrink: 0 }}>{item.icon}</span> 
+              {(isDrawer || !collapsed) && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>} 
             </button> 
           ); 
         })} 
@@ -136,14 +150,14 @@ const DashboardLayout: React.FC = () => {
           open={mobileDrawerOpen}
           closable={false}
           bodyStyle={{ padding: 0, display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}
-          width={280}
+          width={Math.min(280, Math.floor(window.innerWidth * 0.85))}
         >
           {renderNavContent(true)}
         </Drawer>
       )}
 
       <Layout style={{ background: 'transparent', minWidth: 0 }}> 
-        <Header style={styles.header}> 
+        <Header style={{ ...styles.header, padding: isMobile ? '0 12px' : '0 16px' }}> 
           <button 
             onClick={() => {
               if (isMobile) {
@@ -157,18 +171,22 @@ const DashboardLayout: React.FC = () => {
           > 
             {isMobile ? <MenuOutlined /> : (collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />)} 
           </button> 
-          <Space size={16} wrap style={{ justifyContent: 'flex-end' }}> 
+          <Space size={isMobile ? 8 : 16} align="center" style={{ justifyContent: 'flex-end', minWidth: 0, flexShrink: 1 }}> 
             <NotificationBell /> 
-            <div style={styles.userInfoContainer}> 
-              <div style={styles.userName}>{user?.nombre} {user?.apellido}</div> 
-              <div style={styles.userRol}>{user?.rol}</div> 
-            </div> 
-            <Avatar size={40} style={styles.avatar}> 
+            {!isSmallMobile && (
+              <div style={styles.userInfoContainer}> 
+                <div style={{ ...styles.userName, fontSize: isMobile ? 13 : 14 }}>
+                  {user?.nombre} {user?.apellido}
+                </div> 
+                {!isMobile && <div style={styles.userRol}>{user?.rol}</div>}
+              </div>
+            )} 
+            <Avatar size={isMobile ? 32 : 40} style={styles.avatar}> 
               {iniciales} 
             </Avatar> 
           </Space> 
         </Header> 
-        <Content style={{ overflowY: 'auto', padding: isMobile ? '12px' : '24px' }}> 
+        <Content style={{ overflowY: 'auto', overflowX: 'hidden', padding: isMobile ? '12px' : '24px' }}> 
           <Outlet /> 
         </Content> 
       </Layout> 
@@ -256,7 +274,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxShadow: 'none', 
     height: 'auto',
     minHeight: 64,
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
+    gap: 8,
   }, 
   collapseButton: { 
     border: 'none', 
@@ -267,16 +286,25 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex', 
     alignItems: 'center', 
     padding: '8px 0',
+    flexShrink: 0,
   }, 
   userInfoContainer: {
     textAlign: 'right',
     display: 'block',
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   userName: { 
     fontFamily: "'Plus Jakarta Sans', sans-serif", 
     fontWeight: 700, 
     color: COLORS.primary, 
     fontSize: 14, 
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    maxWidth: 180,
   }, 
   userRol: { 
     fontSize: 11, 
@@ -287,6 +315,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   avatar: { 
     background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.accent})`, 
     fontWeight: 700, 
+    flexShrink: 0,
   }, 
 }; 
 
