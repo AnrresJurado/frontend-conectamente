@@ -1,44 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Row, Col, Input, Button, message } from "antd";
+import { Row, Col, Button } from "antd";
 import {
   MailOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
-  SendOutlined,
   ArrowLeftOutlined,
   ClockCircleOutlined,
 } from "@ant-design/icons";
 import Logo from "../../components/Logo";
 
-const { TextArea } = Input;
-
 // TODO: reemplaza por tu número real, formato E.164 para que el tel: funcione bien
-const PHONE_NUMBER = "+593 99 999 9999";
-const PHONE_HREF = "tel:+593999999999";
+const PHONE_NUMBER = "+593 91 426 5478";
+const PHONE_HREF = "tel:+593914265478";
 const EMAIL_ADDRESS = "conectaMente@gmail.com";
 const EMAIL_HREF = "mailto:conectaMente@gmail.com";
 
 const Contacto: React.FC = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      // TODO: conectar con tu endpoint real, ej: await api.post('/contacto', form)
-      await new Promise((res) => setTimeout(res, 800));
-      message.success(`Gracias por escribirnos, ${form.name}. Nos pondremos en contacto contigo pronto.`);
-      setForm({ name: "", email: "", message: "" });
-    } catch (error) {
-      console.error(error);
-      message.error("No pudimos enviar tu mensaje. Inténtalo más tarde.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div style={styles.page}>
@@ -71,110 +50,55 @@ const Contacto: React.FC = () => {
         </div>
       </section>
 
-      {/* CONTENIDO */}
+      {/* CONTENIDO - SOLO CONTACTOS */}
       <section style={styles.content}>
-        <Row gutter={[40, 40]} justify="center" style={{ maxWidth: 1100, margin: "0 auto" }}>
-
-          {/* COLUMNA INFO */}
-          <Col xs={24} md={9}>
-            <div style={styles.infoStack}>
-
-              <a href={EMAIL_HREF} style={styles.infoCard}>
-                <div style={styles.infoIcon}>
-                  <MailOutlined style={{ fontSize: 20, color: "#ffffff" }} />
-                </div>
-                <div>
-                  <span style={styles.infoLabel}>Correo electrónico</span>
-                  <span style={styles.infoValue}>{EMAIL_ADDRESS}</span>
-                </div>
-              </a>
-
-              <a href={PHONE_HREF} style={styles.infoCard}>
-                <div style={styles.infoIcon}>
-                  <PhoneOutlined style={{ fontSize: 20, color: "#ffffff" }} />
-                </div>
-                <div>
-                  <span style={styles.infoLabel}>Teléfono</span>
-                  <span style={styles.infoValue}>{PHONE_NUMBER}</span>
-                </div>
-              </a>
-
-              <div style={{ ...styles.infoCard, cursor: "default" }}>
-                <div style={styles.infoIcon}>
-                  <EnvironmentOutlined style={{ fontSize: 20, color: "#ffffff" }} />
-                </div>
-                <div>
-                  <span style={styles.infoLabel}>Ubicación</span>
-                  <span style={styles.infoValue}>Quito, Ecuador</span>
-                </div>
+        <Row gutter={[24, 24]} justify="center" style={{ maxWidth: 800, margin: "0 auto" }}>
+          
+          <Col xs={24} sm={12}>
+            <a href={EMAIL_HREF} style={styles.infoCard}>
+              <div style={styles.infoIcon}>
+                <MailOutlined style={{ fontSize: 20, color: "#ffffff" }} />
               </div>
-
-              <div style={{ ...styles.infoCard, cursor: "default" }}>
-                <div style={styles.infoIcon}>
-                  <ClockCircleOutlined style={{ fontSize: 20, color: "#ffffff" }} />
-                </div>
-                <div>
-                  <span style={styles.infoLabel}>Horario de atención</span>
-                  <span style={styles.infoValue}>Lunes a viernes, 8:00 - 18:00</span>
-                </div>
+              <div>
+                <span style={styles.infoLabel}>Correo electrónico</span>
+                <span style={styles.infoValue}>{EMAIL_ADDRESS}</span>
               </div>
+            </a>
+          </Col>
 
+          <Col xs={24} sm={12}>
+            <a href={PHONE_HREF} style={styles.infoCard}>
+              <div style={styles.infoIcon}>
+                <PhoneOutlined style={{ fontSize: 20, color: "#ffffff" }} />
+              </div>
+              <div>
+                <span style={styles.infoLabel}>Teléfono</span>
+                <span style={styles.infoValue}>{PHONE_NUMBER}</span>
+              </div>
+            </a>
+          </Col>
+
+          <Col xs={24} sm={12}>
+            <div style={{ ...styles.infoCard, cursor: "default" }}>
+              <div style={styles.infoIcon}>
+                <EnvironmentOutlined style={{ fontSize: 20, color: "#ffffff" }} />
+              </div>
+              <div>
+                <span style={styles.infoLabel}>Ubicación</span>
+                <span style={styles.infoValue}>Quito, Ecuador</span>
+              </div>
             </div>
           </Col>
 
-          {/* COLUMNA FORMULARIO */}
-          <Col xs={24} md={15}>
-            <div style={styles.formCard}>
-              <h2 style={styles.formTitle}>Envíanos un mensaje</h2>
-              <p style={styles.formSubtitle}>
-                Completa el formulario y te responderemos a la brevedad.
-              </p>
-
-              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <Row gutter={12}>
-                  <Col xs={24} sm={12}>
-                    <Input
-                      placeholder="Tu nombre"
-                      required
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      style={styles.input}
-                      disabled={loading}
-                    />
-                  </Col>
-                  <Col xs={24} sm={12}>
-                    <Input
-                      type="email"
-                      placeholder="Tu correo"
-                      required
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      style={styles.input}
-                      disabled={loading}
-                    />
-                  </Col>
-                </Row>
-
-                <TextArea
-                  rows={5}
-                  placeholder="Escribe tu mensaje..."
-                  required
-                  value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  style={styles.textarea}
-                  disabled={loading}
-                />
-
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<SendOutlined />}
-                  loading={loading}
-                  style={styles.submitButton}
-                >
-                  {loading ? "Enviando..." : "Enviar mensaje"}
-                </Button>
-              </form>
+          <Col xs={24} sm={12}>
+            <div style={{ ...styles.infoCard, cursor: "default" }}>
+              <div style={styles.infoIcon}>
+                <ClockCircleOutlined style={{ fontSize: 20, color: "#ffffff" }} />
+              </div>
+              <div>
+                <span style={styles.infoLabel}>Horario de atención</span>
+                <span style={styles.infoValue}>Lunes a viernes, 8:00 - 18:00</span>
+              </div>
             </div>
           </Col>
 
@@ -248,22 +172,18 @@ const styles: { [key: string]: React.CSSProperties } = {
   content: {
     padding: "60px 60px 100px",
   },
-  infoStack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 16,
-  },
   infoCard: {
     display: "flex",
     alignItems: "center",
     gap: 16,
     background: "#ffffff",
     borderRadius: 18,
-    padding: "20px 22px",
+    padding: "24px 22px",
     boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
     border: "1px solid #e2e8f0",
     textDecoration: "none",
     transition: "transform 0.2s ease",
+    height: "100%",
   },
   infoIcon: {
     width: 44,
@@ -286,49 +206,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 15,
     fontWeight: 600,
     color: "#1d5863",
-  },
-  formCard: {
-    background: "#ffffff",
-    borderRadius: 24,
-    padding: "40px",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.05)",
-    border: "1px solid #e2e8f0",
-  },
-  formTitle: {
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
-    fontSize: 24,
-    fontWeight: 800,
-    color: "#1d5863",
-    margin: 0,
-    marginBottom: 6,
-  },
-  formSubtitle: {
-    color: "#64748b",
-    fontSize: 15,
-    marginBottom: 26,
-  },
-  input: {
-    height: 46,
-    borderRadius: 12,
-    border: "1px solid #cbd5e1",
-    fontSize: 14,
-  },
-  textarea: {
-    borderRadius: 12,
-    border: "1px solid #cbd5e1",
-    fontSize: 14,
-    resize: "none",
-  },
-  submitButton: {
-    alignSelf: "flex-start",
-    height: 48,
-    padding: "0 32px",
-    borderRadius: 24,
-    background: "#00838f",
-    borderColor: "#00838f",
-    fontWeight: 700,
-    fontSize: 15,
-    boxShadow: "0 8px 20px rgba(0, 131, 143, 0.3)",
   },
 };
 
