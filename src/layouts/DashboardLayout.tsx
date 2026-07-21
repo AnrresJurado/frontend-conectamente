@@ -55,9 +55,8 @@ const DashboardLayout: React.FC = () => {
     ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/usuarios', icon: <TeamOutlined />, label: 'Control de Usuarios' }] : []), 
     { key: '/dashboard/citas', icon: <CalendarOutlined />, label: 'Citas' }, 
     ...(user?.rol === 'PACIENTE' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/chats', icon: <MessageOutlined />, label: 'Chats' }] : []), 
-    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []), 
-    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/analitica', icon: <TeamOutlined />, label: 'Analítica' }] : []), 
-    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/encuestas', icon: <FileTextOutlined />, label: 'Encuestas' }] : []), 
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/encuestas', icon: <FileTextOutlined />, label: 'Encuestas' }] : []),
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/tests-psicometricos', icon: <ExperimentOutlined />, label: 'Tests Psicométricos' }] : []), 
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/recomendaciones', icon: <HeartOutlined />, label: 'Recomendaciones' }] : []), 
   ]; 
