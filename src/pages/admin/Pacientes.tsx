@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Popconfirm, message, Input, Modal, Form, Empty, Spin, Tag } from 'antd';
 import {
-  PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined,
-  FolderOpenOutlined, SaveOutlined, MailOutlined, UserOutlined,
+  EditOutlined, DeleteOutlined, SearchOutlined,
+  FolderOpenOutlined, SaveOutlined, MailOutlined,
 } from '@ant-design/icons';
 import { pacientesService } from '../../services/pacientesService';
 import { historialService, HistorialClinico } from '../../services/historialService';
 import { useAuth } from '../../hooks/useAuth';
-import { Paciente, PacienteFormData } from '../../types';
-import FormPaciente from '../../components/FormPaciente';
+import { Paciente } from '../../types';
 
 const PALETTE = {
   primary: '#1d5863',
@@ -33,6 +32,7 @@ const Pacientes: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchText, setSearchText] = useState<string>('');
 
+  // Estados para el Modal de edición de pacientes
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [formLoading, setFormLoading] = useState<boolean>(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<Paciente | null>(null);
@@ -113,20 +113,12 @@ const Pacientes: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const abrirCrear = () => {
-    setPacienteSeleccionado(null);
-    setIsModalOpen(true);
-  };
-
-  const handleFormSubmit = async (data: PacienteFormData) => {
+  const handleFormSubmit = async (data: any) => {
     setFormLoading(true);
     try {
       if (pacienteSeleccionado) {
         await pacientesService.update(pacienteSeleccionado.id, data);
         message.success('Paciente actualizado de manera exitosa.');
-      } else {
-        await pacientesService.create(data);
-        message.success('Paciente registrado de manera exitosa.');
       }
       setIsModalOpen(false);
       setPacienteSeleccionado(null);
@@ -154,7 +146,7 @@ const Pacientes: React.FC = () => {
     }
   };
 
-  const obtenerValoresIniciales = (): Partial<PacienteFormData> | undefined => {
+  const obtenerValoresIniciales = () => {
     if (!pacienteSeleccionado) return undefined;
     return {
       nombre: pacienteSeleccionado.usuario?.nombre || '',
@@ -192,25 +184,6 @@ const Pacientes: React.FC = () => {
         </div>
       ),
     },
-    // 🎯 NUEVA COLUMNA: Muestra el Psicólogo Encargado
-    {
-      title: 'Psicólogo Encargado',
-      key: 'psicologoEncargado',
-      render: (_: any, record: any) => {
-        const nombrePsicologo = record.psicologo?.usuario
-          ? `${record.psicologo.usuario.nombre} ${record.psicologo.usuario.apellido}`
-          : null;
-
-        return nombrePsicologo ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: PALETTE.primary, fontWeight: 600 }}>
-            <UserOutlined style={{ color: PALETTE.accent }} />
-            <span>{nombrePsicologo}</span>
-          </div>
-        ) : (
-          <Tag color="orange" style={{ borderRadius: 12 }}>Sin asignar</Tag>
-        );
-      },
-    },
     {
       title: 'Motivo de Consulta',
       dataIndex: 'motivoConsultaInicial',
@@ -221,7 +194,7 @@ const Pacientes: React.FC = () => {
     {
       title: '',
       key: 'acciones',
-      width: puedeGestionar ? 190 : 140,
+      width: puedeGestionar ? 140 : 80,
       render: (_: any, record: Paciente) => (
         <div style={styles.accionesCell}>
           <button style={styles.pillPrimary} onClick={() => abrirHistorial(record)}>
@@ -294,12 +267,6 @@ const Pacientes: React.FC = () => {
           </p>
         </div>
 
-        {puedeGestionar && (
-          <button style={styles.btnPrimary} onClick={abrirCrear}>
-            <PlusOutlined />
-            Nuevo Paciente
-          </button>
-        )}
       </div>
 
       <div style={{ marginBottom: 20 }}>
@@ -324,10 +291,11 @@ const Pacientes: React.FC = () => {
         />
       </div>
 
+      {/* MODAL EDICIÓN DE PACIENTE */}
       <Modal
         title={
           <span style={styles.modalTitle}>
-            {pacienteSeleccionado ? 'Modificar Registro de Paciente' : 'Registrar Nuevo Paciente Médico'}
+            Modificar Registro de Paciente
           </span>
         }
         open={isModalOpen}
@@ -338,10 +306,63 @@ const Pacientes: React.FC = () => {
         className="cm-form-modal"
       >
         <div style={{ marginTop: 20 }}>
-          <FormPaciente onSubmit={handleFormSubmit} loading={formLoading} initialValues={obtenerValoresIniciales()} />
+          <Form
+            layout="vertical"
+            onFinish={handleFormSubmit}
+            initialValues={obtenerValoresIniciales()}
+          >
+            <Form.Item
+              name="nombre"
+              label="Nombre"
+              rules={[{ required: true, message: 'El nombre es obligatorio' }]}
+            >
+              <Input placeholder="Nombre del paciente" />
+            </Form.Item>
+            <Form.Item
+              name="apellido"
+              label="Apellido"
+              rules={[{ required: true, message: 'El apellido es obligatorio' }]}
+            >
+              <Input placeholder="Apellido del paciente" />
+            </Form.Item>
+            <Form.Item
+              name="email"
+              label="Correo electrónico"
+              rules={[
+                { required: true, message: 'El correo es obligatorio' },
+                { type: 'email', message: 'Correo inválido' }
+              ]}
+            >
+              <Input placeholder="correo@ejemplo.com" />
+            </Form.Item>
+            <Form.Item
+              name="fechaNacimiento"
+              label="Fecha de nacimiento"
+              rules={[{ required: true, message: 'La fecha es obligatoria' }]}
+            >
+              <Input type="date" />
+            </Form.Item>
+            <Form.Item style={{ textAlign: 'right', marginBottom: 0 }}>
+              <button
+                type="button"
+                style={styles.btnSecundario}
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                style={{ ...styles.btnPrimary, opacity: formLoading ? 0.7 : 1 }}
+                disabled={formLoading}
+              >
+                {formLoading ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            </Form.Item>
+          </Form>
         </div>
       </Modal>
 
+      {/* MODAL DE HISTORIAL DE SESIONES / AVANCES */}
       <Modal
         title={
           <span style={styles.modalTitle}>
@@ -459,6 +480,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 14,
     cursor: 'pointer',
     boxShadow: '0 6px 16px rgba(29, 88, 99, 0.25)',
+  },
+  btnSecundario: {
+    background: '#ffffff',
+    color: '#475569',
+    border: `1px solid ${PALETTE.border}`,
+    borderRadius: 24,
+    padding: '11px 22px',
+    fontWeight: 600,
+    fontSize: 14,
+    cursor: 'pointer',
+    marginRight: 8,
   },
   searchInput: {
     maxWidth: 340,

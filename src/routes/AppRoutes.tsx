@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../pages/public/Login';
 import Register from '../pages/public/Register';
 import Dashboard from '../pages/admin/Dashboard';
-import Analitica from '../pages/admin/Analitica';
 import Pacientes from '../pages/admin/Pacientes';
 import Psicologos from '../pages/admin/Psicologos';
 import Citas from '../pages/admin/Citas';
@@ -91,7 +90,6 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard/pacientes" element={<Pacientes />} />
           <Route path="/dashboard/citas" element={<Citas />} />
           <Route path="/dashboard/agenda" element={<Agenda />} />
-          <Route path="/dashboard/analitica" element={<Analitica />} />
           <Route path="/dashboard/chats" element={<Chats />} />
           <Route path="/dashboard/progreso" element={<Progreso />} />
           <Route path="/dashboard/encuestas" element={<Encuestas />} />

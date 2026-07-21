@@ -52,7 +52,9 @@ const TestsPsicometricos: React.FC = () => {
       
       const pacientesMap: Record<string, string> = {};
       pacientesData.forEach((p: any) => {
-        pacientesMap[p._id] = `${p.nombre} ${p.apellido || ''}`.trim();
+        const nombre = p.usuario?.nombre || '';
+        const apellido = p.usuario?.apellido || '';
+        pacientesMap[p.id || p._id] = `${nombre} ${apellido}`.trim() || 'Paciente sin nombre';
       });
       
       setAsignaciones(asignacionesData);
@@ -67,6 +69,10 @@ const TestsPsicometricos: React.FC = () => {
   };
 
   const handleActivar = async (pacienteId: string, tipoTest: TipoTest) => {
+    if (!pacienteId) {
+      message.warning('Selecciona un paciente válido');
+      return;
+    }
     try {
       await testsPsicometricosService.asignarTest(pacienteId, tipoTest);
       message.success('Test activado correctamente');
@@ -98,6 +104,16 @@ const TestsPsicometricos: React.FC = () => {
       cargarDatos();
     } catch (err) {
       message.error('Error al marcar como visto');
+    }
+  };
+
+  const handleDesactivar = async (asignacionId: string) => {
+    try {
+      await testsPsicometricosService.desactivarTest(asignacionId);
+      message.success('Test desactivado correctamente');
+      cargarDatos();
+    } catch (err) {
+      message.error('Error al desactivar el test');
     }
   };
 
@@ -141,7 +157,7 @@ const TestsPsicometricos: React.FC = () => {
     return <Tag color="success">✔ Completado</Tag>;
   };
 
-  const renderCeldaTest = (asignacion: AsignacionTest | undefined, tipoTest: TipoTest) => {
+  const renderCeldaTest = (asignacion: AsignacionTest | undefined, tipoTest: TipoTest, pacienteId?: string) => {
     if (!asignacion) {
       return (
         <div>
@@ -150,10 +166,11 @@ const TestsPsicometricos: React.FC = () => {
           <Button 
             type="primary" 
             size="small"
-            onClick={() => handleActivar('', tipoTest)}
+            onClick={() => handleActivar(pacienteId || '', tipoTest)}
             style={{ marginTop: 8 }}
+            disabled={!pacienteId}
           >
-            [Activar]
+            ✅ Activar
           </Button>
           <br />
           <Text type="secondary" style={{ fontSize: 12 }}>Intentos: 0</Text>
@@ -168,35 +185,42 @@ const TestsPsicometricos: React.FC = () => {
       <div>
         {getEstadoTag(asignacion.estado, asignacion.nuevoResultado, alertaCritica)}
         <br />
-        {asignacion.estado === 'COMPLETADO' ? (
+        {asignacion.estado === 'ACTIVO' && (
+          <Button 
+            size="small"
+            danger
+            onClick={() => handleDesactivar(asignacion._id)}
+            style={{ marginTop: 4 }}
+          >
+            🔴 Desactivar
+          </Button>
+        )}
+        {asignacion.estado === 'INACTIVO' && (
+          <Button 
+            size="small"
+            type="primary"
+            onClick={() => handleReactivar(asignacion)}
+            style={{ marginTop: 4 }}
+          >
+            ✅ Activar
+          </Button>
+        )}
+        {asignacion.estado === 'COMPLETADO' && (
           <Button 
             size="small"
             onClick={() => handleReactivar(asignacion)}
             style={{ marginTop: 4 }}
           >
-            🔄 [Reactivar]
-          </Button>
-        ) : (
-          <Button 
-            size="small"
-            danger
-            onClick={() => testsPsicometricosService.desactivarTest(asignacion._id)}
-            style={{ marginTop: 4 }}
-          >
-            [Desactivar]
+            🔄 Volver a activar
           </Button>
         )}
         <br />
-        {asignacion.numeroIntentos > 0 ? (
-          <Text 
-            style={{ fontSize: 12, color: PALETTE.accent, cursor: 'pointer', textDecoration: 'underline' }}
-            onClick={() => verHistorial(asignacion)}
-          >
-            Intentos: {asignacion.numeroIntentos} 🔍
-          </Text>
-        ) : (
-          <Text type="secondary" style={{ fontSize: 12 }}>Intentos: 0</Text>
-        )}
+        <Text 
+          style={{ fontSize: 12, color: PALETTE.accent, cursor: 'pointer', textDecoration: 'underline' }}
+          onClick={() => verHistorial(asignacion)}
+        >
+          Intentos: {asignacion.numeroIntentos} 🔍
+        </Text>
         {asignacion.nuevoResultado && (
           <Button 
             size="small" 
@@ -245,12 +269,12 @@ const TestsPsicometricos: React.FC = () => {
     {
       title: 'Tendencias Personales',
       key: 'tendencias',
-      render: (_: any, record: any) => renderCeldaTest(record.tendencias, 'TENDENCIAS_PERSONALES'),
+      render: (_: any, record: any) => renderCeldaTest(record.tendencias, 'TENDENCIAS_PERSONALES', record.pacienteId),
     },
     {
       title: 'Bienestar Actual',
       key: 'bienestar',
-      render: (_: any, record: any) => renderCeldaTest(record.bienestar, 'BIENESTAR_ACTUAL'),
+      render: (_: any, record: any) => renderCeldaTest(record.bienestar, 'BIENESTAR_ACTUAL', record.pacienteId),
     },
   ];
 
@@ -348,13 +372,25 @@ const TestsPsicometricos: React.FC = () => {
 
       {/* Tabla de Asignaciones */}
       <Card style={{ borderRadius: 20, border: `1px solid ${PALETTE.border}` }}>
-        <Table
-          className="cm-tests-psico"
-          dataSource={dataSource}
-          columns={columns}
-          rowKey="pacienteId"
-          pagination={false}
-        />
+        {dataSource.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: PALETTE.textMuted }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>👥</div>
+            <h3 style={{ color: PALETTE.primary, marginBottom: 8 }}>No hay pacientes asignados</h3>
+            <p style={{ fontSize: 14, marginBottom: 16 }}>
+              {Object.keys(pacientes).length === 0 
+                ? 'Aún no tienes pacientes registrados. Los pacientes deben ser asignados a tu perfil de psicólogo.'
+                : 'Selecciona un paciente y asígnale un test usando el botón "Asignar Test" arriba.'}
+            </p>
+          </div>
+        ) : (
+          <Table
+            className="cm-tests-psico"
+            dataSource={dataSource}
+            columns={columns}
+            rowKey="pacienteId"
+            pagination={false}
+          />
+        )}
       </Card>
 
       {/* Modal Asignar Test */}
