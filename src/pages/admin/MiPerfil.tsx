@@ -74,10 +74,8 @@ export const MiPerfil: React.FC = () => {
   const fetchDataPaciente = async () => {
     setLoading(true);
     try {
-      // Se piden en paralelo: datos de Usuario (nombre/apellido/email) y
-      // datos del expediente clínico (telefonoEmergencia + id del paciente)
       const [perfil, paciente] = await Promise.all([
-        perfilService.getMe(),
+        perfilService.getMe().catch(() => null),
         pacientesService.getMe().catch((e) => {
           console.warn('No se pudo cargar el expediente de paciente:', e);
           return null;
@@ -107,7 +105,7 @@ export const MiPerfil: React.FC = () => {
       try {
         const resProgreso = paciente?.id
           ? await progresoService.getByPaciente(paciente.id)
-          : await progresoService.getAll();
+          : [];
         setTotalProgreso((resProgreso || []).length);
       } catch (e) {
         console.warn('No se pudo cargar el progreso:', e);

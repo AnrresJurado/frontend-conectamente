@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Popconfirm, message, Input, Modal, Form, Empty, Spin } from 'antd';
+import { Table, Popconfirm, message, Input, Modal, Form, Empty, Spin, Tag } from 'antd';
 import {
   EditOutlined, DeleteOutlined, SearchOutlined,
   FolderOpenOutlined, SaveOutlined, MailOutlined,
@@ -9,7 +9,6 @@ import { historialService, HistorialClinico } from '../../services/historialServ
 import { useAuth } from '../../hooks/useAuth';
 import { Paciente } from '../../types';
 
-// Misma identidad visual que Login / Register / Home / Dashboard / DashboardLayout
 const PALETTE = {
   primary: '#1d5863',
   primaryDark: '#12414a',
@@ -38,7 +37,6 @@ const Pacientes: React.FC = () => {
   const [formLoading, setFormLoading] = useState<boolean>(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<Paciente | null>(null);
 
-  // Estados para el Modal de Historial / Avances Clínicos
   const [isHistorialModalOpen, setIsHistorialModalOpen] = useState<boolean>(false);
   const [historiales, setHistoriales] = useState<HistorialClinico[]>([]);
   const [loadingHistorial, setLoadingHistorial] = useState<boolean>(false);
@@ -64,7 +62,6 @@ const Pacientes: React.FC = () => {
     cargarPacientes();
   }, []);
 
-  // Abrir gestión de historial clínico
   const abrirHistorial = async (paciente: Paciente) => {
     if (!paciente.usuario?.id) {
       message.error('El paciente no tiene un usuario válido asignado.');
@@ -84,7 +81,6 @@ const Pacientes: React.FC = () => {
     }
   };
 
-  // Guardar una nueva sesión de avance (Historial)
   const guardarAvanceClinico = async () => {
     if (!pacienteSeleccionado || !pacienteSeleccionado.usuario?.id) return;
     if (!nuevaNota.trim()) {
@@ -198,7 +194,7 @@ const Pacientes: React.FC = () => {
     {
       title: '',
       key: 'acciones',
-      width: puedeGestionar ? 190 : 140,
+      width: puedeGestionar ? 140 : 80,
       render: (_: any, record: Paciente) => (
         <div style={styles.accionesCell}>
           <button style={styles.pillPrimary} onClick={() => abrirHistorial(record)}>
@@ -238,7 +234,6 @@ const Pacientes: React.FC = () => {
 
   return (
     <div style={styles.page}>
-      {/* Estilos con alcance local para el look propio de la tabla y modales */}
       <style>{`
         .cm-pacientes .ant-table { background: transparent; }
         .cm-pacientes .ant-table-thead > tr > th {
@@ -264,7 +259,6 @@ const Pacientes: React.FC = () => {
         .cm-form-modal .ant-modal-content { border-radius: 20px; overflow: hidden; }
       `}</style>
 
-      {/* ═══════════════ ENCABEZADO ═══════════════ */}
       <div style={styles.header}>
         <div>
           <h1 style={styles.title}>Gestión de Pacientes Clínicos</h1>
@@ -275,7 +269,6 @@ const Pacientes: React.FC = () => {
 
       </div>
 
-      {/* ═══════════════ BUSCADOR ═══════════════ */}
       <div style={{ marginBottom: 20 }}>
         <Input
           placeholder="Buscar por nombre o correo..."
@@ -287,7 +280,6 @@ const Pacientes: React.FC = () => {
         />
       </div>
 
-      {/* ═══════════════ TABLA ═══════════════ */}
       <div style={styles.panel} className="cm-pacientes">
         <Table
           columns={columns as any}
