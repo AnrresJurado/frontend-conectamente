@@ -8,7 +8,6 @@ import {
   SaveOutlined,
   ArrowLeftOutlined,
   SafetyOutlined,
-  PictureOutlined,
   CameraOutlined,
   CalendarOutlined,
   HeartOutlined,
@@ -34,33 +33,17 @@ const PALETTE = {
   border: '#e2e8f0',
 };
 
-// Placeholder de imagen reutilizable — reemplázalo por tu <img /> real
-const ImagePlaceholder: React.FC<{ height?: number | string; label?: string; radius?: number; icon?: React.ReactNode }> = ({
-  height = 160,
-  label = 'Espacio para imagen',
-  radius = 18,
-  icon = <PictureOutlined style={{ fontSize: 26 }} />,
-}) => (
-  <div
-    style={{
-      height,
-      borderRadius: radius,
-      border: '2px dashed rgba(255,255,255,0.35)',
-      background: 'rgba(255,255,255,0.08)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-      color: 'rgba(255,255,255,0.75)',
-    }}
-  >
-    {icon}
-    <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12.5, textAlign: 'center', padding: '0 16px' }}>
-      {label}
-    </Text>
-  </div>
-);
+// 🖼️ RUTAS DE IMÁGENES REALES
+// Coloca aquí tus archivos descargados, dentro de la carpeta `public/assets/miPerfil/`
+// de tu proyecto (NO dentro de `src/`). Ejemplo de estructura:
+//   public/
+//     assets/
+//       miPerfil/
+//         portada.jpg      <- foto de portada del perfil
+//         bienestar.jpg    <- ilustración de la tarjeta "Tu bienestar, en un solo lugar"
+// Si usas otro nombre de archivo o extensión, solo actualiza las rutas de abajo.
+const IMG_PORTADA = '/assets/miPerfil/portada.jpg';
+const IMG_BIENESTAR = '/assets/miPerfil/bienestar.jpeg';
 
 export const MiPerfil: React.FC = () => {
   const { user } = useAuth();
@@ -195,8 +178,17 @@ export const MiPerfil: React.FC = () => {
           <circle cx="120" cy="220" r="110" fill="rgba(255,255,255,0.04)" />
         </svg>
 
+        {/* 🖼️ Foto de portada real */}
         <div style={styles.coverImageSlot}>
-          <ImagePlaceholder height="100%" radius={0} label="Foto de portada — reemplaza este bloque por tu <img />" icon={<PictureOutlined style={{ fontSize: 30 }} />} />
+          <img
+            src={IMG_PORTADA}
+            alt="Foto de portada"
+            style={styles.coverImage}
+            onError={(e) => {
+              // si el archivo aún no existe en public/assets/miPerfil/, ocultamos el <img> roto
+              (e.currentTarget as HTMLImageElement).style.display = 'none';
+            }}
+          />
         </div>
 
         <div style={styles.coverContent}>
@@ -351,7 +343,7 @@ export const MiPerfil: React.FC = () => {
           </Card>
         </Col>
 
-        {/* Columna lateral — tarjeta inspiracional + espacio de imagen */}
+        {/* Columna lateral — tarjeta inspiracional + imagen real */}
         <Col xs={24} lg={8}>
           <Card bordered={false} style={styles.cardInspiracional}>
             <Title level={4} style={{ color: '#fff', margin: 0 }}>
@@ -361,8 +353,16 @@ export const MiPerfil: React.FC = () => {
             <Paragraph style={{ color: '#E0E7FF', fontSize: 14, marginTop: 12, lineHeight: 1.6 }}>
               Aquí puedes gestionar tus datos personales. Toda tu información está protegida y solo es visible para ti y tu psicólogo asignado.
             </Paragraph>
+            {/* 🖼️ Ilustración de bienestar real */}
             <div style={{ marginTop: 16 }}>
-              <ImagePlaceholder height={160} label="Ilustración o foto de bienestar" />
+              <img
+                src={IMG_BIENESTAR}
+                alt="Ilustración de bienestar"
+                style={styles.bienestarImage}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = 'none';
+                }}
+              />
             </div>
           </Card>
 
@@ -416,6 +416,18 @@ const styles: { [key: string]: React.CSSProperties } = {
     position: 'absolute',
     inset: 0,
     opacity: 0.5,
+  },
+  coverImage: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  bienestarImage: {
+    width: '100%',
+    height: 160,
+    objectFit: 'cover',
+    borderRadius: 18,
+    display: 'block',
   },
   coverContent: {
     position: 'relative',

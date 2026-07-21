@@ -1,56 +1,40 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Tabs, Card, Button, Progress, Timeline, Input, Avatar, Space, Typography, Row, Col, message, Spin, Empty, Tag, Badge, Modal, List } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Avatar, Col, Progress, Row, Spin, Tag, Typography, message } from 'antd';
 import {
-  HomeOutlined,
-  TeamOutlined,
-  LineChartOutlined,
-  FileTextOutlined,
-  UserOutlined,
-  SendOutlined,
   CalendarOutlined,
-  HeartOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  PhoneOutlined,
+  HeartOutlined,
   MailOutlined,
-  SafetyOutlined,
-  RightCircleOutlined,
-  MessageOutlined,
+  PhoneOutlined,
   RiseOutlined,
+  SafetyOutlined,
   StarOutlined,
-  BookOutlined,
-  ExperimentOutlined,
-  SearchOutlined,
-  PlusOutlined,
-  PictureOutlined,
-  ArrowRightOutlined,
-  EditOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { progresoService } from '../../services/progresoService';
-import { chatsService } from '../../services/chatsService';
-import { psicologosService } from '../../services/psicologosService';
-import { notificacionesService } from '../../services/notificacionesService';
 import { pacientesService } from '../../services/pacientesService';
 import { citasService } from '../../services/citasService';
 import { useAuth } from '../../hooks/useAuth';
 
-
-
 const { Title, Paragraph, Text } = Typography;
 
 // ─────────────────────────────────────────────────────────────
-// Paleta e identidad visual — misma familia que Dashboard
+// Paleta e identidad visual
 // ─────────────────────────────────────────────────────────────
 const PALETTE = {
-  primaryDark: '#12414a',
+  primaryDark: '#0f363d',
   primary: '#1d5863',
+  primaryLight: '#2f7986',
   accent: '#4da6b0',
   accentSoft: '#bce3e6',
-  bg: '#eef7f7',
+  warm: '#e2a558',
+  warmDeep: '#c97f34',
+  ink: '#0c2226',
+  bg: '#f3f9f9',
   card: '#ffffff',
-  textMuted: '#64748b',
-  border: '#e2e8f0',
+  textMuted: '#5b7278',
+  border: '#dfeceb',
 };
 
 const frasesDelDia = [
@@ -123,64 +107,19 @@ const getColorPorEstado = (estado: string) => {
   return map[estado?.toUpperCase()] || '#4da6b0';
 };
 
-// ─────────────────────────────────────────────────────────────
-// Placeholder reutilizable de imagen — reemplázalo por tu <img />
-// o por background: `url(...)` en el style del contenedor.
-// ─────────────────────────────────────────────────────────────
-const ImagePlaceholder: React.FC<{ height?: number | string; label?: string; radius?: number }> = ({
-  height = 200,
-  label = 'Espacio para imagen',
-  radius = 20,
-}) => (
-  <div
-    style={{
-      height,
-      borderRadius: radius,
-      border: '2px dashed rgba(255,255,255,0.35)',
-      background: 'rgba(255,255,255,0.08)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-      color: 'rgba(255,255,255,0.75)',
-    }}
-  >
-    <PictureOutlined style={{ fontSize: 28 }} />
-    <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12.5, textAlign: 'center', padding: '0 16px' }}>
-      {label}
-    </Text>
-  </div>
-);
-
 export const MiEspacio: React.FC = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('1');
   const [loading, setLoading] = useState(false);
 
-  // Estados dinámicos conectados al backend
-  const [pacienteData, setPacienteData] = useState<any>(null);
+  // Estados dinámicos conectados al backend — solo lectura, sin acciones
+  const [ setPacienteData] = useState<any>(null);
   const [psicologoData, setPsicologoData] = useState<any>(null);
   const [citas, setCitas] = useState<any[]>([]);
   const [progreso, setProgreso] = useState<any[]>([]);
   const [recomendaciones, setRecomendaciones] = useState<any[]>([]);
 
-  // Estado del chat
-  const [chatMessage, setChatMessage] = useState('');
-  const [messages, setMessages] = useState<any[]>([]);
-  const [chatLoading, setChatLoading] = useState(false);
-  const [psicologoUserId, setPsicologoUserId] = useState<string | null>(null);
-
-  // Nombre/apellido para el saludo (se siguen cargando aquí; la edición vive en /mi-perfil)
+  // Nombre/apellido para el saludo
   const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-
-  // ─── Estados para buscar psicólogos ───
-  const [psicologosDisponibles, setPsicologosDisponibles] = useState<any[]>([]);
-  const [cargandoPsicologos, setCargandoPsicologos] = useState(false);
-  const [modalPsicologosVisible, setModalPsicologosVisible] = useState(false);
-  const [solicitandoPsicologo, setSolicitandoPsicologo] = useState(false);
 
   // Frase del día (cambia cada día según la fecha)
   const fraseDelDia = useMemo(() => {
@@ -200,21 +139,11 @@ export const MiEspacio: React.FC = () => {
       const pacientes = await pacientesService.getAll();
       const dataPac: any = pacientes?.[0];
 
-      if (!dataPac) {
-        message.warning('No encontramos tu expediente de paciente todavía.');
-        setLoading(false);
-        return;
-      }
-
       setPacienteData(dataPac);
       setNombre(dataPac.usuario?.nombre || '');
-      setApellido(dataPac.usuario?.apellido || '');
 
       if (dataPac.psicologo) {
         setPsicologoData(dataPac.psicologo);
-        if (dataPac.psicologo.usuario?.id) {
-          setPsicologoUserId(dataPac.psicologo.usuario.id);
-        }
       }
 
       // 🎯 Usa citasService.getAll() — GET /citas real (mismo servicio que ya usa Dashboard.tsx)
@@ -245,111 +174,6 @@ export const MiEspacio: React.FC = () => {
     }
   };
 
-  // ─── Cargar lista de psicólogos disponibles ───
-  const cargarPsicologosDisponibles = async () => {
-    setCargandoPsicologos(true);
-    try {
-      const data = await psicologosService.getAll();
-      setPsicologosDisponibles(data || []);
-    } catch (err) {
-      console.error("Error al cargar psicólogos:", err);
-      message.error("No se pudieron cargar los psicólogos disponibles.");
-    } finally {
-      setCargandoPsicologos(false);
-    }
-  };
-
-  const abrirModalPsicologos = () => {
-    cargarPsicologosDisponibles();
-    setModalPsicologosVisible(true);
-  };
-
-  // ─── Solicitar asignación a un psicólogo ───
-  const solicitarPsicologo = async (psicologo: any) => {
-    setSolicitandoPsicologo(true);
-    try {
-      // 🎯 Asignación directa vía PATCH /pacientes/:id (endpoint real y confirmado).
-      // ⚠️ Requiere que tu UpdatePacienteDto (backend) acepte el campo "psicologoId".
-      // Si no lo acepta todavía, agrégalo: @IsUUID() @IsOptional() psicologoId?: string;
-      await pacientesService.update(pacienteData.id, { psicologoId: psicologo.id } as any);
-
-      // 2. Enviar notificación al psicólogo
-      const usuarioPsicologoId = psicologo.usuario?.id;
-      if (usuarioPsicologoId && user) {
-        await notificacionesService.create({
-          usuarioId: usuarioPsicologoId,
-          titulo: 'Nuevo paciente solicitante 🙋',
-          mensaje: `El paciente ${user.nombre} ${user.apellido} ha solicitado ser atendido por ti. Por favor, revisa tu lista de pacientes para confirmar la asignación.`,
-          tipo: 'INFO',
-        });
-      }
-
-      message.success(`Has solicitado a ${psicologo.usuario?.nombre || 'el psicólogo'}. Te notificaremos cuando confirme la asignación.`);
-      setModalPsicologosVisible(false);
-
-      // Recargar datos para reflejar el nuevo psicólogo asignado
-      fetchDataPaciente();
-    } catch (err: any) {
-      console.error("Error al solicitar psicólogo:", err);
-      message.error(err?.response?.data?.message || "No se pudo enviar la solicitud. Intenta de nuevo.");
-    } finally {
-      setSolicitandoPsicologo(false);
-    }
-  };
-
-  // Cargar historial del chat
-  useEffect(() => {
-    if (psicologoUserId && activeTab === '2') {
-      cargarHistorialChat();
-    }
-  }, [psicologoUserId, activeTab]);
-
-  const cargarHistorialChat = async () => {
-    if (!psicologoUserId) return;
-    setChatLoading(true);
-    try {
-      const historial = await chatsService.obtenerHistorial(psicologoUserId);
-      if (historial && historial.length > 0) {
-        const mensajesMapeados = historial.map((msg: any) => ({
-          sender: msg.remitenteId === user?.id ? 'paciente' : 'psicologo',
-          text: msg.mensaje,
-          _id: msg._id,
-          enviadoEn: msg.enviadoEn,
-        }));
-        setMessages(mensajesMapeados);
-      } else {
-        setMessages([
-          { sender: 'psicologo', text: '¡Hola! Bienvenido a tu espacio de comunicación directa. ¿Cómo te has sentido estos días?' }
-        ]);
-      }
-    } catch (err) {
-      console.warn("No se pudo cargar el historial del chat:", err);
-      setMessages([
-        { sender: 'psicologo', text: '¡Hola! Bienvenido a tu espacio de comunicación directa.' }
-      ]);
-    } finally {
-      setChatLoading(false);
-    }
-  };
-
-  const handleSendMessage = async () => {
-    if (!chatMessage.trim() || !psicologoUserId) return;
-
-    const texto = chatMessage;
-    setChatMessage('');
-    setMessages(prev => [...prev, { sender: 'paciente', text: texto }]);
-
-    try {
-      await chatsService.enviarMensaje({
-        destinatarioId: psicologoUserId,
-        mensaje: texto,
-      });
-    } catch (err) {
-      console.error("Error al enviar mensaje:", err);
-      message.error("No se pudo enviar el mensaje. Intenta de nuevo.");
-    }
-  };
-
   const progresoGeneral = useMemo(() => {
     if (progreso.length === 0) return 0;
     const objetivo = 10;
@@ -367,7 +191,7 @@ export const MiEspacio: React.FC = () => {
   const ultimosProgresos = useMemo(() => {
     return [...progreso]
       .sort((a, b) => new Date(b.fecha || b.createdAt).getTime() - new Date(a.fecha || a.createdAt).getTime())
-      .slice(0, 3);
+      .slice(0, 4);
   }, [progreso]);
 
   const citasCompletadas = useMemo(() => {
@@ -379,7 +203,7 @@ export const MiEspacio: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '160px 0', background: PALETTE.bg, minHeight: '100vh' }}>
+      <div style={styles.loadingScreen}>
         <Spin size="large" />
       </div>
     );
@@ -387,755 +211,266 @@ export const MiEspacio: React.FC = () => {
 
   return (
     <div style={styles.page}>
-      {/* estilos globales para las pestañas — look de píldoras, más amplio e interactivo */}
       <style>{`
-        .miespacio-tabs .ant-tabs-nav { margin-bottom: 24px; }
-        .miespacio-tabs .ant-tabs-nav::before { border-bottom: none !important; }
-        .miespacio-tabs .ant-tabs-nav-list {
-          background: #ffffff;
-          padding: 6px;
-          border-radius: 16px;
-          border: 1px solid ${PALETTE.border};
-          gap: 4px;
-          box-shadow: 0 4px 16px rgba(29, 88, 99, 0.05);
-        }
-        .miespacio-tabs .ant-tabs-tab {
-          border: none !important;
-          background: transparent !important;
-          border-radius: 12px !important;
-          margin: 0 !important;
-          padding: 10px 20px !important;
-          transition: all .2s ease;
-        }
-        .miespacio-tabs .ant-tabs-tab:hover { background: ${PALETTE.bg} !important; }
-        .miespacio-tabs .ant-tabs-tab .ant-tabs-tab-btn { color: ${PALETTE.textMuted}; font-weight: 600; }
-        .miespacio-tabs .ant-tabs-tab-active {
-          background: linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.primaryDark}) !important;
-          box-shadow: 0 6px 16px rgba(18, 65, 74, 0.25);
-        }
-        .miespacio-tabs .ant-tabs-tab-active .ant-tabs-tab-btn { color: #ffffff !important; }
-        .miespacio-tabs .ant-tabs-ink-bar { display: none; }
-        .hover-lift { transition: transform .2s ease, box-shadow .2s ease; }
-        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(29, 88, 99, 0.12); }
+        .hover-lift { transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s ease; }
+        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(15, 54, 61, 0.14); }
       `}</style>
 
-      {/* ═══════════════ HERO DE BIENVENIDA — a todo lo ancho ═══════════════ */}
-      <div style={styles.hero}>
-        {/* decoración orgánica de fondo */}
-        <svg style={styles.heroDecoration} viewBox="0 0 800 400" preserveAspectRatio="none" aria-hidden="true">
-          <circle cx="700" cy="60" r="180" fill="rgba(255,255,255,0.05)" />
-          <circle cx="620" cy="340" r="120" fill="rgba(255,255,255,0.04)" />
-          <circle cx="120" cy="380" r="90" fill="rgba(255,255,255,0.035)" />
-        </svg>
+      {/* ═══════════════ HERO — solo lectura, sin navegación ni botones ═══════════════ */}
+      <section style={styles.hero}>
+        <div style={styles.heroDecoration}>
+          <svg viewBox="0 0 800 400" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }} aria-hidden="true">
+            <circle cx="700" cy="60" r="220" fill="rgba(255,255,255,0.06)" />
+            <circle cx="600" cy="360" r="150" fill="rgba(255,255,255,0.05)" />
+            <circle cx="90" cy="380" r="110" fill="rgba(226,165,88,0.10)" />
+          </svg>
+        </div>
 
-        <Row gutter={[32, 32]} align="middle" style={{ position: 'relative', width: '100%' }}>
-          <Col xs={24} lg={15}>
-            <span style={styles.eyebrow}>{fechaLarga()}</span>
-            <Title level={2} style={styles.heroTitle}>
-              {saludoSegunHora()}, {nombreMostrar} 🌿
-            </Title>
-            <Paragraph style={styles.heroSubtitle}>
-              Tu espacio seguro de bienestar — un lugar diseñado exclusivamente para tu tranquilidad, evolución y acompañamiento profesional.
-            </Paragraph>
+        <div style={styles.heroContent}>
+          <span style={styles.eyebrow}>{fechaLarga()}</span>
+          <Title level={1} style={styles.heroTitle}>
+            {saludoSegunHora()}, {nombreMostrar} 🌿
+          </Title>
+          <Paragraph style={styles.heroSubtitle}>
+            Este es un resumen de tu espacio de bienestar — tu progreso, tu próxima sesión
+            y tu acompañamiento profesional, todo en un solo lugar.
+          </Paragraph>
 
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 20 }}>
-              <div style={styles.heroStat}>
-                <span style={styles.heroStatValue}>
-                  {proximaCita ? formatearHora(proximaCita.fechaHora || proximaCita.fecha) : '—'}
-                </span>
-                <span style={styles.heroStatLabel}>
-                  {proximaCita
-                    ? `Próxima sesión · ${formatearFecha(proximaCita.fechaHora || proximaCita.fecha)}`
-                    : 'Sin cita próxima'}
-                </span>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 26 }}>
+            <div style={styles.heroStat}>
+              <span style={styles.heroStatValue}>
+                {proximaCita ? formatearHora(proximaCita.fechaHora || proximaCita.fecha) : '—'}
+              </span>
+              <span style={styles.heroStatLabel}>
+                {proximaCita
+                  ? `Próxima sesión · ${formatearFecha(proximaCita.fechaHora || proximaCita.fecha)}`
+                  : 'Sin cita próxima'}
+              </span>
+            </div>
+            <div style={styles.heroStat}>
+              <span style={styles.heroStatValue}>{progresoGeneral}%</span>
+              <span style={styles.heroStatLabel}>Progreso general</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ TARJETAS RESUMEN ═══════════════ */}
+      <div style={styles.statsWrap}>
+        <div style={styles.statsGrid}>
+          <div className="hover-lift" style={styles.statCard}>
+            <span style={{ ...styles.statIcon, background: `${PALETTE.primary}14`, color: PALETTE.primary }}>
+              <CalendarOutlined />
+            </span>
+            <div>
+              <span style={styles.statValue}>{citas.length}</span>
+              <span style={styles.statLabel}>Citas registradas</span>
+            </div>
+          </div>
+
+          <div className="hover-lift" style={styles.statCard}>
+            <span style={{ ...styles.statIcon, background: '#10B98114', color: '#10B981' }}>
+              <CheckCircleOutlined />
+            </span>
+            <div>
+              <span style={styles.statValue}>{citasCompletadas}</span>
+              <span style={styles.statLabel}>Sesiones completadas</span>
+            </div>
+          </div>
+
+          <div className="hover-lift" style={styles.statCard}>
+            <span style={{ ...styles.statIcon, background: `${PALETTE.warm}22`, color: PALETTE.warmDeep }}>
+              <RiseOutlined />
+            </span>
+            <div>
+              <span style={styles.statValue}>{progreso.length}</span>
+              <span style={styles.statLabel}>Registros emocionales</span>
+            </div>
+          </div>
+
+          <div className="hover-lift" style={styles.statCard}>
+            <span style={{ ...styles.statIcon, background: '#8B5CF614', color: '#8B5CF6' }}>
+              <StarOutlined />
+            </span>
+            <div>
+              <span style={styles.statValue}>{recomendaciones.length}</span>
+              <span style={styles.statLabel}>Recomendaciones</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════ CUERPO: progreso + frase + psicólogo — todo de solo lectura ═══════════════ */}
+      <div style={styles.body}>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} lg={14}>
+            {/* Progreso general */}
+            <div style={styles.card}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <Title level={4} style={{ margin: 0, color: PALETTE.primary }}>
+                  <RiseOutlined style={{ marginRight: 8 }} />
+                  Tu progreso general
+                </Title>
+                <Tag color={progresoGeneral >= 70 ? 'success' : progresoGeneral >= 40 ? 'processing' : 'warning'} style={{ borderRadius: 20, padding: '2px 14px' }}>
+                  {progresoGeneral}%
+                </Tag>
               </div>
-              <div style={styles.heroStat}>
-                <span style={styles.heroStatValue}>{progresoGeneral}%</span>
-                <span style={styles.heroStatLabel}>Progreso general</span>
-              </div>
+              <Progress
+                percent={progresoGeneral}
+                strokeColor={{ '0%': PALETTE.accent, '100%': PALETTE.primary }}
+                trailColor={PALETTE.border}
+                style={{ marginBottom: 16 }}
+              />
+              <Paragraph style={{ color: PALETTE.textMuted, margin: 0 }}>
+                {progreso.length === 0
+                  ? 'Aún no tienes registros de progreso.'
+                  : `Llevas ${progreso.length} registro${progreso.length !== 1 ? 's' : ''} de tu evolución emocional. ¡Sigue así!`
+                }
+              </Paragraph>
+            </div>
+
+            {/* Últimos registros emocionales — solo vista */}
+            <div style={{ ...styles.card, marginTop: 20 }}>
+              <Title level={4} style={{ margin: '0 0 16px', color: PALETTE.primary }}>
+                <HeartOutlined style={{ marginRight: 8 }} />
+                Últimos registros emocionales
+              </Title>
+              {ultimosProgresos.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {ultimosProgresos.map((item: any, idx: number) => (
+                    <div key={idx} style={styles.progresoItem}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <span style={{ fontSize: 28 }}>{getEmojiPorEstado(item.estadoEmocional)}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <Text strong style={{ color: PALETTE.ink }}>
+                              {item.estadoEmocional || 'Sin estado'}
+                            </Text>
+                            <Tag color={getColorPorEstado(item.estadoEmocional)} style={{ borderRadius: 12, fontSize: 11 }}>
+                              {formatearFecha(item.fecha || item.createdAt)}
+                            </Tag>
+                          </div>
+                          <Text type="secondary" style={{ fontSize: 13, display: 'block', marginTop: 2 }}>
+                            {item.avance || item.observaciones || 'Sin notas'}
+                          </Text>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Text type="secondary">Tu historial de evolución emocional aparecerá aquí.</Text>
+              )}
             </div>
           </Col>
 
-          {/* Espacio para una ilustración / foto de bienestar */}
-          <Col xs={24} lg={9}>
-            <ImagePlaceholder height={220} label="Aquí puedes poner una ilustración o foto de bienestar (banner del hero)" />
+          <Col xs={24} lg={10}>
+            {/* Frase del día */}
+            <div style={styles.cardInspiracional}>
+              <Title level={4} style={{ color: '#fff', margin: 0 }}>
+                <HeartOutlined style={{ marginRight: 8 }} />
+                Frase del día
+              </Title>
+              <Paragraph style={{ color: PALETTE.accentSoft, fontSize: 15, fontStyle: 'italic', marginTop: 16, lineHeight: 1.6 }}>
+                {fraseDelDia}
+              </Paragraph>
+              <div style={{ marginTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 12 }}>
+                <Text style={{ color: PALETTE.accentSoft, fontSize: 12 }}>
+                  <ClockCircleOutlined style={{ marginRight: 4 }} />
+                  Reflexiona sobre esta frase hoy
+                </Text>
+              </div>
+            </div>
+
+            {/* Próxima sesión — solo vista */}
+            <div style={{ ...styles.card, marginTop: 20 }}>
+              <Title level={4} style={{ margin: '0 0 12px', color: PALETTE.primary, fontSize: 15 }}>
+                <CalendarOutlined style={{ marginRight: 8 }} />
+                Próxima sesión
+              </Title>
+              {proximaCita ? (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    <div style={{ background: PALETTE.bg, borderRadius: 12, padding: '8px 12px', textAlign: 'center', minWidth: 60 }}>
+                      <Text strong style={{ color: PALETTE.primary, fontSize: 18, display: 'block' }}>
+                        {new Date(proximaCita.fechaHora || proximaCita.fecha).getDate()}
+                      </Text>
+                      <Text style={{ color: PALETTE.textMuted, fontSize: 11 }}>
+                        {new Date(proximaCita.fechaHora || proximaCita.fecha).toLocaleDateString('es-EC', { month: 'short' })}
+                      </Text>
+                    </div>
+                    <div>
+                      <Text strong style={{ color: PALETTE.ink, display: 'block' }}>
+                        {formatearHora(proximaCita.fechaHora || proximaCita.fecha)}
+                      </Text>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        {proximaCita.motivoConsulta || 'Sesión de seguimiento'}
+                      </Text>
+                    </div>
+                  </div>
+                  <Tag color="processing" style={{ borderRadius: 12 }}>{proximaCita.estado}</Tag>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                  <Text type="secondary">No tienes citas programadas</Text>
+                </div>
+              )}
+            </div>
+
+            {/* Tu psicólogo asignado — solo vista, sin botones de acción */}
+            <div style={{ ...styles.card, marginTop: 20 }}>
+              <Title level={4} style={{ margin: '0 0 12px', color: PALETTE.primary, fontSize: 15 }}>
+                <TeamOutlined style={{ marginRight: 8 }} />
+                Tu psicólogo
+              </Title>
+              {psicologoData ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <Avatar
+                    size={52}
+                    style={{
+                      background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
+                      color: '#ffffff',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {`${psicologoData?.usuario?.nombre?.charAt(0) || ''}${psicologoData?.usuario?.apellido?.charAt(0) || ''}`.toUpperCase() || <TeamOutlined />}
+                  </Avatar>
+                  <div>
+                    <Text strong style={{ color: PALETTE.ink, display: 'block' }}>
+                      {psicologoData.usuario?.nombre || ''} {psicologoData.usuario?.apellido || ''}
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: 12.5 }}>
+                      {psicologoData?.especialidad || 'Especialista en Salud Mental'}
+                    </Text>
+                    <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 6 }}>
+                      {psicologoData.usuario?.email && (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          <MailOutlined style={{ marginRight: 4 }} />
+                          {psicologoData.usuario.email}
+                        </Text>
+                      )}
+                      {psicologoData.telefono && (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          <PhoneOutlined style={{ marginRight: 4 }} />
+                          {psicologoData.telefono}
+                        </Text>
+                      )}
+                      {(psicologoData.numColegiatura || psicologoData.licenciaProfesional) && (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          <SafetyOutlined style={{ marginRight: 4 }} />
+                          {psicologoData.numColegiatura || psicologoData.licenciaProfesional}
+                        </Text>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Text type="secondary">Aún no tienes un psicólogo asignado.</Text>
+              )}
+            </div>
           </Col>
         </Row>
       </div>
-
-      {/* ═══════════════ TARJETAS RESUMEN ═══════════════ */}
-      <div style={styles.statsGrid}>
-        <div className="hover-lift" style={styles.statCard}>
-          <span style={{ ...styles.statIcon, background: `${PALETTE.primary}1a`, color: PALETTE.primary }}>
-            <CalendarOutlined />
-          </span>
-          <div>
-            <span style={styles.statValue}>{citas.length}</span>
-            <span style={styles.statLabel}>Citas registradas</span>
-          </div>
-        </div>
-
-        <div className="hover-lift" style={styles.statCard}>
-          <span style={{ ...styles.statIcon, background: '#10B9811a', color: '#10B981' }}>
-            <CheckCircleOutlined />
-          </span>
-          <div>
-            <span style={styles.statValue}>{citasCompletadas}</span>
-            <span style={styles.statLabel}>Sesiones completadas</span>
-          </div>
-        </div>
-
-        <div className="hover-lift" style={styles.statCard}>
-          <span style={{ ...styles.statIcon, background: '#8B5CF61a', color: '#8B5CF6' }}>
-            <RiseOutlined />
-          </span>
-          <div>
-            <span style={styles.statValue}>{progreso.length}</span>
-            <span style={styles.statLabel}>Registros emocionales</span>
-          </div>
-        </div>
-
-        <div className="hover-lift" style={styles.statCard}>
-          <span style={{ ...styles.statIcon, background: '#F59E0B1a', color: '#F59E0B' }}>
-            <StarOutlined />
-          </span>
-          <div>
-            <span style={styles.statValue}>{recomendaciones.length}</span>
-            <span style={styles.statLabel}>Recomendaciones</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══════════════ NAVEGACIÓN POR PESTAÑAS ═══════════════ */}
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        size="large"
-        className="miespacio-tabs"
-        style={{ marginTop: 28 }}
-        items={[
-          {
-            key: '1',
-            label: (<span><HomeOutlined /> Inicio</span>),
-            children: (
-              <Row gutter={[24, 24]}>
-                <Col xs={24} lg={16}>
-                  <Card bordered={false} style={styles.card}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                      <Title level={4} style={{ margin: 0, color: PALETTE.primary }}>
-                        <RiseOutlined style={{ marginRight: 8 }} />
-                        Tu progreso general
-                      </Title>
-                      <Tag color={progresoGeneral >= 70 ? 'success' : progresoGeneral >= 40 ? 'processing' : 'warning'} style={{ borderRadius: 20, padding: '2px 14px' }}>
-                        {progresoGeneral}%
-                      </Tag>
-                    </div>
-                    <Progress
-                      percent={progresoGeneral}
-                      strokeColor={{ '0%': PALETTE.accent, '100%': PALETTE.primary }}
-                      trailColor="#E2E8F0"
-                      style={{ marginBottom: 16 }}
-                    />
-                    <Paragraph style={{ color: PALETTE.textMuted, margin: 0 }}>
-                      {progreso.length === 0
-                        ? 'Aún no tienes registros de progreso. Comienza tu primera evaluación en la pestaña "Progreso".'
-                        : `Llevas ${progreso.length} registro${progreso.length !== 1 ? 's' : ''} de tu evolución emocional. ¡Sigue así!`
-                      }
-                    </Paragraph>
-                  </Card>
-
-                  {ultimosProgresos.length > 0 && (
-                    <Card bordered={false} style={{ ...styles.card, marginTop: 20 }}>
-                      <Title level={4} style={{ margin: '0 0 16px', color: PALETTE.primary }}>
-                        <HeartOutlined style={{ marginRight: 8 }} />
-                        Últimos registros emocionales
-                      </Title>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {ultimosProgresos.map((item: any, idx: number) => (
-                          <div key={idx} style={styles.progresoItem}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                              <span style={{ fontSize: 28 }}>
-                                {getEmojiPorEstado(item.estadoEmocional)}
-                              </span>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                  <Text strong style={{ color: '#1E293B' }}>
-                                    {item.estadoEmocional || 'Sin estado'}
-                                  </Text>
-                                  <Tag color={getColorPorEstado(item.estadoEmocional)} style={{ borderRadius: 12, fontSize: 11 }}>
-                                    {formatearFecha(item.fecha || item.createdAt)}
-                                  </Tag>
-                                </div>
-                                <Text type="secondary" style={{ fontSize: 13, display: 'block', marginTop: 2 }}>
-                                  {item.avance || item.observaciones || 'Sin notas'}
-                                </Text>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  )}
-                </Col>
-
-                <Col xs={24} lg={8}>
-                  <Card bordered={false} style={styles.cardInspiracional}>
-                    <Title level={4} style={{ color: '#fff', margin: 0 }}>
-                      <HeartOutlined style={{ marginRight: 8 }} />
-                      Frase del día
-                    </Title>
-                    <Paragraph style={{ color: '#E0E7FF', fontSize: 15, fontStyle: 'italic', marginTop: 16, lineHeight: 1.6 }}>
-                      {fraseDelDia}
-                    </Paragraph>
-                    <div style={{ marginTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 12 }}>
-                      <Text style={{ color: '#BCE3E6', fontSize: 12 }}>
-                        <ClockCircleOutlined style={{ marginRight: 4 }} />
-                        Reflexiona sobre esta frase hoy
-                      </Text>
-                    </div>
-                  </Card>
-
-                  <Card bordered={false} style={{ ...styles.card, marginTop: 20 }}>
-                    <Title level={4} style={{ margin: '0 0 12px', color: PALETTE.primary, fontSize: 15 }}>
-                      <CalendarOutlined style={{ marginRight: 8 }} />
-                      Próxima sesión
-                    </Title>
-                    {proximaCita ? (
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                          <div style={{ background: PALETTE.bg, borderRadius: 12, padding: '8px 12px', textAlign: 'center', minWidth: 60 }}>
-                            <Text strong style={{ color: PALETTE.primary, fontSize: 18, display: 'block' }}>
-                              {new Date(proximaCita.fechaHora || proximaCita.fecha).getDate()}
-                            </Text>
-                            <Text style={{ color: PALETTE.textMuted, fontSize: 11 }}>
-                              {new Date(proximaCita.fechaHora || proximaCita.fecha).toLocaleDateString('es-EC', { month: 'short' })}
-                            </Text>
-                          </div>
-                          <div>
-                            <Text strong style={{ color: '#1E293B', display: 'block' }}>
-                              {formatearHora(proximaCita.fechaHora || proximaCita.fecha)}
-                            </Text>
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              {proximaCita.motivoConsulta || 'Sesión de seguimiento'}
-                            </Text>
-                          </div>
-                        </div>
-                        <Tag color="processing" style={{ borderRadius: 12 }}>
-                          {proximaCita.estado}
-                        </Tag>
-                      </div>
-                    ) : (
-                      <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                        <Text type="secondary">No tienes citas programadas</Text>
-                      </div>
-                    )}
-                  </Card>
-                </Col>
-              </Row>
-            ),
-          },
-          {
-            key: '2',
-            label: (<span><TeamOutlined /> Mi Psicólogo & Chat</span>),
-            children: (
-              <Row gutter={[24, 24]}>
-                <Col xs={24} md={8}>
-                  {/* Tarjeta del psicólogo asignado */}
-                  <Card bordered={false} style={{ ...styles.card, overflow: 'hidden' }} bodyStyle={{ padding: 0 }}>
-                    {/* Portada / imagen del psicólogo */}
-                    <div style={{
-                      height: 84,
-                      background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
-                    }} />
-                    <div style={{ textAlign: 'center', padding: '0 20px 24px' }}>
-                      <Avatar
-                        size={100}
-                        style={{
-                          border: '4px solid #ffffff',
-                          marginTop: -50,
-                          marginBottom: 16,
-                          background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
-                          color: '#ffffff',
-                          fontWeight: 700,
-                          fontSize: 32,
-                          boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-                        }}
-                      >
-                        {`${psicologoData?.usuario?.nombre?.charAt(0) || ''}${psicologoData?.usuario?.apellido?.charAt(0) || ''}`.toUpperCase() || <TeamOutlined />}
-                      </Avatar>
-                      {psicologoData ? (
-                        <>
-                          <Title level={4} style={{ margin: 0, color: '#1E293B' }}>
-                            {psicologoData.usuario?.nombre || ''} {psicologoData.usuario?.apellido || ''}
-                          </Title>
-                          <Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
-                            {psicologoData?.especialidad || 'Especialista en Salud Mental'}
-                          </Text>
-                          <div style={{ marginTop: 20, textAlign: 'left' }}>
-                            <div style={styles.infoRow}>
-                              <SafetyOutlined style={{ color: PALETTE.accent }} />
-                              <Text type="secondary" style={{ fontSize: 13, marginLeft: 8 }}>
-                                {psicologoData.numColegiatura || psicologoData.licenciaProfesional || 'Licencia profesional'}
-                              </Text>
-                            </div>
-                            {psicologoData.usuario?.email && (
-                              <div style={{ ...styles.infoRow, marginTop: 8 }}>
-                                <MailOutlined style={{ color: PALETTE.accent }} />
-                                <Text type="secondary" style={{ fontSize: 13, marginLeft: 8 }}>
-                                  {psicologoData.usuario.email}
-                                </Text>
-                              </div>
-                            )}
-                            {psicologoData.telefono && (
-                              <div style={{ ...styles.infoRow, marginTop: 8 }}>
-                                <PhoneOutlined style={{ color: PALETTE.accent }} />
-                                <Text type="secondary" style={{ fontSize: 13, marginLeft: 8 }}>
-                                  {psicologoData.telefono}
-                                </Text>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <Title level={4} style={{ margin: 0, color: '#1E293B' }}>
-                            Sin psicólogo asignado
-                          </Title>
-                          <Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
-                            Busca un profesional y solicita ser atendido
-                          </Text>
-                        </>
-                      )}
-
-                      <div style={{ marginTop: 20 }}>
-                        <Button
-                          type="primary"
-                          icon={<SearchOutlined />}
-                          onClick={abrirModalPsicologos}
-                          style={{
-                            background: psicologoData ? '#ffffff' : PALETTE.primary,
-                            border: psicologoData ? `1.5px solid ${PALETTE.primary}` : 'none',
-                            color: psicologoData ? PALETTE.primary : '#ffffff',
-                            borderRadius: 12,
-                            width: '100%'
-                          }}
-                        >
-                          {psicologoData ? 'Cambiar de psicólogo' : 'Buscar psicólogo'}
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                </Col>
-
-                <Col xs={24} md={16}>
-                  <Card
-                    bordered={false}
-                    style={styles.cardChat}
-                    bodyStyle={{ display: 'flex', flexDirection: 'column', height: '480px', padding: 0 }}
-                  >
-                    <div style={styles.chatHeader}>
-                      <Space>
-                        <Badge status={psicologoUserId ? "success" : "default"} />
-                        <span style={{ fontWeight: 600, color: '#1E293B' }}>
-                          Chat con {psicologoData?.usuario?.nombre || 'tu psicólogo'}
-                        </span>
-                      </Space>
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        <MessageOutlined style={{ marginRight: 4 }} />
-                        Respuesta en 24-48 hrs
-                      </Text>
-                    </div>
-
-                    <div style={styles.chatMessages}>
-                      {!psicologoUserId ? (
-                        <div style={{ textAlign: 'center', padding: 60 }}>
-                          <TeamOutlined style={{ fontSize: 48, color: PALETTE.border, marginBottom: 16 }} />
-                          <Title level={4} style={{ color: PALETTE.textMuted, margin: 0 }}>
-                            No tienes un psicólogo asignado
-                          </Title>
-                          <Paragraph type="secondary" style={{ marginTop: 8 }}>
-                            Para poder chatear, primero debes buscar y solicitar un psicólogo usando el botón de arriba.
-                          </Paragraph>
-                          <Button
-                            type="primary"
-                            icon={<SearchOutlined />}
-                            onClick={abrirModalPsicologos}
-                            style={{ background: PALETTE.primary, border: 'none', borderRadius: 12, marginTop: 8 }}
-                            size="large"
-                          >
-                            Buscar psicólogos disponibles
-                          </Button>
-                        </div>
-                      ) : chatLoading ? (
-                        <div style={{ textAlign: 'center', padding: 40 }}>
-                          <Spin />
-                        </div>
-                      ) : messages.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: 40 }}>
-                          <Empty description="No hay mensajes aún" />
-                        </div>
-                      ) : (
-                        messages.map((msg, index) => (
-                          <div
-                            key={index}
-                            style={{
-                              ...styles.chatBubble,
-                              alignSelf: msg.sender === 'paciente' ? 'flex-end' : 'flex-start',
-                              background: msg.sender === 'paciente' ? PALETTE.primary : '#F1F5F9',
-                              color: msg.sender === 'paciente' ? '#fff' : '#1E293B',
-                              borderBottomRightRadius: msg.sender === 'paciente' ? 4 : 16,
-                              borderBottomLeftRadius: msg.sender === 'paciente' ? 16 : 4,
-                            }}
-                          >
-                            <Text style={{ color: 'inherit', fontSize: 14 }}>{msg.text}</Text>
-                            {msg.enviadoEn && (
-                              <Text style={{ color: msg.sender === 'paciente' ? 'rgba(255,255,255,0.6)' : PALETTE.textMuted, fontSize: 10, display: 'block', marginTop: 4 }}>
-                                {formatearHora(msg.enviadoEn)}
-                              </Text>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    <div style={styles.chatInput}>
-                      <Input
-                        placeholder="Escribe un mensaje para tu psicólogo..."
-                        value={chatMessage}
-                        onChange={(e) => setChatMessage(e.target.value)}
-                        onPressEnter={handleSendMessage}
-                        style={{ borderRadius: 12, padding: '10px 16px', border: '1px solid #E2E8F0' }}
-                        disabled={!psicologoUserId}
-                      />
-                      <Button
-                        type="primary"
-                        icon={<SendOutlined />}
-                        onClick={handleSendMessage}
-                        style={{ height: 44, borderRadius: 12, background: PALETTE.primary, border: 'none', minWidth: 44 }}
-                        disabled={!psicologoUserId || !chatMessage.trim()}
-                      />
-                    </div>
-                  </Card>
-                </Col>
-              </Row>
-            ),
-          },
-          {
-            key: '3',
-            label: (<span><LineChartOutlined /> Progreso</span>),
-            children: (
-              <Card bordered={false} style={styles.card}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-                  <div>
-                    <Title level={4} style={{ margin: 0, color: PALETTE.primary }}>
-                      <RiseOutlined style={{ marginRight: 8 }} />
-                      Tu línea de evolución emocional
-                    </Title>
-                    <Paragraph type="secondary" style={{ margin: '4px 0 0' }}>
-                      {progreso.length > 0
-                        ? `${progreso.length} registro${progreso.length !== 1 ? 's' : ''} en total`
-                        : 'Aún no hay registros de progreso'}
-                    </Paragraph>
-                  </div>
-                  <Progress
-                    type="circle"
-                    percent={progresoGeneral}
-                    size={80}
-                    strokeColor={{ '0%': PALETTE.accent, '100%': PALETTE.primary }}
-                    trailColor="#E2E8F0"
-                    format={(pct) => `${pct}%`}
-                  />
-                </div>
-
-                <Timeline
-                  mode="left"
-                  items={
-                    progreso.length > 0
-                      ? progreso.map((item: any) => ({
-                          color: getColorPorEstado(item.estadoEmocional),
-                          dot: <span style={{ fontSize: 20 }}>{getEmojiPorEstado(item.estadoEmocional)}</span>,
-                          children: (
-                            <div style={{ paddingBottom: 8 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                                <Tag color={getColorPorEstado(item.estadoEmocional)} style={{ borderRadius: 12, fontWeight: 600 }}>
-                                  {getEmojiPorEstado(item.estadoEmocional)} {item.estadoEmocional || 'Sin estado'}
-                                </Tag>
-                                <Text type="secondary" style={{ fontSize: 12 }}>
-                                  {formatearFecha(item.fecha || item.createdAt)}
-                                </Text>
-                              </div>
-                              <Paragraph style={{ margin: '8px 0 0 0', color: '#475569', fontSize: 14 }}>
-                                {item.avance || item.observaciones || 'Sin notas adicionales.'}
-                              </Paragraph>
-                            </div>
-                          ),
-                        }))
-                      : [
-                          {
-                            color: PALETTE.accent,
-                            children: (
-                              <div>
-                                <Text strong style={{ color: '#1E293B' }}>Bienvenido a tu espacio de progreso</Text>
-                                <Paragraph type="secondary" style={{ margin: '4px 0 0 0', fontSize: 13 }}>
-                                  Tu historial de evolución emocional aparecerá aquí a medida que registres tus sesiones y estados de ánimo.
-                                </Paragraph>
-                              </div>
-                            ),
-                          }
-                        ]
-                  }
-                />
-              </Card>
-            ),
-          },
-          {
-            key: '4',
-            label: (<span><FileTextOutlined /> Encuestas</span>),
-            children: (
-              <Card bordered={false} style={styles.card}>
-                <Title level={4} style={{ margin: 0, color: PALETTE.primary }}>
-                  <BookOutlined style={{ marginRight: 8 }} />
-                  Tus evaluaciones y recomendaciones
-                </Title>
-                <Paragraph type="secondary" style={{ marginTop: 8 }}>
-                  Revisa las pautas y recomendaciones asignadas por tu especialista para medir tu evolución.
-                </Paragraph>
-
-                <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {recomendaciones.length > 0 ? (
-                    recomendaciones.map((rec: any, index: number) => (
-                      <div key={index} style={styles.recomendacionItem}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                          <div style={{ background: `${PALETTE.accent}1a`, borderRadius: 12, padding: '10px', fontSize: 20 }}>
-                            <ExperimentOutlined style={{ color: PALETTE.accent }} />
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <Text strong style={{ color: '#1E293B', fontSize: 15, display: 'block' }}>
-                              {rec.titulo || 'Recomendación clínica'}
-                            </Text>
-                            <Text type="secondary" style={{ fontSize: 13, display: 'block', marginTop: 4 }}>
-                              {rec.descripcion || 'Sin descripción detallada'}
-                            </Text>
-                            {rec.fechaAsignacion && (
-                              <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 4 }}>
-                                <CalendarOutlined style={{ marginRight: 4 }} />
-                                Asignada: {formatearFecha(rec.fechaAsignacion)}
-                              </Text>
-                            )}
-                          </div>
-                          <Button
-                            type="primary"
-                            style={{ background: PALETTE.primary, border: 'none', borderRadius: 10 }}
-                            icon={<RightCircleOutlined />}
-                          >
-                            Ver
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div style={styles.recomendacionItem}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                        <div style={{ background: `${PALETTE.accent}1a`, borderRadius: 12, padding: '10px', fontSize: 20 }}>
-                          <BookOutlined style={{ color: PALETTE.accent }} />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <Text strong style={{ color: '#1E293B', fontSize: 15, display: 'block' }}>
-                            Test de Bienestar General
-                          </Text>
-                          <Text type="secondary" style={{ fontSize: 13, display: 'block', marginTop: 4 }}>
-                            Evalúa tu estado de ánimo y bienestar emocional — Pendiente
-                          </Text>
-                        </div>
-                        <Button
-                          type="primary"
-                          style={{ background: PALETTE.primary, border: 'none', borderRadius: 10 }}
-                          icon={<RightCircleOutlined />}
-                        >
-                          Comenzar
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            ),
-          },
-          {
-            key: '5',
-            label: (<span><UserOutlined /> Perfil</span>),
-            children: (
-              // La edición de perfil ahora vive en su propia página (/mi-perfil),
-              // más amplia e interactiva. Aquí solo dejamos una vista previa + acceso directo.
-              <Row justify="center">
-                <Col xs={24} md={16} lg={12}>
-                  <Card bordered={false} style={{ ...styles.card, overflow: 'hidden' }} bodyStyle={{ padding: 0 }}>
-                    <div style={{
-                      height: 110,
-                      background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.primaryDark})`,
-                      position: 'relative',
-                    }}>
-                      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 400 110" preserveAspectRatio="none">
-                        <circle cx="360" cy="20" r="70" fill="rgba(255,255,255,0.06)" />
-                      </svg>
-                    </div>
-                    <div style={{ textAlign: 'center', padding: '0 28px 28px' }}>
-                      <Avatar
-                        size={92}
-                        icon={<UserOutlined />}
-                        style={{
-                          backgroundColor: PALETTE.primary,
-                          marginTop: -46,
-                          border: '4px solid #ffffff',
-                          boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-                        }}
-                      />
-                      <Title level={4} style={{ margin: '12px 0 0', color: '#1E293B' }}>
-                        {nombre} {apellido}
-                      </Title>
-                      <Text type="secondary">{pacienteData?.usuario?.email || 'Gestiona tu información personal'}</Text>
-
-                      <Button
-                        type="primary"
-                        size="large"
-                        icon={<EditOutlined />}
-                        onClick={() => navigate('/mi-perfil')}
-                        style={{
-                          marginTop: 24,
-                          background: PALETTE.primary,
-                          border: 'none',
-                          borderRadius: 14,
-                          height: 48,
-                          fontWeight: 600,
-                          paddingLeft: 28,
-                          paddingRight: 28,
-                        }}
-                      >
-                        Ver y editar mi perfil completo
-                        <ArrowRightOutlined style={{ marginLeft: 8 }} />
-                      </Button>
-                    </div>
-                  </Card>
-                </Col>
-              </Row>
-            ),
-          },
-        ]}
-      />
-
-      {/* ═══════════════ MODAL: BUSCAR PSICÓLOGOS ═══════════════ */}
-      <Modal
-        title={
-          <Space>
-            <SearchOutlined style={{ color: PALETTE.primary }} />
-            <span style={{ color: PALETTE.primaryDark, fontWeight: 700 }}>Buscar psicólogos disponibles</span>
-          </Space>
-        }
-        open={modalPsicologosVisible}
-        onCancel={() => setModalPsicologosVisible(false)}
-        footer={null}
-        width={680}
-        destroyOnClose
-      >
-        {cargandoPsicologos ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <Spin size="large" />
-            <Paragraph type="secondary" style={{ marginTop: 16 }}>Cargando psicólogos...</Paragraph>
-          </div>
-        ) : psicologosDisponibles.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <TeamOutlined style={{ fontSize: 48, color: PALETTE.border }} />
-            <Title level={4} style={{ color: PALETTE.textMuted, marginTop: 16 }}>
-              No hay psicólogos disponibles
-            </Title>
-            <Paragraph type="secondary">
-              Por el momento no hay profesionales registrados en la plataforma. Intenta más tarde.
-            </Paragraph>
-          </div>
-        ) : (
-          <List
-            dataSource={psicologosDisponibles}
-            renderItem={(psicologo: any) => {
-              const nombrePsi = psicologo.usuario?.nombre || '';
-              const apellidoPsi = psicologo.usuario?.apellido || '';
-              const yaEsMiPsicologo = psicologoData?.id === psicologo.id;
-
-              return (
-                <List.Item
-                  style={{
-                    padding: '16px 0',
-                    borderBottom: `1px solid ${PALETTE.border}`,
-                    opacity: yaEsMiPsicologo ? 0.6 : 1
-                  }}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        size={56}
-                        style={{
-                          border: `2px solid ${PALETTE.accent}`,
-                          background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.accent})`,
-                          color: '#ffffff',
-                          fontWeight: 700,
-                        }}
-                      >
-                        {`${nombrePsi.charAt(0) || ''}${apellidoPsi.charAt(0) || ''}`.toUpperCase()}
-                      </Avatar>
-                    }
-                    title={
-                      <Text strong style={{ color: '#1E293B', fontSize: 15 }}>
-                        {nombrePsi} {apellidoPsi}
-                      </Text>
-                    }
-                    description={
-                      <div style={{ marginTop: 4 }}>
-                        <Tag color="processing" style={{ borderRadius: 8, fontSize: 11 }}>
-                          {psicologo.especialidad || 'Psicología Clínica'}
-                        </Tag>
-                        <div style={{ marginTop: 4, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                          {psicologo.usuario?.email && (
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              <MailOutlined style={{ marginRight: 4 }} />
-                              {psicologo.usuario.email}
-                            </Text>
-                          )}
-                          {psicologo.telefono && (
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              <PhoneOutlined style={{ marginRight: 4 }} />
-                              {psicologo.telefono}
-                            </Text>
-                          )}
-                          {psicologo.licenciaProfesional && (
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              <SafetyOutlined style={{ marginRight: 4 }} />
-                              Lic. {psicologo.licenciaProfesional}
-                            </Text>
-                          )}
-                        </div>
-                      </div>
-                    }
-                  />
-                  <div>
-                    {yaEsMiPsicologo ? (
-                      <Tag color="success" style={{ borderRadius: 10 }}>Asignado</Tag>
-                    ) : (
-                      <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        loading={solicitandoPsicologo}
-                        onClick={() => solicitarPsicologo(psicologo)}
-                        style={{ background: PALETTE.primary, border: 'none', borderRadius: 10 }}
-                      >
-                        Solicitar
-                      </Button>
-                    )}
-                  </div>
-                </List.Item>
-              );
-            }}
-          />
-        )}
-      </Modal>
     </div>
   );
 };
@@ -1144,186 +479,160 @@ export const MiEspacio: React.FC = () => {
 // Estilos
 // ─────────────────────────────────────────────────────────────
 const styles: { [key: string]: React.CSSProperties } = {
+  loadingScreen: {
+    textAlign: 'center',
+    padding: '160px 0',
+    background: PALETTE.bg,
+    minHeight: '100vh',
+  },
   page: {
     background: PALETTE.bg,
     minHeight: '100vh',
     width: '100%',
     boxSizing: 'border-box',
-    padding: 'clamp(16px, 3vw, 40px)',
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    overflowX: 'hidden',
   },
+
+  // ── Hero ──
   hero: {
     position: 'relative',
+    width: '100%',
     overflow: 'hidden',
     background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.primaryDark})`,
-    borderRadius: 28,
-    padding: 'clamp(28px, 4vw, 48px)',
-    display: 'flex',
-    boxShadow: '0 12px 30px rgba(18, 65, 74, 0.25)',
-    width: '100%',
+    padding: 'clamp(40px, 6vw, 88px) clamp(20px, 6vw, 88px) clamp(56px, 7vw, 96px)',
   },
   heroDecoration: {
     position: 'absolute',
     inset: 0,
-    width: '100%',
-    height: '100%',
     pointerEvents: 'none',
   },
+  heroContent: {
+    position: 'relative',
+    zIndex: 2,
+    maxWidth: 780,
+  },
   eyebrow: {
-    color: PALETTE.accentSoft,
+    display: 'inline-block',
+    color: PALETTE.warm,
     fontSize: 13,
-    fontWeight: 600,
-    letterSpacing: '0.08em',
-    textTransform: 'capitalize',
+    fontWeight: 700,
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.18)',
+    borderRadius: 999,
+    padding: '6px 16px',
   },
   heroTitle: {
     fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: '#ffffff',
-    fontSize: 'clamp(24px, 3vw, 34px)',
+    fontSize: 'clamp(30px, 4.5vw, 48px)',
     fontWeight: 800,
-    letterSpacing: '-0.5px',
-    margin: '6px 0 4px',
+    letterSpacing: '-0.02em',
+    margin: '16px 0 10px',
+    lineHeight: 1.1,
   },
   heroSubtitle: {
-    color: PALETTE.accentSoft,
-    fontSize: 15,
-    margin: '8px 0 0 0',
-    maxWidth: 520,
+    color: 'rgba(255,255,255,0.82)',
+    fontSize: 'clamp(14px, 1.3vw, 17px)',
+    margin: 0,
+    maxWidth: 560,
+    lineHeight: 1.6,
   },
   heroStat: {
-    background: 'rgba(255,255,255,0.12)',
-    border: '1px solid rgba(255,255,255,0.18)',
+    background: 'rgba(255,255,255,0.10)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid rgba(255,255,255,0.20)',
     borderRadius: 18,
-    padding: '14px 24px',
+    padding: '14px 26px',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    minWidth: 160,
+    minWidth: 190,
   },
   heroStatValue: {
     fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: '#ffffff',
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 800,
     lineHeight: 1,
   },
   heroStatLabel: {
-    color: PALETTE.accentSoft,
-    fontSize: 12,
+    color: 'rgba(255,255,255,0.75)',
+    fontSize: 12.5,
     marginTop: 6,
-    textAlign: 'center',
     letterSpacing: '0.02em',
+  },
+
+  // ── Tarjetas resumen ──
+  statsWrap: {
+    position: 'relative',
+    zIndex: 3,
+    marginTop: -48,
+    padding: '0 clamp(16px, 5vw, 64px)',
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: 16,
-    marginTop: 24,
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: 18,
     width: '100%',
   },
   statCard: {
     display: 'flex',
     alignItems: 'center',
-    gap: 14,
+    gap: 16,
     background: PALETTE.card,
-    borderRadius: 18,
-    padding: '18px 20px',
+    borderRadius: 20,
+    padding: '22px 24px',
     border: `1px solid ${PALETTE.border}`,
-    boxShadow: '0 4px 16px rgba(29, 88, 99, 0.05)',
+    boxShadow: '0 16px 40px rgba(15, 54, 61, 0.12)',
   },
   statIcon: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    fontSize: 19,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    fontSize: 21,
     flexShrink: 0,
   },
   statValue: {
     display: 'block',
     fontFamily: "'Plus Jakarta Sans', sans-serif",
     color: PALETTE.primaryDark,
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 800,
     lineHeight: 1.15,
   },
   statLabel: {
     display: 'block',
     color: PALETTE.textMuted,
-    fontSize: 12.5,
-    marginTop: 2,
+    fontSize: 13,
+    marginTop: 3,
+  },
+
+  // ── Cuerpo ──
+  body: {
+    padding: 'clamp(24px, 4vw, 48px) clamp(16px, 5vw, 64px) clamp(48px, 6vw, 88px)',
   },
   card: {
     borderRadius: 20,
     boxShadow: '0 4px 20px rgba(29, 88, 99, 0.06)',
     border: `1px solid ${PALETTE.border}`,
-    padding: '4px',
+    background: PALETTE.card,
+    padding: 24,
   },
   cardInspiracional: {
     borderRadius: 20,
     background: `linear-gradient(135deg, ${PALETTE.primary} 0%, ${PALETTE.primaryDark} 100%)`,
-    color: '#fff',
     boxShadow: '0 8px 24px rgba(18, 65, 74, 0.25)',
-    padding: '4px',
+    padding: 24,
   },
   progresoItem: {
     background: PALETTE.bg,
     borderRadius: 14,
     padding: '14px 16px',
-    border: `1px solid ${PALETTE.border}`,
-  },
-  infoRow: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '8px 12px',
-    background: PALETTE.bg,
-    borderRadius: 10,
-  },
-  cardChat: {
-    borderRadius: 20,
-    boxShadow: '0 4px 20px rgba(29, 88, 99, 0.06)',
-    border: `1px solid ${PALETTE.border}`,
-    overflow: 'hidden',
-  },
-  chatHeader: {
-    padding: '16px 20px',
-    borderBottom: `1px solid ${PALETTE.border}`,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    background: '#FAFAFA',
-  },
-  chatMessages: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-    background: '#FFFFFF',
-  },
-  chatBubble: {
-    padding: '12px 16px',
-    borderRadius: 16,
-    maxWidth: '80%',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-  },
-  chatInput: {
-    padding: '12px 16px',
-    borderTop: `1px solid ${PALETTE.border}`,
-    display: 'flex',
-    gap: 8,
-    background: '#FAFAFA',
-  },
-  recomendacionItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '18px 20px',
-    background: PALETTE.bg,
-    borderRadius: 16,
     border: `1px solid ${PALETTE.border}`,
   },
 };
