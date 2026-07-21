@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Spin, Alert, message, Card, Typography, Modal, Tag, Space, Tooltip } from 'antd';
-import { CheckOutlined, ReloadOutlined, EyeOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Table, Button, Spin, Alert, message, Card, Typography, Modal, Tag } from 'antd';
 import { testsPsicometricosService, AsignacionTest } from '../../services/testsPsicometricosService';
-import { TESTS_PREDEFINIDOS, getTestById, TipoTest } from '../../data/testsPredefinidos';
+import { getTestById, TipoTest } from '../../data/testsPredefinidos';
 import { pacientesService } from '../../services/pacientesService';
-import { useAuth } from '../../hooks/useAuth';
-import Logo from '../../components/Logo';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
+
 
 const PALETTE = {
   primaryDark: '#12414a',
@@ -24,8 +22,8 @@ const PALETTE = {
 };
 
 const TestsPsicometricos: React.FC = () => {
-  const { user } = useAuth();
   const [asignaciones, setAsignaciones] = useState<AsignacionTest[]>([]);
+
   const [pacientes, setPacientes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +69,8 @@ const TestsPsicometricos: React.FC = () => {
     }
   };
 
-  const handleReactivar = async (asignacionId: string) => {
+  const handleReactivar = async (_asignacionId: string) => {
+
     try {
       await testsPsicometricosService.asignarTest('', 'TENDENCIAS_PERSONALES'); // Usar endpoint de reactivar
       message.success('Test reactivado correctamente');

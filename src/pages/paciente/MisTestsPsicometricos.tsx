@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Spin, Alert, message, Button, Modal, Radio, Typography, Divider, Tag, Space } from 'antd';
-import { CheckOutlined, EyeOutlined } from '@ant-design/icons';
 import { testsPsicometricosService, AsignacionTest } from '../../services/testsPsicometricosService';
 import { TESTS_PREDEFINIDOS, getTestById, TipoTest } from '../../data/testsPredefinidos';
-import { useAuth } from '../../hooks/useAuth';
+
 
 const { Title, Text } = Typography;
 
@@ -22,8 +21,8 @@ const PALETTE = {
 };
 
 const MisTestsPsicometricos: React.FC = () => {
-  const { user } = useAuth();
   const [asignaciones, setAsignaciones] = useState<AsignacionTest[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [testSeleccionado, setTestSeleccionado] = useState<TipoTest | null>(null);
@@ -170,7 +169,7 @@ const MisTestsPsicometricos: React.FC = () => {
         </Title>
         
         {TESTS_PREDEFINIDOS.map(test => {
-          const { estado, intentos } = getEstadoTest(test.id);
+          const { estado } = getEstadoTest(test.id);
           const isDisponible = estado === 'ACTIVO';
           
           return (
