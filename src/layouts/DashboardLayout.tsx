@@ -3,7 +3,7 @@ import { Layout, Avatar, Space } from 'antd';
 import {
   MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined, UserOutlined,
   CalendarOutlined, LogoutOutlined, TeamOutlined, ScheduleOutlined,
-  MessageOutlined,
+  MessageOutlined, SolutionOutlined, InboxOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -35,10 +35,14 @@ const DashboardLayout: React.FC = () => {
   const menuItems = [
     { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/pacientes', icon: <UserOutlined />, label: 'Pacientes' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/solicitudes', icon: <InboxOutlined />, label: 'Bandeja Solicitudes' }] : []),
     ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/psicologos', icon: <TeamOutlined />, label: 'Psicólogos' }] : []),
+    
+    // 🎯 OPCIÓN NUEVA EN MENÚ EXCLUSIVA DE ADMIN
+    ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/solicitudes-psicologos', icon: <SolutionOutlined />, label: 'Postulaciones Psicólogos' }] : []),
+    
     ...(user?.rol === 'ADMIN' ? [{ key: '/dashboard/usuarios', icon: <TeamOutlined />, label: 'Control de Usuarios' }] : []),
     { key: '/dashboard/citas', icon: <CalendarOutlined />, label: 'Citas' },
-    // Chats: solo tiene sentido para quien participa en una conversación paciente <-> psicólogo
     ...(user?.rol === 'PACIENTE' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/chats', icon: <MessageOutlined />, label: 'Chats' }] : []),
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []),
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/analitica', icon: <TeamOutlined />, label: 'Analítica' }] : []),
@@ -55,12 +59,10 @@ const DashboardLayout: React.FC = () => {
         width={260}
         style={{ background: '#ffffff', borderRight: `1px solid ${COLORS.border}` }}
       >
-        {/* Logo con acento de marca */}
         <div style={styles.logoBlock}>
           <Logo size={collapsed ? 34 : 34} showText={!collapsed} textColor={COLORS.primary} accentColor={COLORS.accent} />
         </div>
 
-        {/* Navegación propia (sin Menu genérico de antd) */}
         <nav style={styles.nav}>
           {menuItems.map((item) => {
             const activo = location.pathname === item.key;
@@ -81,7 +83,6 @@ const DashboardLayout: React.FC = () => {
           })}
         </nav>
 
-        {/* Cerrar sesión */}
         <div style={styles.logoutWrapper}>
           <button onClick={handleLogout} style={styles.logoutButton}>
             <LogoutOutlined style={{ fontSize: 16 }} />

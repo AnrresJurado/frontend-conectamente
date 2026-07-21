@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Input, Button, Alert, Row, Col, message } from "antd";
 import { ArrowLeftOutlined, SendOutlined } from "@ant-design/icons";
-import { solicitudesService } from "../../services/solicitudesService";
 import Logo from "../../components/Logo";
+import { solicitudesPsicologosService } from "../../services/solicitudesPsicologosService";
 
 const RegisterPsicologo: React.FC = () => {
   const navigate = useNavigate();
@@ -17,8 +17,8 @@ const RegisterPsicologo: React.FC = () => {
     setLoading(true);
 
     try {
-      // Enviar solicitud de registro al administrador
-      await solicitudesService.enviarSolicitudPsicologo({
+      // 🎯 Enviar solicitud utilizando el servicio exclusivo de postulaciones
+      await solicitudesPsicologosService.enviarSolicitud({
         nombre: values.nombre,
         apellido: values.apellido,
         email: values.email,
