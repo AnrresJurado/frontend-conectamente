@@ -198,7 +198,7 @@ export const MiPerfil: React.FC = () => {
           </div>
           <div style={{ marginTop: 14 }}>
             <Title level={2} style={{ color: '#fff', margin: 0 }}>
-              {nombre} {apellido}
+              {nombreMostrar}
             </Title>
             <Text style={{ color: PALETTE.accentSoft, fontSize: 15 }}>
               {pacienteData?.usuario?.email || 'Tu espacio de bienestar personal'}
