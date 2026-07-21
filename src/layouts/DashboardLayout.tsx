@@ -3,7 +3,7 @@ import { Layout, Avatar, Space } from 'antd';
 import {
   MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined, UserOutlined,
   CalendarOutlined, LogoutOutlined, TeamOutlined, ScheduleOutlined,
-  MessageOutlined,
+  MessageOutlined, FileTextOutlined, ExperimentOutlined, HeartOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -42,6 +42,9 @@ const DashboardLayout: React.FC = () => {
     ...(user?.rol === 'PACIENTE' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/chats', icon: <MessageOutlined />, label: 'Chats' }] : []),
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/agenda', icon: <ScheduleOutlined />, label: 'Mi Agenda' }] : []),
     ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/analitica', icon: <TeamOutlined />, label: 'Analítica' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/encuestas', icon: <FileTextOutlined />, label: 'Encuestas' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/tests-psicometricos', icon: <ExperimentOutlined />, label: 'Tests Psicométricos' }] : []),
+    ...(user?.rol === 'ADMIN' || user?.rol === 'PSICOLOGO' ? [{ key: '/dashboard/recomendaciones', icon: <HeartOutlined />, label: 'Recomendaciones' }] : []),
   ];
 
   const iniciales = `${user?.nombre?.charAt(0) || ''}${user?.apellido?.charAt(0) || ''}`.toUpperCase() || 'CM';
