@@ -3,6 +3,7 @@ import { Table, Button, Spin, Alert, message, Card, Typography, Modal, Tag } fro
 import { testsPsicometricosService, AsignacionTest } from '../../services/testsPsicometricosService';
 import { getTestById, TipoTest } from '../../data/testsPredefinidos';
 import { pacientesService } from '../../services/pacientesService';
+import { EyeOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -69,10 +70,9 @@ const TestsPsicometricos: React.FC = () => {
     }
   };
 
-  const handleReactivar = async (_asignacionId: string) => {
-
+  const handleReactivar = async (asignacion: AsignacionTest) => {
     try {
-      await testsPsicometricosService.asignarTest('', 'TENDENCIAS_PERSONALES'); // Usar endpoint de reactivar
+      await testsPsicometricosService.asignarTest(asignacion.pacienteId, asignacion.tipoTest);
       message.success('Test reactivado correctamente');
       cargarDatos();
     } catch (err) {
@@ -83,6 +83,16 @@ const TestsPsicometricos: React.FC = () => {
   const verHistorial = (asignacion: AsignacionTest) => {
     setAsignacionSeleccionada(asignacion);
     setHistorialVisible(true);
+  };
+
+  const handleMarcarComoVisto = async (asignacionId: string) => {
+    try {
+      await testsPsicometricosService.marcarComoVisto(asignacionId);
+      message.success('Marcado como visto');
+      cargarDatos();
+    } catch (err) {
+      message.error('Error al marcar como visto');
+    }
   };
 
   const getEstadoTag = (estado: string, nuevoResultado: boolean, alertaCritica?: boolean) => {
@@ -131,7 +141,7 @@ const TestsPsicometricos: React.FC = () => {
         {asignacion.estado === 'COMPLETADO' ? (
           <Button 
             size="small"
-            onClick={() => handleReactivar(asignacion._id)}
+            onClick={() => handleReactivar(asignacion)}
             style={{ marginTop: 4 }}
           >
             🔄 [Reactivar]
@@ -156,6 +166,17 @@ const TestsPsicometricos: React.FC = () => {
           </Text>
         ) : (
           <Text type="secondary" style={{ fontSize: 12 }}>Intentos: 0</Text>
+        )}
+        {asignacion.nuevoResultado && (
+          <Button 
+            size="small" 
+            type="link" 
+            icon={<EyeOutlined />}
+            onClick={() => handleMarcarComoVisto(asignacion._id)}
+            style={{ padding: '4px 8px', fontSize: 11 }}
+          >
+            Marcar como visto
+          </Button>
         )}
         {ultimoIntento && (
           <div style={{ fontSize: 11, color: PALETTE.textMuted, marginTop: 2 }}>
