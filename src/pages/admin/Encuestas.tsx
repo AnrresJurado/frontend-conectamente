@@ -188,14 +188,15 @@ const Encuestas: React.FC = () => {
     }
   };
 
-  // ─── ASIGNAR A PACIENTE ──────────────────────────────
   const abrirModalAsignar = async (encuesta: Encuesta) => {
     setEncuestaAsignar(encuesta);
     setIsAsignarModalOpen(true);
     try {
       const data = await pacientesService.getAll();
       setPacientes(data.map((p: any) => ({
-        id: p.id || p._id,
+        // 🎯 IMPORTANTE: Guardamos el ID del Usuario asociado al paciente,
+        // ya que el schema 'AsignacionEncuesta' referencia a 'Usuario'.
+        id: p.usuario?.id || p.usuario?._id || p.id || p._id,
         nombre: p.usuario?.nombre || '',
         apellido: p.usuario?.apellido || '',
         email: p.usuario?.email || '',
@@ -205,7 +206,6 @@ const Encuestas: React.FC = () => {
       message.error('Error al cargar pacientes.');
     }
   };
-
   const handleAsignar = async (values: { pacienteId: string }) => {
     if (!encuestaAsignar) return;
     setAsignarLoading(true);
