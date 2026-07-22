@@ -286,7 +286,7 @@ const Citas: React.FC = () => {
   ];
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="cm-citas-page">
       <style>{`
         .cm-citas .ant-table { background: transparent; }
         .cm-citas .ant-table-thead > tr > th {
@@ -309,18 +309,38 @@ const Citas: React.FC = () => {
         .cm-citas .ant-pagination-item-active { border-color: ${PALETTE.primary}; }
         .cm-citas .ant-pagination-item-active a { color: ${PALETTE.primary}; }
         .cm-citas-modal .ant-modal-content { border-radius: 20px; overflow: hidden; }
+
+        /* ===== Responsive ===== */
+        .cm-citas-modal .ant-modal { max-width: 94vw; }
+
+        @media (max-width: 900px) {
+          .cm-citas-page { padding: 28px 24px 48px !important; }
+        }
+
+        @media (max-width: 768px) {
+          .cm-citas-page { padding: 22px 16px 40px !important; }
+          .cm-citas-header { flex-direction: column !important; align-items: stretch !important; }
+          .cm-citas-btn-primary { width: 100%; justify-content: center !important; }
+          .cm-citas { padding: 6px 10px !important; border-radius: 14px !important; }
+        }
+
+        @media (max-width: 480px) {
+          .cm-citas-page { padding: 16px 12px 32px !important; }
+          .cm-citas-title { font-size: 21px !important; }
+          .cm-citas-modal .ant-modal-content { border-radius: 14px !important; }
+        }
       `}</style>
 
       {/* ═══════════════ ENCABEZADO ═══════════════ */}
-      <div style={styles.header}>
+      <div style={styles.header} className="cm-citas-header">
         <div>
-          <h1 style={styles.title}>Agenda y Citas Médicas</h1>
+          <h1 style={styles.title} className="cm-citas-title">Agenda y Citas Médicas</h1>
           <p style={styles.subtitle}>
             {citas.length} cita{citas.length === 1 ? '' : 's'} registrada{citas.length === 1 ? '' : 's'} en el sistema
           </p>
         </div>
 
-        <button style={styles.btnPrimary} onClick={() => setIsModalOpen(true)}>
+        <button style={styles.btnPrimary} className="cm-citas-btn-primary" onClick={() => setIsModalOpen(true)}>
           <PlusOutlined />
           Agendar Nueva Cita
         </button>
@@ -334,6 +354,7 @@ const Citas: React.FC = () => {
           rowKey="id"
           loading={loading}
           pagination={{ pageSize: 8 }}
+          scroll={{ x: 900 }}
           locale={{ emptyText: <Tag color="default">No hay citas registradas todavía.</Tag> }}
         />
       </div>
@@ -397,7 +418,7 @@ const Citas: React.FC = () => {
           </Form.Item>
 
           <Form.Item style={{ textAlign: 'right', marginBottom: 0, marginTop: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
               <button type="button" style={styles.btnSecundario} onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </button>
@@ -421,6 +442,7 @@ const Citas: React.FC = () => {
         footer={null}
         width={650}
         destroyOnClose
+        className="cm-citas-modal"
       >
         <div style={{ marginTop: 16 }}>
           <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
@@ -443,7 +465,7 @@ const Citas: React.FC = () => {
               />
             </Form.Item>
             <Form.Item style={{ textAlign: 'right', marginBottom: 0 }}>
-              <Space>
+              <Space wrap>
                 <Button onClick={() => { setIsClinicoModalOpen(false); setCitaSeleccionada(null); }}>
                   Cancelar
                 </Button>
