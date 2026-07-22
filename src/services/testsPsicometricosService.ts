@@ -19,7 +19,6 @@ export interface AsignacionTest {
   estado: 'ACTIVO' | 'COMPLETADO' | 'INACTIVO';
   intentos: IntentoTest[];
   numeroIntentos: number;
-  nuevoResultado: boolean;
 }
 
 export interface IntentoTest {
@@ -74,12 +73,6 @@ export const testsPsicometricosService = {
       desglose,
       alertaCritica,
     });
-    return data;
-  },
-
-  // PUT /tests-psicometricos/:id/marcar-visto (psicólogo)
-  marcarComoVisto: async (asignacionId: string) => {
-    const { data } = await api.put<AsignacionTest>(`/tests-psicometricos/${asignacionId}/marcar-visto`);
     return data;
   },
 

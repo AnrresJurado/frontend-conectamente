@@ -3,7 +3,7 @@ import { Table, Button, Spin, Alert, message, Card, Typography, Modal, Tag, Sele
 import { testsPsicometricosService, AsignacionTest } from '../../services/testsPsicometricosService';
 import { TESTS_PREDEFINIDOS, getTestById, TipoTest } from '../../data/testsPredefinidos';
 import { pacientesService } from '../../services/pacientesService';
-import { EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -54,7 +54,11 @@ const TestsPsicometricos: React.FC = () => {
       pacientesData.forEach((p: any) => {
         const nombre = p.usuario?.nombre || '';
         const apellido = p.usuario?.apellido || '';
-        pacientesMap[p.id || p._id] = `${nombre} ${apellido}`.trim() || 'Paciente sin nombre';
+        // El módulo de tests (Mongo) identifica al paciente por el ID de su Usuario
+        // (el mismo que viaja en el JWT), no por el ID del expediente clínico (Paciente).
+        const usuarioId = p.usuario?.id || p.usuarioId;
+        if (!usuarioId) return;
+        pacientesMap[usuarioId] = `${nombre} ${apellido}`.trim() || 'Paciente sin nombre';
       });
       
       setAsignaciones(asignacionesData);
@@ -97,16 +101,6 @@ const TestsPsicometricos: React.FC = () => {
     setHistorialVisible(true);
   };
 
-  const handleMarcarComoVisto = async (asignacionId: string) => {
-    try {
-      await testsPsicometricosService.marcarComoVisto(asignacionId);
-      message.success('Marcado como visto');
-      cargarDatos();
-    } catch (err) {
-      message.error('Error al marcar como visto');
-    }
-  };
-
   const handleDesactivar = async (asignacionId: string) => {
     try {
       await testsPsicometricosService.desactivarTest(asignacionId);
@@ -141,15 +135,12 @@ const TestsPsicometricos: React.FC = () => {
     }
   };
 
-  const getEstadoTag = (estado: string, nuevoResultado: boolean, alertaCritica?: boolean) => {
+  const getEstadoTag = (estado: string, alertaCritica?: boolean) => {
     if (estado === 'INACTIVO') {
       return <Tag color="default">❌ Inactivo</Tag>;
     }
     if (estado === 'ACTIVO') {
       return <Tag color="processing">✅ Activo</Tag>;
-    }
-    if (nuevoResultado) {
-      return <Tag color="warning">🆕 Completado (NUEVO)</Tag>;
     }
     if (alertaCritica) {
       return <Tag color="error">🚨 Alerta</Tag>;
@@ -183,7 +174,7 @@ const TestsPsicometricos: React.FC = () => {
 
     return (
       <div>
-        {getEstadoTag(asignacion.estado, asignacion.nuevoResultado, alertaCritica)}
+        {getEstadoTag(asignacion.estado, alertaCritica)}
         <br />
         {asignacion.estado === 'ACTIVO' && (
           <Button 
@@ -221,17 +212,6 @@ const TestsPsicometricos: React.FC = () => {
         >
           Intentos: {asignacion.numeroIntentos} 🔍
         </Text>
-        {asignacion.nuevoResultado && (
-          <Button 
-            size="small" 
-            type="link" 
-            icon={<EyeOutlined />}
-            onClick={() => handleMarcarComoVisto(asignacion._id)}
-            style={{ padding: '4px 8px', fontSize: 11 }}
-          >
-            Marcar como visto
-          </Button>
-        )}
         {ultimoIntento && (
           <div style={{ fontSize: 11, color: PALETTE.textMuted, marginTop: 2 }}>
             Último: {ultimoIntento.puntajeTotal}/{getTestById(tipoTest)?.puntajeMaximo} - {ultimoIntento.diagnostico}
