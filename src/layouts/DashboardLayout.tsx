@@ -61,7 +61,7 @@ const DashboardLayout: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Auto-colapsa el sidebar al entrar en rango tablet, sin forzarlo si el usuario ya lo tocó manualmente en desktop
+  // Auto-colapsa el sidebar al entrar en rango tablet
   useEffect(() => {
     if (isTablet) {
       setCollapsed(true);

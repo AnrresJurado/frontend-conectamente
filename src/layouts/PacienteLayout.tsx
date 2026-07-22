@@ -2,8 +2,14 @@ import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Button, Space, Drawer } from 'antd';
 import {
-  LogoutOutlined, HomeOutlined, UserOutlined, 
-  MessageOutlined, FileTextOutlined, ExperimentOutlined, HeartOutlined, MenuOutlined
+  LogoutOutlined,
+  HomeOutlined,
+  UserOutlined,
+  MessageOutlined,
+  FileTextOutlined,
+  ExperimentOutlined,
+  HeartOutlined,
+  MenuOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
 import Logo from '../components/Logo';
@@ -16,7 +22,7 @@ const COLORS = {
   border: '#e2e8f0',
 };
 
-const PacienteLayout: React.FC = () => {
+export const PacienteLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,13 +50,26 @@ const PacienteLayout: React.FC = () => {
 
   return (
     <div style={styles.page}>
+      <style>{`
+        @media (max-width: 1024px) {
+          .nav-desktop-paciente { display: none !important; }
+          .menu-burger-paciente { display: inline-flex !important; }
+        }
+        @media (max-width: 640px) {
+          .saludo-paciente { display: none !important; }
+        }
+      `}</style>
+
       <header style={styles.header}>
-        <div onClick={() => navigate('/mi-espacio')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+        <div
+          onClick={() => navigate('/mi-espacio')}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+        >
           <Logo size={36} textColor={COLORS.primary} accentColor={COLORS.accent} />
         </div>
 
         {/* Navegación para pantallas medianas/grandes */}
-        <nav style={styles.navDesktop}>
+        <nav className="nav-desktop-paciente" style={styles.navDesktop}>
           <Space size={4}>
             {menuItems.map((item) => {
               const activo = location.pathname === item.key;
@@ -72,7 +91,7 @@ const PacienteLayout: React.FC = () => {
         </nav>
 
         <div style={styles.headerRight}>
-          <span style={styles.saludo}>
+          <span className="saludo-paciente" style={styles.saludo}>
             Hola, <strong>{user?.nombre}</strong>
           </span>
           <Button
@@ -80,14 +99,14 @@ const PacienteLayout: React.FC = () => {
             icon={<LogoutOutlined />}
             onClick={handleLogout}
             style={styles.logoutBtn}
-            className="logout-btn-text"
           >
             Salir
           </Button>
-          
+
           {/* Botón de Menú Hamburguesa para Móvil */}
           <Button
             type="text"
+            className="menu-burger-paciente"
             icon={<MenuOutlined style={{ fontSize: 20 }} />}
             onClick={() => setMobileMenuOpen(true)}
             style={styles.menuBurgerBtn}
@@ -95,7 +114,7 @@ const PacienteLayout: React.FC = () => {
         </div>
       </header>
 
-      {/* Drawer (Menú lateral deslizable) para Móviles */}
+      {/* Drawer para Móviles */}
       <Drawer
         title={<Logo size={30} textColor={COLORS.primary} accentColor={COLORS.accent} />}
         placement="right"
@@ -156,8 +175,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     flex: 1,
     justifyContent: 'center',
     padding: '0 16px',
-    // Se oculta automáticamente en pantallas menores mediante media query implícita con estilos responsivos o CSS de soporte global, 
-    // pero mantenemos flexibilidad limpiando desbordamientos.
   },
   navItem: {
     display: 'flex',
@@ -196,7 +213,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 600,
   },
   menuBurgerBtn: {
-    display: 'none', // Por defecto oculto, se muestra en responsive vía inyección de estilo dinámico o CSS global si se requiere, pero aquí lo adaptamos limpiamente.
+    display: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   mobileNavContainer: {
     display: 'flex',
@@ -230,20 +249,5 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '32px 20px 60px',
   },
 };
-
-// Estilos CSS inyectados para asegurar el comportamiento responsive perfecto en navegadores sin romper nada de tu lógica
-const responsiveStyles = document.createElement('style');
-responsiveStyles.innerHTML = `
-  @media (max-width: 1200px) {
-    nav { display: none !important; }
-    button[style*="menuBurgerBtn"], .ant-btn-icon-only { display: flex !important; }
-  }
-  @media (max-width: 640px) {
-    .saludo { display: none !important; }
-  }
-`;
-if (typeof document !== 'undefined') {
-  document.head.appendChild(responsiveStyles);
-}
 
 export default PacienteLayout;

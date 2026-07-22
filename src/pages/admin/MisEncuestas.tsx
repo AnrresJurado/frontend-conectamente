@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Tag, Spin, Alert, message, Card, Statistic, Button, Modal, Input, Select, Radio, Space, Typography, Divider } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import { encuestasService, Encuesta, Respuesta } from '../../services/encuestasService';
+import { encuestasService ,Encuesta, Respuesta } from '../../services/encuestasService';
 import { useAuth } from '../../hooks/useAuth';
+
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -44,15 +45,19 @@ const MisEncuestas: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const [encuestasData, respuestasData] = await Promise.all([
-        encuestasService.getAll(),
+      const [asignacionesData, respuestasData] = await Promise.all([
+        encuestasService.getMisEncuestas(),
         encuestasService.getMisRespuestas(),
       ]);
-      setEncuestas(encuestasData);
+
+      // Extraer las encuestas desde la propiedad 'encuesta' o 'encuestaId' si vienen populadas
+      const encuestasExtraidas = (asignacionesData || []).map((a: any) => a.encuesta || a.encuestaId || a);
+      
+      setEncuestas(encuestasExtraidas);
       setMisRespuestas(respuestasData);
     } catch (err) {
       console.error(err);
-      setError('No se pudieron cargar los datos de encuestas.');
+      setError('No se pudieron cargar tus encuestas asignadas.');
       message.error('Error al cargar los datos');
     } finally {
       setLoading(false);
