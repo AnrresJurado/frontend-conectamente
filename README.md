@@ -1,76 +1,39 @@
-# React + TypeScript + Vite
+# ConectaMente - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma web de gestión integral desarrollada con React, TypeScript y Vite, diseñada para conectar pacientes, psicólogos y administradores de manera eficiente y segura.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Integrantes del Equipo
+•⁠  ⁠*Anahí* - Frente 1: Diseño de Interfaz, Layouts y Área Pública.
+•⁠  ⁠*Antoni* - Frente 2: Dashboard, Gráficos y Servicios API.
+•⁠  ⁠*Andrés* - Frente 3: Arquitectura, CRUDs Administrativos y Validación.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Descripción Funcional
+ConectaMente es un sistema modular de gestión clínica que permite:
+•⁠  ⁠*Autenticación Segura:* Control de acceso basado en roles (*ADMIN, **PSICOLOGO, **PACIENTE*) mediante tokens JWT interceptados automáticamente por Axios.
+•⁠  ⁠*Área Pública y Landing Page:* Página de bienvenida e interfaz de inicio de sesión.
+•⁠  ⁠*Panel de Administración (Dashboard):* Visualización de métricas en tiempo real, estadísticas e indicadores clave mediante gráficos interactivos.
+•⁠  ⁠*Gestión de Pacientes:* Módulo CRUD completo adaptado con tablas responsivas y tipado estricto.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tecnologías Utilizadas
+•⁠  ⁠*Core:* React, TypeScript, Vite
+•⁠  ⁠*Enrutamiento:* React Router (con rutas protegidas por roles)
+•⁠  ⁠*Estilos y Componentes:* Ant Design (⁠ antd ⁠)
+•⁠  ⁠*Gráficos:* Recharts
+•⁠  ⁠*Cliente HTTP:* Axios
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Instalación y Configuración Local
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Sigue estos pasos para levantar el entorno de desarrollo en tu máquina local:
 
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-# loza-conectamente
+1.⁠ ⁠*Clonar el repositorio:*
+   ```bash
+   git clone <https://github.com/AnrresJurado/frontend-conectamente.git>
+   cd conectamente-frontend
