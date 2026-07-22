@@ -139,7 +139,10 @@ const MisTestsPsicometricos: React.FC = () => {
 
   const yaCompletoTest = (tipoTest: TipoTest): boolean => {
     const asignacion = asignaciones.find(a => a.tipoTest === tipoTest);
-    return asignacion ? asignacion.intentos.length >= 1 : false;
+    // El estado (no el conteo histórico de intentos) indica si el ciclo actual
+    // ya se completó: tras reactivar, el test vuelve a estado ACTIVO aunque
+    // ya existan intentos de activaciones anteriores.
+    return asignacion ? asignacion.estado === 'COMPLETADO' : false;
   };
 
   // ── helpers puramente visuales (no tocan lógica de negocio) ──

@@ -113,7 +113,7 @@ export const MiEspacio: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // 🎯 SINTAXIS DE HOOKS CORREGIDA
-  const [pacienteData, setPacienteData] = useState<any>(null);
+  const [, setPacienteData] = useState<any>(null);
   const [psicologoData, setPsicologoData] = useState<any>(null);
   const [citas, setCitas] = useState<any[]>([]);
   const [progreso, setProgreso] = useState<any[]>([]);
