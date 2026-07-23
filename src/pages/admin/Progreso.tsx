@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Spin, Alert, message, Select, DatePicker, Card, Statistic } from 'antd';
+import { Table, Tag, Spin, Alert, message, Select, DatePicker, Card, Statistic, Modal, Form, InputNumber, Input, Button, Popconfirm } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
   BarChart,
   Bar,
@@ -14,11 +15,15 @@ import {
 } from 'recharts';
 import { progresoService, Progreso } from '../../services/progresoService';
 import { pacientesService } from '../../services/pacientesService';
+import { historialService, HistorialClinico } from '../../services/historialService';
 import { Paciente } from '../../types';
 import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+const { TextArea } = Input;
+
+const ESTADOS_EMOCIONALES = ['Excelente', 'Bien', 'Regular', 'Malo', 'Muy malo'];
 
 const PALETTE = {
   primaryDark: '#12414a',
@@ -50,12 +55,24 @@ const Progreso: React.FC = () => {
   const [filtroPaciente, setFiltroPaciente] = useState<string>('todos');
   const [filtroFechas, setFiltroFechas] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [progresoEditar, setProgresoEditar] = useState<Progreso | null>(null);
+  const [historialesPaciente, setHistorialesPaciente] = useState<HistorialClinico[]>([]);
+  const [loadingHistoriales, setLoadingHistoriales] = useState(false);
+  const [form] = Form.useForm();
+  const [refrescando, setRefrescando] = useState(false);
+
   useEffect(() => {
     cargarDatos();
   }, []);
 
-  const cargarDatos = async () => {
-    setLoading(true);
+  const cargarDatos = async (esRefrescoManual = false) => {
+    if (esRefrescoManual) {
+      setRefrescando(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const [progresosData, pacientesData] = await Promise.all([
@@ -64,18 +81,115 @@ const Progreso: React.FC = () => {
       ]);
       setProgresos(progresosData);
       setPacientes(pacientesData);
+      if (esRefrescoManual) {
+        message.success('Datos actualizados.');
+      }
     } catch (err) {
       console.error(err);
       setError('No se pudieron cargar los datos de progreso.');
       message.error('Error al cargar los datos');
     } finally {
       setLoading(false);
+      setRefrescando(false);
+    }
+  };
+
+  const cargarHistorialesPaciente = async (usuarioId: string) => {
+    setLoadingHistoriales(true);
+    try {
+      const data = await historialService.getByPacienteUsuarioId(usuarioId);
+      const ordenados = [...data].sort(
+        (a, b) => dayjs(b.fechaSesion).valueOf() - dayjs(a.fechaSesion).valueOf()
+      );
+      setHistorialesPaciente(ordenados);
+      return ordenados;
+    } catch (err) {
+      console.error(err);
+      message.error('No se pudieron cargar las sesiones clínicas de este paciente.');
+      setHistorialesPaciente([]);
+      return [];
+    } finally {
+      setLoadingHistoriales(false);
+    }
+  };
+
+  const handlePacienteChangeEnForm = async (usuarioId: string) => {
+    form.setFieldsValue({ historialId: undefined });
+    const ordenados = await cargarHistorialesPaciente(usuarioId);
+    if (ordenados.length > 0) {
+      form.setFieldsValue({ historialId: ordenados[0].id });
+    }
+  };
+
+  const abrirModalCrear = () => {
+    setProgresoEditar(null);
+    setHistorialesPaciente([]);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const abrirModalEditar = async (record: Progreso) => {
+    setProgresoEditar(record);
+    setIsModalOpen(true);
+    const usuarioId = record.historial?.paciente?.id;
+    form.setFieldsValue({
+      pacienteUsuarioId: usuarioId,
+      historialId: record.historial?.id,
+      fecha: dayjs(record.fecha),
+      estadoEmocional: record.estadoEmocional,
+      avance: parseInt(record.avance) || 0,
+      observaciones: record.observaciones,
+    });
+    if (usuarioId) {
+      await cargarHistorialesPaciente(usuarioId);
+    }
+  };
+
+  const handleSubmit = async (values: any) => {
+    setFormLoading(true);
+    try {
+      const payload = {
+        historialId: values.historialId,
+        fecha: values.fecha.toISOString(),
+        estadoEmocional: values.estadoEmocional,
+        avance: String(values.avance),
+        observaciones: values.observaciones,
+      };
+
+      if (progresoEditar) {
+        await progresoService.update(progresoEditar.id, payload);
+        message.success('Registro de progreso actualizado exitosamente.');
+      } else {
+        await progresoService.create(payload);
+        message.success('Registro de progreso creado exitosamente.');
+      }
+
+      setIsModalOpen(false);
+      setProgresoEditar(null);
+      form.resetFields();
+      cargarDatos();
+    } catch (err: any) {
+      console.error(err);
+      message.error(err.response?.data?.message || 'No se pudo guardar el registro de progreso.');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleEliminar = async (id: string) => {
+    try {
+      await progresoService.remove(id);
+      message.success('Registro de progreso eliminado exitosamente.');
+      setProgresos((prev) => prev.filter((p) => p.id !== id));
+    } catch (err: any) {
+      console.error(err);
+      message.error(err.response?.data?.message || 'No se pudo eliminar el registro de progreso.');
     }
   };
 
   // Filtrar progresos
   const progresosFiltrados = progresos.filter((p) => {
-    if (filtroPaciente !== 'todos' && p.historial?.id !== filtroPaciente) {
+    if (filtroPaciente !== 'todos' && p.historial?.paciente?.id !== filtroPaciente) {
       return false;
     }
     if (filtroFechas) {
@@ -140,10 +254,10 @@ const Progreso: React.FC = () => {
       title: 'Paciente',
       key: 'paciente',
       render: (_: any, record: Progreso) => {
-        const paciente = pacientes.find((p) => p.id === record.historial?.id);
+        const paciente = pacientes.find((p) => p.usuario?.id === record.historial?.paciente?.id);
         return (
           <span>
-            {paciente?.usuario?.nombre} {paciente?.usuario?.apellido || 'Sin nombre'}
+            {paciente ? `${paciente.usuario?.nombre} ${paciente.usuario?.apellido || ''}` : 'Sin nombre'}
           </span>
         );
       },
@@ -169,6 +283,28 @@ const Progreso: React.FC = () => {
       key: 'observaciones',
       ellipsis: true,
       render: (text: string) => text || '—',
+    },
+    {
+      title: 'Acciones',
+      key: 'acciones',
+      render: (_: any, record: Progreso) => (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button
+            type="text"
+            size="small"
+            icon={<EditOutlined style={{ color: PALETTE.accent }} />}
+            onClick={() => abrirModalEditar(record)}
+          />
+          <Popconfirm
+            title="¿Eliminar este registro de progreso?"
+            okText="Eliminar"
+            cancelText="Cancelar"
+            onConfirm={() => handleEliminar(record.id)}
+          >
+            <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </div>
+      ),
     },
   ];
 
@@ -201,13 +337,28 @@ const Progreso: React.FC = () => {
       )}
 
       {/* ═══════════════ ENCABEZADO ═══════════════ */}
-      <div style={styles.header}>
+      <div style={{ ...styles.header, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16 }}>
         <div>
           <h1 style={styles.title}>Registro de Progreso Clínico</h1>
           <p style={styles.subtitle}>
             Seguimiento del estado emocional y avance de pacientes
           </p>
         </div>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={abrirModalCrear}
+          style={{
+            background: `linear-gradient(135deg, ${PALETTE.primary}, ${PALETTE.primaryDark})`,
+            border: 'none',
+            borderRadius: 24,
+            height: 40,
+            fontWeight: 700,
+            boxShadow: '0 6px 16px rgba(29, 88, 99, 0.25)',
+          }}
+        >
+          Nuevo Registro
+        </Button>
       </div>
 
       {/* ═══════════════ FILTROS ═══════════════ */}
@@ -223,7 +374,7 @@ const Progreso: React.FC = () => {
             >
               <Option value="todos">Todos los pacientes</Option>
               {pacientes.map((p) => (
-                <Option key={p.id} value={p.id}>
+                <Option key={p.id} value={p.usuario?.id}>
                   {p.usuario?.nombre} {p.usuario?.apellido}
                 </Option>
               ))}
@@ -238,9 +389,14 @@ const Progreso: React.FC = () => {
               format="DD/MM/YYYY"
             />
           </div>
-          <button style={styles.btnPrimary} onClick={cargarDatos}>
+          <Button
+            type="primary"
+            loading={refrescando}
+            onClick={() => cargarDatos(true)}
+            style={{ ...styles.btnPrimary, border: 'none' }}
+          >
             Actualizar Datos
-          </button>
+          </Button>
         </div>
       </Card>
 
@@ -337,6 +493,99 @@ const Progreso: React.FC = () => {
           />
         )}
       </Card>
+
+      <Modal
+        title={progresoEditar ? 'Editar Registro de Progreso' : 'Nuevo Registro de Progreso'}
+        open={isModalOpen}
+        onCancel={() => !formLoading && setIsModalOpen(false)}
+        footer={null}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ marginTop: 16 }}>
+          <Form.Item
+            name="pacienteUsuarioId"
+            label="Paciente"
+            rules={[{ required: true, message: 'Selecciona un paciente' }]}
+          >
+            <Select
+              placeholder="Buscar por nombre..."
+              optionFilterProp="children"
+              showSearch
+              disabled={!!progresoEditar}
+              onChange={handlePacienteChangeEnForm}
+            >
+              {pacientes.map((p) => (
+                <Option key={p.id} value={p.usuario?.id}>
+                  {p.usuario?.nombre} {p.usuario?.apellido}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="historialId"
+            label="Sesión clínica asociada"
+            rules={[{ required: true, message: 'Selecciona la sesión de historial clínico' }]}
+            extra={
+              historialesPaciente.length === 0 && !loadingHistoriales
+                ? 'Este paciente no tiene sesiones de historial clínico registradas todavía.'
+                : undefined
+            }
+          >
+            <Select loading={loadingHistoriales} placeholder="Selecciona una sesión">
+              {historialesPaciente.map((h) => (
+                <Option key={h.id} value={h.id}>
+                  {dayjs(h.fechaSesion).format('DD/MM/YYYY')} — {h.diagnostico}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="fecha"
+            label="Fecha del registro"
+            rules={[{ required: true, message: 'Selecciona la fecha' }]}
+            initialValue={dayjs()}
+          >
+            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+          </Form.Item>
+
+          <Form.Item
+            name="estadoEmocional"
+            label="Estado emocional"
+            rules={[{ required: true, message: 'Selecciona el estado emocional' }]}
+          >
+            <Select placeholder="Selecciona un estado">
+              {ESTADOS_EMOCIONALES.map((estado) => (
+                <Option key={estado} value={estado}>
+                  {estado}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="avance"
+            label="Avance (%)"
+            rules={[{ required: true, message: 'Ingresa el porcentaje de avance' }]}
+          >
+            <InputNumber min={0} max={100} style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item name="observaciones" label="Observaciones">
+            <TextArea rows={3} placeholder="Notas adicionales (opcional)" />
+          </Form.Item>
+
+          <Form.Item style={{ textAlign: 'right', marginBottom: 0 }}>
+            <Button onClick={() => setIsModalOpen(false)} style={{ marginRight: 8 }} disabled={formLoading}>
+              Cancelar
+            </Button>
+            <Button type="primary" htmlType="submit" loading={formLoading}>
+              Guardar
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

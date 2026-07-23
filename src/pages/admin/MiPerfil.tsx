@@ -103,8 +103,9 @@ export const MiPerfil: React.FC = () => {
       }
 
       try {
-        const resProgreso = paciente?.id
-          ? await progresoService.getByPaciente(paciente.id)
+        const usuarioId = paciente?.usuario?.id || paciente?.usuarioId;
+        const resProgreso = usuarioId
+          ? await progresoService.getByPaciente(usuarioId)
           : [];
         setTotalProgreso((resProgreso || []).length);
       } catch (e) {
