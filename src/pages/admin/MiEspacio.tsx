@@ -157,8 +157,9 @@ export const MiEspacio: React.FC = () => {
 
       // Cargar progreso emocional
       try {
-        if (dataPac?.id) {
-          const resProgreso = await progresoService.getByPaciente(dataPac.id);
+        const usuarioId = dataPac?.usuario?.id || dataPac?.usuarioId;
+        if (usuarioId) {
+          const resProgreso = await progresoService.getByPaciente(usuarioId);
           setProgreso(resProgreso || []);
         } else {
           const resProgresoGen = await progresoService.getAll();
