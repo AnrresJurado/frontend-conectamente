@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           source: "dist/*"
-          target: "/tmp/react_build"
+          target: "/tmp/frontend_build"
 
       - name: Activate build on VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -45,11 +45,10 @@ jobs:
           key: ${{ secrets.VPS_KEY }}
           script: |
             set -e
-            mkdir -p /var/www/react-app
-            rm -rf /var/www/react-app/*
-            cp -r /tmp/react_build/dist/* /var/www/react-app/
+            rm -rf /var/www/frontend-conectamente/dist/*
+            cp -r /tmp/frontend_build/dist/* /var/www/frontend-conectamente/dist/
+            rm -rf /tmp/frontend_build
 
-            chown -R www-data:www-data /var/www/react-app
-
-            nginx -t
-            systemctl reload nginx
+            # No hace falta chown ni reload de nginx:
+            # /var/www/frontend-conectamente es propiedad de azureuser (mismo usuario del deploy)
+            # y nginx sirve estos archivos estaticos sin necesitar recarga.
