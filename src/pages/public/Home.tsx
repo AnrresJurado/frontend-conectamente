@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Layout,
@@ -26,13 +26,20 @@ import {
 } from "@ant-design/icons";
 import Logo from "../../components/Logo";
 
-import imgHero from "../../assets/home/hero.png";
+// 🎯 IMPORTACIÓN DE TODAS LAS IMÁGENES HERO
+import imgHero1 from "../../assets/home/hero.png";
+import imgHero2 from "../../assets/home/hero2.png";
+import imgHero3 from "../../assets/home/hero3.png";
+import imgHero4 from "../../assets/home/hero4.png";
+
 import imgAtencion from "../../assets/home/atencion-psicologica.jpeg";
 import imgAgenda from "../../assets/home/agenda-flexible.png";
 import imgComunicacion from "../../assets/home/comunicacion-segura.jpeg";
 
 const { Header, Content, Footer } = Layout;
 const { Title, Paragraph } = Typography;
+
+const HERO_IMAGES = [imgHero1, imgHero2, imgHero3, imgHero4];
 
 const SERVICIOS_DESTACADOS = [
   {
@@ -55,7 +62,6 @@ const SERVICIOS_DESTACADOS = [
   },
 ];
 
-// Ítems del menú principal (compartidos entre el header de escritorio y el drawer móvil)
 const NAV_ITEMS = [
   { key: "servicios", label: "Servicios", path: "/servicios", icon: <TeamOutlined /> },
   { key: "recursos", label: "Recursos", path: "/recursos", icon: <ReadOutlined /> },
@@ -67,6 +73,17 @@ const Home = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // 🎯 Estado para el índice del slide de imágenes Hero
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  // 🎯 Cambia la imagen automáticamente cada 5 segundos
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((prevIndex) => (prevIndex + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSearch = () => {
     alert(`Buscando recursos para: ${searchQuery}`);
@@ -81,6 +98,71 @@ const Home = () => {
     <Layout style={{ background: "#f4f9f9", fontFamily: "'Inter', sans-serif" }}>
 
       <style>{`
+        /* ===== ESTILOS DEL CAROUSEL Y TRANSICIÓN DE IMÁGENES HERO ===== */
+        .cm-hero-slider-container {
+          position: relative;
+          height: 75vh;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 0 10%;
+          background: #12414a; /* Fondo elegante mientras carga */
+        }
+
+        .cm-hero-slide-bg {
+          position: absolute;
+          inset: 0;
+          background-size: cover;
+          background-position: center;
+          opacity: 0;
+          transition: opacity 1.8s ease-in-out, transform 6s cubic-bezier(0.25, 1, 0.5, 1);
+          transform: scale(1.05);
+          z-index: 1;
+        }
+
+        .cm-hero-slide-bg.active {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        /* Indicadores tipo puntos (dots) en la parte inferior del Hero */
+        .cm-hero-dots {
+          position: absolute;
+          bottom: 24px;
+          left: 10%;
+          z-index: 10;
+          display: flex;
+          gap: 10px;
+        }
+
+        .cm-hero-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.4);
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .cm-hero-dot.active {
+          background: #00838f;
+          width: 32px;
+          border-radius: 8px;
+          border-color: #4da6b0;
+          box-shadow: 0 0 10px rgba(77, 166, 176, 0.6);
+        }
+
+        /* Contenido por encima de las imágenes */
+        .cm-hero-content-inner {
+          position: relative;
+          z-index: 2;
+          max-width: 600px;
+          text-align: left;
+        }
+
+        /* ===== FLIP CARDS ===== */
         .cm-flip-container {
           perspective: 1200px;
           height: 220px;
@@ -202,7 +284,7 @@ const Home = () => {
         }
       `}</style>
 
-      {/* ================= HEADER (Estilo Mente Sana) ================= */}
+      {/* ================= HEADER ================= */}
       <Header
         className="cm-header-inner"
         style={{
@@ -220,10 +302,8 @@ const Home = () => {
           height: 80,
         }}
       >
-        {/* LOGO */}
         <Logo size={40} onClick={() => navigate("/")} />
 
-        {/* MENU DE ESCRITORIO */}
         <nav
           className="cm-desktop-menu"
           style={{
@@ -243,7 +323,6 @@ const Home = () => {
           ))}
         </nav>
 
-        {/* ACCIONES (Iniciar sesión + botón hamburguesa) */}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Button
             size="large"
@@ -282,7 +361,7 @@ const Home = () => {
         </div>
       </Header>
 
-      {/* DRAWER DE NAVEGACIÓN MÓVIL */}
+      {/* DRAWER MÓVIL */}
       <Drawer
         placement="right"
         onClose={() => setDrawerOpen(false)}
@@ -324,20 +403,31 @@ const Home = () => {
       {/* ================= CONTENT ================= */}
       <Content style={{ marginTop: 80 }}>
 
-        {/* 1. HERO SECTION */}
-        <section
-          style={{
-            height: "75vh",
-            backgroundImage: `linear-gradient(to right, rgba(29, 88, 99, 0.5), rgba(255, 255, 255, 0.1)), url(${imgHero})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            padding: "0 10%"
-          }}
-        >
-          <div style={{ maxWidth: 600, textAlign: "left" }}>
+        {/* 1. HERO SECTION CON CAROUSEL DE IMÁGENES (hero.png, hero2.png, hero3.png, hero4.png) */}
+        <section className="cm-hero-slider-container">
+          {HERO_IMAGES.map((imgSrc, index) => (
+            <div
+              key={index}
+              className={`cm-hero-slide-bg ${index === heroIndex ? "active" : ""}`}
+              style={{
+                backgroundImage: `linear-gradient(to right, rgba(29, 88, 99, 0.55), rgba(255, 255, 255, 0.15)), url(${imgSrc})`,
+              }}
+            />
+          ))}
+
+          {/* Indicadores interactivos (Puntos) */}
+          <div className="cm-hero-dots">
+            {HERO_IMAGES.map((_, index) => (
+              <span
+                key={index}
+                className={`cm-hero-dot ${index === heroIndex ? "active" : ""}`}
+                onClick={() => setHeroIndex(index)}
+              />
+            ))}
+          </div>
+
+          {/* Contenido fijo frontal */}
+          <div className="cm-hero-content-inner">
             <Title
               style={{
                 color: "#ffffff",
@@ -407,7 +497,6 @@ const Home = () => {
         <section style={{ padding: "40px 60px 80px", background: "#eef7f7" }}>
           <Row gutter={[24, 24]} justify="center" style={{ display: "flex" }}>
             
-            {/* Terapia Online */}
             <Col xs={24} sm={12} md={6} style={{ display: "flex" }}>
               <Card hoverable style={styles.serviceCard}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
@@ -425,8 +514,6 @@ const Home = () => {
               </Card>
             </Col>
 
-
-            {/* Únete como Psicólogo */}
             <Col xs={24} sm={12} md={6} style={{ display: "flex" }}>
               <Card hoverable style={styles.serviceCard}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
@@ -444,7 +531,6 @@ const Home = () => {
               </Card>
             </Col>
 
-            {/* Seguimiento y bienestar */}
             <Col xs={24} sm={12} md={6} style={{ display: "flex" }}>
               <Card hoverable style={styles.serviceCard}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
@@ -465,20 +551,17 @@ const Home = () => {
           </Row>
         </section>
 
-        {/* 4. RECURSOS DESTACADOS (Flip Cards con imágenes locales) */}
+        {/* 4. RECURSOS DESTACADOS (Flip Cards) */}
         <section style={{ padding: "60px 60px 100px", background: "#ffffff" }}>
           <Title level={3} style={{ textAlign: "center", color: "#1c3c42", marginBottom: 40, fontWeight: 800 }}>
             Servicios Destacados
           </Title>
 
           <Row gutter={[24, 24]} justify="center">
-
             {SERVICIOS_DESTACADOS.map((s) => (
               <Col xs={24} md={8} key={s.titulo}>
                 <div className="cm-flip-container">
                   <div className="cm-flip-inner">
-
-                    {/* CARA FRONTAL - imagen */}
                     <div
                       className="cm-flip-front"
                       style={{
@@ -493,7 +576,6 @@ const Home = () => {
                       </Title>
                     </div>
 
-                    {/* CARA TRASERA - información */}
                     <div className="cm-flip-back">
                       <Title level={5} style={{ color: "#ffffff", margin: "0 0 10px", fontWeight: 700 }}>
                         {s.titulo}
@@ -502,25 +584,20 @@ const Home = () => {
                         {s.descripcion}
                       </Paragraph>
                     </div>
-
                   </div>
                 </div>
               </Col>
             ))}
-
           </Row>
         </section>
 
       </Content>
 
-      {/* ================= FOOTER (simplificado) ================= */}
+      {/* ================= FOOTER ================= */}
       <Footer style={{ background: "#1d5863", color: "#ffffff", padding: "60px 60px 30px" }}>
         <Row gutter={[40, 32]} justify="space-between">
 
-          {/* Columna Marca */}
           <Col xs={24} md={12}>
-            
-
             <Paragraph 
               style={{ 
                 color: "#bce3e6", 
@@ -533,14 +610,8 @@ const Home = () => {
               Plataforma digital que conecta pacientes y profesionales de la salud mental,
               ofreciendo un espacio seguro para la atención psicológica y el acompañamiento emocional.
             </Paragraph>
-
-            {/* Redes sociales */}
-            <div style={{ marginTop: 25 }}>
-              
-            </div>
           </Col>
 
-          {/* Columna Contacto */}
           <Col xs={24} md={10}>
             <Title level={5} style={{ color: "#ffffff", marginTop: 0, marginBottom: 16, fontWeight: 700 }}>
               Contacto
@@ -581,7 +652,6 @@ const Home = () => {
 
         </Row>
 
-        {/* Copyright */}
         <div
           style={{
             marginTop: 50,
@@ -600,7 +670,6 @@ const Home = () => {
   );
 };
 
-// --- ESTILOS EN JS ---
 const styles: { [key: string]: React.CSSProperties } = {
   serviceCard: {
     borderRadius: "16px",
