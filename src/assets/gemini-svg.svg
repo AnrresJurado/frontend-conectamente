@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Gradiente de fondo con los colores de ConectaMente -->
+    <linearGradient id="cmBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d5863" />
+      <stop offset="100%" stop-color="#4da6b0" />
+    </linearGradient>
+    
+    <!-- Sombra suave para el icono blanco -->
+    <filter id="cmShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Fondo circular redondeado tipo App Icon -->
+  <rect width="512" height="512" rx="128" fill="url(#cmBg)" />
+
+  <!-- Silueta de la Mente / Cerebro Conectado -->
+  <g filter="url(#cmShadow)" fill="#ffffff">
+    <!-- Cabeza / Mente limpia -->
+    <path d="M256,96 C176.47,96 112,160.47 112,240 C112,292.84 140.48,339.02 182.72,364.12 C189.65,368.23 194,375.69 194,383.74 L194,400 C194,408.84 201.16,416 210,416 L302,416 C310.84,416 318,408.84 318,400 L318,383.74 C318,375.69 322.35,368.23 329.28,364.12 C371.52,339.02 400,292.84 400,240 C400,160.47 335.53,96 256,96 Z M256,368 L226,368 L226,336 L286,336 L286,368 Z" />
+    
+    <!-- Nodo de Conexión / Chispa de Salud Mental en el centro -->
+    <circle cx="256" cy="216" r="28" fill="#bce3e6" />
+    <path d="M256,152 L256,172 M256,260 L256,280 M192,216 L212,216 M300,216 L320,216 M211,171 L225,185 M287,247 L301,261 M211,261 L225,247 M287,185 L301,171" stroke="#bce3e6" stroke-width="12" stroke-linecap="round" />
+  </g>
+</svg>
