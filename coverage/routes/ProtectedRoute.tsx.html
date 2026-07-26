@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for services/perfilService.ts</title>
+    <title>Code coverage report for routes/ProtectedRoute.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">services</a> perfilService.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">routes</a> ProtectedRoute.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
@@ -92,19 +92,7 @@
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
-<a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -112,48 +100,57 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import api from '../api/axiosConfig';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 &nbsp;
-export interface Perfil {
-  id: string;
-  nombre: string;
-  apellido: string;
-  email: string;
-  rol: string;
-  activo: boolean;
-  [key: string]: any;
+interface ProtectedRouteProps {
+  allowedRoles?: Array&lt;'ADMIN' | 'PSICOLOGO' | 'PACIENTE'&gt;;
 }
 &nbsp;
-export interface UpdatePerfilPayload {
-  nombre?: string;
-  apellido?: string;
-  password?: string;
-}
+const ProtectedRoute: React.FC&lt;ProtectedRouteProps&gt; = ({ allowedRoles }) =&gt; {
+  const { user, loading } = useAuth();
 &nbsp;
-export const perfilService = {
-  // GET /perfil - Trae los datos del usuario autenticado (extraídos del JWT)
-  getMe: async () =&gt; {
-    const { data } = await api.get&lt;Perfil&gt;('/perfil');
-    return data;
-  },
+  // Mientras valida si hay token guardado, muestra un estado de carga
+  if (loading) {
+    return &lt;div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}&gt;Cargando ConectaMente...&lt;/div&gt;;
+  }
 &nbsp;
-  // PATCH /perfil - Actualiza nombre / apellido / password del usuario autenticado
-  update: async (payload: UpdatePerfilPayload) =&gt; {
-    const { data } = await api.patch&lt;Perfil&gt;('/perfil', payload);
-    return data;
-  },
-};</pre></td></tr></table></pre>
+  // Si no está autenticado, redirige a la página pública de Login
+  if (!user) {
+    return &lt;Navigate to="/login" replace /&gt;;
+  }
+&nbsp;
+  // Si la ruta requiere roles específicos y el usuario no lo tiene, lo manda al Dashboard base
+  if (allowedRoles &amp;&amp; !allowedRoles.includes(user.rol)) {
+    return &lt;Navigate to="/dashboard" replace /&gt;;
+  }
+&nbsp;
+  // Si todo está bien, renderiza los componentes hijos (la página privada)
+  return &lt;Outlet /&gt;;
+};
+&nbsp;
+export default ProtectedRoute;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->

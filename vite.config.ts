@@ -16,7 +16,12 @@ export default defineConfig({
       },
       include: [
         'src/services/**',
-        'src/api/**'
+        'src/api/**',
+        'src/components',
+        'src/contexts',
+        'src/hooks',
+        'src/routes',
+        'src/test'
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',
