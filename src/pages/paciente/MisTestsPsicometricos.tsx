@@ -253,20 +253,35 @@ const MisTestsPsicometricos: React.FC = () => {
                   </div>
                 </div>
                 
-                {isDisponible ? (
-                  <Button 
-                    type="primary" 
-                    icon={completado ? <CheckCircleFilled /> : <SendOutlined />}
-                    onClick={() => iniciarTest(test.id)}
-                    disabled={completado}
+                {completado ? (
+                  <Button
+                    type="primary"
+                    icon={<CheckCircleFilled />}
+                    disabled
                     style={{
                       borderRadius: 10,
                       fontWeight: 600,
-                      background: completado ? undefined : PALETTE.primary,
-                      borderColor: completado ? undefined : PALETTE.primary,
+                      background: PALETTE.success,
+                      borderColor: PALETTE.success,
+                      opacity: 1,
+                      color: '#fff',
                     }}
                   >
-                    {completado ? 'Test Completado' : 'Comenzar Test'}
+                    Test Completado
+                  </Button>
+                ) : isDisponible ? (
+                  <Button
+                    type="primary"
+                    icon={<SendOutlined />}
+                    onClick={() => iniciarTest(test.id)}
+                    style={{
+                      borderRadius: 10,
+                      fontWeight: 600,
+                      background: PALETTE.primary,
+                      borderColor: PALETTE.primary,
+                    }}
+                  >
+                    Comenzar Test
                   </Button>
                 ) : (
                   <Tag style={{ borderRadius: 999, padding: '4px 12px', color: PALETTE.textMuted }}>

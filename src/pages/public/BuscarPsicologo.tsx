@@ -57,6 +57,12 @@ const BuscarPsicologo: React.FC = () => {
 
   const handleEnviar = async () => {
     if (!psicologoSeleccionado) return;
+
+    if (!mensaje.trim()) {
+      message.warning('Por favor cuéntanos brevemente el motivo de tu consulta antes de enviar la solicitud.');
+      return;
+    }
+
     setEnviando(true);
     try {
       await solicitudesService.enviar(psicologoSeleccionado.id, mensaje);

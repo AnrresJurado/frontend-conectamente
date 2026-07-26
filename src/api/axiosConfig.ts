@@ -25,7 +25,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError): Promise<AxiosError> => {
-    if (error.response && error.response.status === 401) {
+    // El propio intento de login no debe disparar este manejo: un 401 aquí es
+    // "credenciales inválidas", no una sesión expirada, y Login.tsx ya lo maneja
+    // con su propio try/catch. Forzar la redirección aquí recargaba la página
+    // completa y borraba el mensaje de error antes de que el usuario lo viera.
+    const esLogin = error.config?.url?.includes('/auth/login');
+    if (error.response && error.response.status === 401 && !esLogin) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
